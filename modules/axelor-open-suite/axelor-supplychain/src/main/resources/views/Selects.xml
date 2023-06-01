@@ -44,7 +44,7 @@
   </selection>
 
   <selection name="supplychain.mrp.line.related.to.select">
-    <option value="com.axelor.apps.sale.db.SaleOrderLine">Sale order line</option>
+    <option value="com.axelor.apps.sale.db.DeclarationLine">Sale order line</option>
     <option value="com.axelor.apps.purchase.db.PurchaseOrderLine">Purchase order line</option>
     <option value="com.axelor.apps.supplychain.db.MrpForecast">Sale forecast</option>
   </selection>

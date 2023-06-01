@@ -95,11 +95,11 @@
   <!-- Sales -->
 
   <action-view name="action-project-dashlet-sale-quotation" title="Quotation"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="grid" name="sale-order-quotation-grid"/>
     <view type="form" name="sale-order-form"/>
     <view-param name="popup" value="true"/>
-    <domain>self.saleOrderLineList.project.id in (:_projectIds) AND self.statusSelect &lt; 3</domain>
+    <domain>self.declarationLineList.project.id in (:_projectIds) AND self.statusSelect &lt; 3</domain>
     <context if="id == null" name="_projectIds" expr="eval:[0]"/>
     <context if="id != null &amp;&amp; !isShowPhasesElements" name="_projectIds"
       expr="eval:[id]"/>
@@ -108,11 +108,11 @@
   </action-view>
 
   <action-view name="action-project-dashlet-sale-order" title="Sale order"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="grid" name="sale-order-grid"/>
     <view type="form" name="sale-order-form"/>
     <view-param name="popup" value="true"/>
-    <domain>self.saleOrderLineList.project.id in (:_projectIds) AND self.statusSelect in (3,4)</domain>
+    <domain>self.declarationLineList.project.id in (:_projectIds) AND self.statusSelect in (3,4)</domain>
     <context if="id == null" name="_projectIds" expr="eval:[0]"/>
     <context if="id != null &amp;&amp; !isShowPhasesElements" name="_projectIds"
       expr="eval:[id]"/>
@@ -121,7 +121,7 @@
   </action-view>
 
   <action-view name="action-project-view-show-sale-order-lines" title="Sale Order Lines"
-    model="com.axelor.apps.sale.db.SaleOrderLine">
+    model="com.axelor.apps.sale.db.DeclarationLine">
     <view type="grid" name="sale-order-line-project-grid"/>
     <view type="form" name="sale-order-line-project-form"/>
     <domain>self.project.id in (:_projectIds)</domain>
@@ -133,11 +133,11 @@
   </action-view>
 
   <action-view name="action-project-view-show-confirmed-sale-order-lines"
-    title="Sale Order Lines" model="com.axelor.apps.sale.db.SaleOrderLine">
+    title="Sale Order Lines" model="com.axelor.apps.sale.db.DeclarationLine">
     <view type="grid" name="sale-order-line-project-grid"/>
     <view type="form" name="sale-order-line-project-form"/>
     <view-param name="popup" value="true"/>
-    <domain>self.saleOrder.statusSelect in (3,4) AND self.project.id in (:_projectIds)</domain>
+    <domain>self.declaration.statusSelect in (3,4) AND self.project.id in (:_projectIds)</domain>
     <context if="id == null" name="_projectIds" expr="eval:[0]"/>
     <context if="id != null &amp;&amp; !isShowPhasesElements" name="_projectIds"
       expr="eval:[id]"/>
@@ -150,7 +150,7 @@
     <view type="grid" name="stock-move-out-grid"/>
     <view type="form" name="stock-move-form"/>
     <view-param name="popup" value="true"/>
-    <domain>self.stockMoveLineList.saleOrderLine.project.id in (:_projectIds)</domain>
+    <domain>self.stockMoveLineList.declarationLine.project.id in (:_projectIds)</domain>
     <context if="id == null" name="_projectIds" expr="eval:[0]"/>
     <context if="id != null &amp;&amp; !isShowPhasesElements" name="_projectIds"
       expr="eval:[id]"/>
@@ -168,7 +168,7 @@
     <attribute name="title" for="$salesOrderLineSet"
       expr="eval:com.axelor.i18n.I18n.get('Select lines to add')"/>
     <attribute name="domain" for="$salesOrderLineSet"
-      expr="eval:&quot;self.saleOrder.clientPartner = :clientPartner AND self.saleOrder.statusSelect in (3,4) AND self.project is null&quot;"/>
+      expr="eval:&quot;self.declaration.clientPartner = :clientPartner AND self.declaration.statusSelect in (3,4) AND self.project is null&quot;"/>
   </action-attrs>
 
   <action-attrs name="action-project-attrs-sales-order-line-manage-lines">
@@ -181,10 +181,10 @@
     <attribute name="title" for="$salesOrderLineSet"
       expr="eval:com.axelor.i18n.I18n.get('Select lines to unlink')"/>
     <attribute name="domain" for="$salesOrderLineSet"
-      expr="eval:&quot;self.saleOrder.statusSelect in (3,4) AND self.project.id = :id&quot;"
+      expr="eval:&quot;self.declaration.statusSelect in (3,4) AND self.project.id = :id&quot;"
       if="!isShowPhasesElements"/>
     <attribute name="domain" for="$salesOrderLineSet"
-      expr="eval:&quot;self.saleOrder.statusSelect in (3,4) AND (self.project.id = :id OR self.project.parentProject.id = :id)&quot;"
+      expr="eval:&quot;self.declaration.statusSelect in (3,4) AND (self.project.id = :id OR self.project.parentProject.id = :id)&quot;"
       if="isShowPhasesElements"/>
   </action-attrs>
 

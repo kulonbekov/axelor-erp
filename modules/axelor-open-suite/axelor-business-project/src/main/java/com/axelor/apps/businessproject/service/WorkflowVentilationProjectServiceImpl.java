@@ -38,12 +38,12 @@ import com.axelor.apps.hr.db.repo.TimesheetLineRepository;
 import com.axelor.apps.project.db.ProjectTask;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
 import com.axelor.apps.supplychain.service.AccountingSituationSupplychainService;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.apps.supplychain.service.StockMoveInvoiceService;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
 import com.axelor.apps.supplychain.service.config.SupplyChainConfigService;
@@ -65,9 +65,9 @@ public class WorkflowVentilationProjectServiceImpl
       InvoicePaymentRepository invoicePaymentRepo,
       InvoicePaymentCreateService invoicePaymentCreateService,
       InvoiceService invoiceService,
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
-      SaleOrderRepository saleOrderRepository,
+      DeclarationRepository declarationRepository,
       PurchaseOrderRepository purchaseOrderRepository,
       AccountingSituationSupplychainService accountingSituationSupplychainService,
       AppSupplychainService appSupplychainService,
@@ -86,9 +86,9 @@ public class WorkflowVentilationProjectServiceImpl
         invoicePaymentRepo,
         invoicePaymentCreateService,
         invoiceService,
-        saleOrderInvoiceService,
+        declarationInvoiceService,
         purchaseOrderInvoiceService,
-        saleOrderRepository,
+        declarationRepository,
         purchaseOrderRepository,
         accountingSituationSupplychainService,
         appSupplychainService,
@@ -117,8 +117,8 @@ public class WorkflowVentilationProjectServiceImpl
         invoicingProjectRepo.all().filter("self.invoice.id = ?", invoice.getId()).fetchOne();
 
     if (invoicingProject != null) {
-      for (SaleOrderLine saleOrderLine : invoicingProject.getSaleOrderLineSet()) {
-        saleOrderLine.setInvoiced(true);
+      for (DeclarationLine declarationLine : invoicingProject.getDeclarationLineSet()) {
+        declarationLine.setInvoiced(true);
       }
       for (PurchaseOrderLine purchaseOrderLine : invoicingProject.getPurchaseOrderLineSet()) {
         purchaseOrderLine.setInvoiced(true);

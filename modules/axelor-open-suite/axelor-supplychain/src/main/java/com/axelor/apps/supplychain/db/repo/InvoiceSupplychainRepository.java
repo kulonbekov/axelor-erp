@@ -33,13 +33,13 @@ public class InvoiceSupplychainRepository extends InvoiceManagementRepository {
   public Invoice copy(Invoice entity, boolean deep) {
     Invoice copy = super.copy(entity, deep);
 
-    copy.setSaleOrder(null);
+    copy.setDeclaration(null);
     copy.setPurchaseOrder(null);
     copy.setStockMoveSet(null);
 
     if (copy.getInvoiceLineList() != null && !copy.getInvoiceLineList().isEmpty()) {
       for (InvoiceLine line : copy.getInvoiceLineList()) {
-        line.setSaleOrderLine(null);
+        line.setDeclarationLine(null);
         line.setPurchaseOrderLine(null);
         line.setStockMoveLine(null);
         line.setOutgoingStockMove(null);

@@ -179,7 +179,7 @@
   <action-attrs if-module="axelor-supplychain"
     name="action-analytic-move-line-attrs-set-original-piece-amount">
     <attribute for="originalPieceAmount" name="value" expr="eval: __parent__.exTaxTotal"
-      if="__parent__ &amp;&amp; (__parent__._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__._model == 'com.axelor.apps.sale.db.SaleOrderLine' || __parent__._model == 'com.axelor.apps.account.db.InvoiceLine')"/>
+      if="__parent__ &amp;&amp; (__parent__._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__._model == 'com.axelor.apps.sale.db.DeclarationLine' || __parent__._model == 'com.axelor.apps.account.db.InvoiceLine')"/>
   </action-attrs>
 
   <action-attrs name="action-analytic-move-line-attrs-set-type-select">
@@ -187,7 +187,7 @@
       if="__parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' "
       expr="eval: AnalyticMoveLineRepository.STATUS_FORECAST_INVOICE"/>
     <attribute for="typeSelect" name="value"
-      if="__parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.SaleOrderLine'"
+      if="__parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.DeclarationLine'"
       expr="eval: AnalyticMoveLineRepository.STATUS_FORECAST_ORDER"/>
   </action-attrs>
 
@@ -195,9 +195,9 @@
     <attribute for="date" name="hidden"
       expr="eval: __parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' || __parent__?._model == 'com.axelor.apps.account.db.MoveLine'"/>
     <attribute for="typeSelect" name="hidden"
-      expr="eval: __parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' || __parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.SaleOrderLine'"/>
+      expr="eval: __parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' || __parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.DeclarationLine'"/>
     <attribute for="accountType" name="hidden"
-      expr="eval: __parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' || __parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.SaleOrderLine'"/>
+      expr="eval: __parent__?._model == 'com.axelor.apps.account.db.InvoiceLine' || __parent__?._model == 'com.axelor.apps.purchase.db.PurchaseOrderLine' || __parent__?._model == 'com.axelor.apps.sale.db.DeclarationLine'"/>
   </action-attrs>
 
   <action-group

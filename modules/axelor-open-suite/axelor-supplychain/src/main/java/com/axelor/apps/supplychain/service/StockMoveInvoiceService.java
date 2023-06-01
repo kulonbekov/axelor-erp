@@ -22,7 +22,7 @@ import com.axelor.apps.account.db.Invoice;
 import com.axelor.apps.account.db.InvoiceLine;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.purchase.db.PurchaseOrder;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.google.inject.persist.Transactional;
@@ -39,8 +39,8 @@ public interface StockMoveInvoiceService {
       throws AxelorException;
 
   @Transactional(rollbackOn = {Exception.class})
-  public Invoice createInvoiceFromSaleOrder(
-      StockMove stockMove, SaleOrder saleOrder, Map<Long, BigDecimal> qtyToInvoiceMap)
+  public Invoice createInvoiceFromDeclaration(
+      StockMove stockMove, Declaration declaration, Map<Long, BigDecimal> qtyToInvoiceMap)
       throws AxelorException;
 
   @Transactional(rollbackOn = {Exception.class})

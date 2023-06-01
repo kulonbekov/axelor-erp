@@ -147,19 +147,19 @@
   <menuitem name="sale-root-sale-orders-without-stock-move"
     title="Sale order without stock move" parent="sc-root-sale"
     action="sale.root.sale.orders.without.stock.move" order="700"
-    if="__config__.app.isApp('supplychain') &amp;&amp; __config__.app.getApp('supplychain')?.isSaleOrderWithoutOutgoingStockMove"/>
+    if="__config__.app.isApp('supplychain') &amp;&amp; __config__.app.getApp('supplychain')?.isDeclarationWithoutOutgoingStockMove"/>
 
   <action-view name="sale.root.sale.orders.without.stock.move"
-    title="Sale order without stock move" model="com.axelor.apps.sale.db.SaleOrder">
+    title="Sale order without stock move" model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-cards"/>
     <view type="grid" name="sale-order-grid"/>
     <view type="calendar" name="sale-order-calendar"/>
     <view type="form" name="sale-order-form"/>
     <view-param name="search-filters" value="sale-order-filters"/>
-    <domain>self.statusSelect = 3 AND self IN (select s.saleOrder from SaleOrderLine as s where
+    <domain>self.statusSelect = 3 AND self IN (select s.declaration from DeclarationLine as s where
       s.deliveryState != 3 AND s.product.productTypeSelect = 'storable' AND s.product.stockManaged =
       true) AND self.id NOT IN (SELECT s.originId FROM StockMove s WHERE s.originTypeSelect LIKE
-      'com.axelor.apps.sale.db.SaleOrder' AND s.statusSelect = 2)</domain>
+      'com.axelor.apps.sale.db.Declaration' AND s.statusSelect = 2)</domain>
   </action-view>
 
   <menuitem name="sale-configuration-timetable-template" title="Timetable templates"

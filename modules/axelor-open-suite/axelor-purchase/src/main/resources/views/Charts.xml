@@ -355,7 +355,7 @@
       _month
     </dataset>
     <category key="_month" type="month" title="Month"/>
-    <series key="_orders" type="bar" title="ChartPO.saleOrder"/>
+    <series key="_orders" type="bar" title="ChartPO.declaration"/>
     <config name="xFormat" value="MM-YYYY"/>
   </chart>
 

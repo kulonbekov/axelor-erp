@@ -20,14 +20,14 @@ package com.axelor.apps.supplychain.service.invoice;
 
 import com.axelor.apps.account.db.Invoice;
 import com.axelor.apps.base.AxelorException;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import java.util.List;
 
 public interface SubscriptionInvoiceService {
 
   public List<Invoice> generateSubscriptionInvoices() throws AxelorException;
 
-  public List<SaleOrder> getSubscriptionOrders(Integer limit);
+  public List<Declaration> getSubscriptionOrders(Integer limit);
 
-  public Invoice generateSubscriptionInvoice(SaleOrder saleOrder) throws AxelorException;
+  public Invoice generateSubscriptionInvoice(Declaration declaration) throws AxelorException;
 }

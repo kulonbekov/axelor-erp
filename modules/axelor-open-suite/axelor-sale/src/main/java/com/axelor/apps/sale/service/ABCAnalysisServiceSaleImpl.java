@@ -33,9 +33,9 @@ import com.axelor.apps.base.db.repo.ProductRepository;
 import com.axelor.apps.base.service.ABCAnalysisServiceImpl;
 import com.axelor.apps.base.service.UnitConversionService;
 import com.axelor.apps.base.service.administration.SequenceService;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.db.JPA;
 import com.axelor.db.Query;
 import com.google.inject.Inject;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ABCAnalysisServiceSaleImpl extends ABCAnalysisServiceImpl {
-  protected SaleOrderLineRepository saleOrderLineRepository;
+  protected DeclarationLineRepository declarationLineRepository;
 
   private static final String SELLABLE_TRUE = " AND self.sellable = TRUE";
 
@@ -54,7 +54,7 @@ public class ABCAnalysisServiceSaleImpl extends ABCAnalysisServiceImpl {
       UnitConversionService unitConversionService,
       ABCAnalysisRepository abcAnalysisRepository,
       ProductRepository productRepository,
-      SaleOrderLineRepository saleOrderLineRepository,
+      DeclarationLineRepository declarationLineRepository,
       ABCAnalysisClassRepository abcAnalysisClassRepository,
       SequenceService sequenceService) {
     super(
@@ -64,7 +64,7 @@ public class ABCAnalysisServiceSaleImpl extends ABCAnalysisServiceImpl {
         productRepository,
         abcAnalysisClassRepository,
         sequenceService);
-    this.saleOrderLineRepository = saleOrderLineRepository;
+    this.declarationLineRepository = declarationLineRepository;
   }
 
   @Override
@@ -73,16 +73,16 @@ public class ABCAnalysisServiceSaleImpl extends ABCAnalysisServiceImpl {
     ABCAnalysisLine abcAnalysisLine = null;
     BigDecimal productQty = BigDecimal.ZERO;
     BigDecimal productWorth = BigDecimal.ZERO;
-    List<SaleOrderLine> saleOrderLineList;
+    List<DeclarationLine> declarationLineList;
     int offset = 0;
 
-    Query<SaleOrderLine> saleOrderLineQuery =
-        saleOrderLineRepository
+    Query<DeclarationLine> declarationLineQuery =
+        declarationLineRepository
             .all()
             .filter(
-                "(self.saleOrder.statusSelect = :statusConfirmed OR self.saleOrder.statusSelect = :statusCompleted) AND self.saleOrder.confirmationDateTime >= :startDate AND self.saleOrder.confirmationDateTime <= :endDate AND self.product.id = :productId")
-            .bind("statusConfirmed", SaleOrderRepository.STATUS_ORDER_CONFIRMED)
-            .bind("statusCompleted", SaleOrderRepository.STATUS_ORDER_COMPLETED)
+                "(self.declaration.statusSelect = :statusConfirmed OR self.declaration.statusSelect = :statusCompleted) AND self.declaration.confirmationDateTime >= :startDate AND self.declaration.confirmationDateTime <= :endDate AND self.product.id = :productId")
+            .bind("statusConfirmed", DeclarationRepository.STATUS_ORDER_CONFIRMED)
+            .bind("statusCompleted", DeclarationRepository.STATUS_ORDER_COMPLETED)
             .bind("startDate", toLocalDateT(toDate(abcAnalysis.getStartDate())))
             .bind(
                 "endDate",
@@ -93,20 +93,20 @@ public class ABCAnalysisServiceSaleImpl extends ABCAnalysisServiceImpl {
             .bind("productId", product.getId())
             .order("id");
 
-    while (!(saleOrderLineList = saleOrderLineQuery.fetch(FETCH_LIMIT, offset)).isEmpty()) {
-      offset += saleOrderLineList.size();
+    while (!(declarationLineList = declarationLineQuery.fetch(FETCH_LIMIT, offset)).isEmpty()) {
+      offset += declarationLineList.size();
       abcAnalysis = abcAnalysisRepository.find(abcAnalysis.getId());
 
       if (abcAnalysisLine == null) {
         abcAnalysisLine = super.createABCAnalysisLine(abcAnalysis, product).get();
       }
 
-      for (SaleOrderLine saleOrderLine : saleOrderLineList) {
+      for (DeclarationLine declarationLine : declarationLineList) {
         BigDecimal convertedQty =
             unitConversionService.convert(
-                saleOrderLine.getUnit(), product.getUnit(), saleOrderLine.getQty(), 5, product);
+                declarationLine.getUnit(), product.getUnit(), declarationLine.getQty(), 5, product);
         productQty = productQty.add(convertedQty);
-        productWorth = productWorth.add(saleOrderLine.getCompanyExTaxTotal());
+        productWorth = productWorth.add(declarationLine.getCompanyExTaxTotal());
       }
 
       super.incTotalQty(productQty);

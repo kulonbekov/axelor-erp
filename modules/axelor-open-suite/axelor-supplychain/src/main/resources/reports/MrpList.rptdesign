@@ -811,7 +811,7 @@ left join supplychain_mrp_product_family_set as MTM on (ProductFamily.id = MTM.p
 left join supplychain_mrp as Mrp on (Mrp.id = MTM.supplychain_mrp)
 where Mrp.id = ?]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="SaleOrderLineDS" id="3916">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DeclarationLineDS" id="3916">
             <property name="nullsOrdering">nulls lowest</property>
             <list-property name="columnHints">
                 <structure>
@@ -3113,7 +3113,7 @@ order by Product.code ASC, MrpLine.maturity_date ASC, MrpLineType.type_select AS
                     <property name="fontFamily">sans-serif</property>
                     <property name="verticalAlign">bottom</property>
                     <table id="4006">
-                        <property name="dataSet">SaleOrderLineDS</property>
+                        <property name="dataSet">DeclarationLineDS</property>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">all</property>
@@ -3289,7 +3289,7 @@ order by Product.code ASC, MrpLine.maturity_date ASC, MrpLineType.type_select AS
                                             <structure>
                                                 <property name="paramName">param_1</property>
                                                 <simple-property-list name="expression">
-                                                    <value type="javascript">'MrpList.saleOrdersTitle'</value>
+                                                    <value type="javascript">'MrpList.declarationsTitle'</value>
                                                 </simple-property-list>
                                             </structure>
                                         </list-property>

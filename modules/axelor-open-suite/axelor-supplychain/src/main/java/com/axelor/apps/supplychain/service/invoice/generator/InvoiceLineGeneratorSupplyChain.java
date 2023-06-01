@@ -39,8 +39,8 @@ import com.axelor.apps.base.service.UnitConversionService;
 import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.base.service.tax.AccountManagementService;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
@@ -54,7 +54,7 @@ import org.apache.commons.collections.CollectionUtils;
 /** Classe de création de ligne de facture abstraite. */
 public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerator {
 
-  protected SaleOrderLine saleOrderLine;
+  protected DeclarationLine declarationLine;
   protected PurchaseOrderLine purchaseOrderLine;
   protected StockMoveLine stockMoveLine;
 
@@ -78,7 +78,7 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
       BigDecimal exTaxTotal,
       BigDecimal inTaxTotal,
       boolean isTaxInvoice,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       PurchaseOrderLine purchaseOrderLine,
       StockMoveLine stockMoveLine) {
     super(
@@ -98,7 +98,7 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
         exTaxTotal,
         inTaxTotal,
         isTaxInvoice);
-    this.saleOrderLine = saleOrderLine;
+    this.declarationLine = declarationLine;
     this.purchaseOrderLine = purchaseOrderLine;
     this.stockMoveLine = stockMoveLine;
     this.appBaseService = Beans.get(AppBaseService.class);
@@ -114,33 +114,33 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
       Unit unit,
       int sequence,
       boolean isTaxInvoice,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       PurchaseOrderLine purchaseOrderLine,
       StockMoveLine stockMoveLine)
       throws AxelorException {
 
     super(invoice, product, productName, description, qty, unit, sequence, isTaxInvoice);
 
-    this.saleOrderLine = saleOrderLine;
+    this.declarationLine = declarationLine;
     this.purchaseOrderLine = purchaseOrderLine;
     this.stockMoveLine = stockMoveLine;
     this.appBaseService = Beans.get(AppBaseService.class);
     this.unitConversionService = Beans.get(UnitConversionService.class);
 
-    if (saleOrderLine != null) {
-      this.discountAmount = saleOrderLine.getDiscountAmount();
-      this.price = saleOrderLine.getPrice();
-      this.inTaxPrice = saleOrderLine.getInTaxPrice();
-      if (this.unit != null && !this.unit.equals(saleOrderLine.getUnit())) {
+    if (declarationLine != null) {
+      this.discountAmount = declarationLine.getDiscountAmount();
+      this.price = declarationLine.getPrice();
+      this.inTaxPrice = declarationLine.getInTaxPrice();
+      if (this.unit != null && !this.unit.equals(declarationLine.getUnit())) {
         this.qty =
             unitConversionService.convert(
-                this.unit, saleOrderLine.getUnit(), qty, qty.scale(), product);
-        this.unit = saleOrderLine.getUnit();
+                this.unit, declarationLine.getUnit(), qty, qty.scale(), product);
+        this.unit = declarationLine.getUnit();
       }
-      this.priceDiscounted = saleOrderLine.getPriceDiscounted();
-      this.taxLine = saleOrderLine.getTaxLine();
-      this.discountTypeSelect = saleOrderLine.getDiscountTypeSelect();
-      this.typeSelect = saleOrderLine.getTypeSelect();
+      this.priceDiscounted = declarationLine.getPriceDiscounted();
+      this.taxLine = declarationLine.getTaxLine();
+      this.discountTypeSelect = declarationLine.getDiscountTypeSelect();
+      this.typeSelect = declarationLine.getTypeSelect();
     } else if (purchaseOrderLine != null) {
       if (purchaseOrderLine.getIsTitleLine()) {
         this.typeSelect = InvoiceLineRepository.TYPE_TITLE;
@@ -199,20 +199,20 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
 
     List<AnalyticMoveLine> analyticMoveLineList = null;
 
-    if (saleOrderLine != null) {
+    if (declarationLine != null) {
 
-      switch (saleOrderLine.getTypeSelect()) {
-        case SaleOrderLineRepository.TYPE_END_OF_PACK:
-          invoiceLine.setIsHideUnitAmounts(saleOrderLine.getIsHideUnitAmounts());
-          invoiceLine.setIsShowTotal(saleOrderLine.getIsShowTotal());
+      switch (declarationLine.getTypeSelect()) {
+        case DeclarationLineRepository.TYPE_END_OF_PACK:
+          invoiceLine.setIsHideUnitAmounts(declarationLine.getIsHideUnitAmounts());
+          invoiceLine.setIsShowTotal(declarationLine.getIsShowTotal());
           break;
 
-        case SaleOrderLineRepository.TYPE_NORMAL:
-          if (saleOrderLine.getAnalyticDistributionTemplate() != null
-              || !ObjectUtils.isEmpty(saleOrderLine.getAnalyticMoveLineList())) {
+        case DeclarationLineRepository.TYPE_NORMAL:
+          if (declarationLine.getAnalyticDistributionTemplate() != null
+              || !ObjectUtils.isEmpty(declarationLine.getAnalyticMoveLineList())) {
             invoiceLine.setAnalyticDistributionTemplate(
-                saleOrderLine.getAnalyticDistributionTemplate());
-            this.copyAnalyticMoveLines(saleOrderLine.getAnalyticMoveLineList(), invoiceLine);
+                declarationLine.getAnalyticDistributionTemplate());
+            this.copyAnalyticMoveLines(declarationLine.getAnalyticMoveLineList(), invoiceLine);
             analyticMoveLineList =
                 invoiceLineAnalyticService.computeAnalyticDistribution(invoiceLine);
           } else {
@@ -283,7 +283,7 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
     if (!CollectionUtils.isEmpty(invoiceLine.getAnalyticMoveLineList())) {
       for (AnalyticMoveLine analyticMoveLine : invoiceLine.getAnalyticMoveLineList()) {
         analyticMoveLine.setPurchaseOrderLine(invoiceLine.getPurchaseOrderLine());
-        analyticMoveLine.setSaleOrderLine(invoiceLine.getSaleOrderLine());
+        analyticMoveLine.setDeclarationLine(invoiceLine.getDeclarationLine());
       }
     }
 
@@ -330,8 +330,8 @@ public abstract class InvoiceLineGeneratorSupplyChain extends InvoiceLineGenerat
         invoiceLine.setOutgoingStockMove(stockMove);
       }
     }
-    if (saleOrderLine != null) {
-      invoiceLine.setSaleOrderLine(saleOrderLine);
+    if (declarationLine != null) {
+      invoiceLine.setDeclarationLine(declarationLine);
     }
     if (purchaseOrderLine != null) {
       invoiceLine.setPurchaseOrderLine(purchaseOrderLine);

@@ -184,8 +184,8 @@
         if="__config__.app.getApp('crm')?.displayCustomerDescriptionInOpportunity">
         <field name="customerDescription" showTitle="false" colSpan="12" widget="html"/>
       </panel>
-      <panel-related name="saleOrderListPanel" if="__config__.app.isApp('sale')"
-        if-module="axelor-sale" title="Sale quotations/orders" field="saleOrderList"
+      <panel-related name="declarationListPanel" if="__config__.app.isApp('sale')"
+        if-module="axelor-sale" title="Sale quotations/orders" field="declarationList"
         form-view="sale-order-form" grid-view="sale-order-opportunity-grid" canNew="false"/>
     </panel-tabs>
 
@@ -244,7 +244,7 @@
 
   <kanban columnBy="opportunityStatus" sequenceBy="orderByState" limit="10"
     name="opportunity-kanban" title="Opportunities" model="com.axelor.apps.crm.db.Opportunity"
-    onMove="action-opportunity-method-cancel-saleorders">
+    onMove="action-opportunity-method-cancel-declarations">
     <field name="opportunitySeq"/>
     <field name="name"/>
     <field name="description"/>
@@ -291,7 +291,7 @@
   </kanban>
 
   <form name="opportunity-form-lost-popup" model="com.axelor.apps.crm.db.Opportunity"
-    title="Lost reason" width="large" onSave="action-opportunity-method-cancel-saleorders">
+    title="Lost reason" width="large" onSave="action-opportunity-method-cancel-declarations">
     <panel name="mainPanel">
       <field name="lostReason" canEdit="false" colOffset="4" colSpan="4"/>
       <field name="lostReasonStr" hideIf="!lostReason.freeText" colOffset="4" colSpan="4"/>
@@ -448,7 +448,7 @@
       if="!__config__.app.getApp('base')?.enableTradingNamesManagement"/>
     <field name="bankDetails" hidden="true"
       if="!__config__.app.getApp('base')?.getManageMultiBanks()"/>
-    <field name="saleOrderList" hidden="true" if="!__config__.app.isApp('sale')"/>
+    <field name="declarationList" hidden="true" if="!__config__.app.isApp('sale')"/>
     <filter title="My opportunities">
       <domain>self.user.id = :_internalUserId</domain>
     </filter>

@@ -26,7 +26,7 @@ public class AnalyticMoveLineSupplychainRepository extends AnalyticMoveLineMngtR
   public AnalyticMoveLine copy(AnalyticMoveLine entity, boolean deep) {
     AnalyticMoveLine copy = super.copy(entity, deep);
     copy.setPurchaseOrderLine(null);
-    copy.setSaleOrderLine(null);
+    copy.setDeclarationLine(null);
     return copy;
   }
 }

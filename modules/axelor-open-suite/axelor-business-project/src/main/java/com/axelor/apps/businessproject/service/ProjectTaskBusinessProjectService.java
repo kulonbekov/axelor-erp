@@ -25,7 +25,7 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.ProjectTask;
 import com.axelor.apps.project.db.TaskTemplate;
 import com.axelor.apps.project.service.ProjectTaskService;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.auth.db.User;
 import com.axelor.studio.db.AppBusinessProject;
 import com.axelor.utils.QueryBuilder;
@@ -36,7 +36,7 @@ import java.util.List;
 
 public interface ProjectTaskBusinessProjectService extends ProjectTaskService {
 
-  ProjectTask create(SaleOrderLine saleOrderLine, Project project, User assignedTo)
+  ProjectTask create(DeclarationLine declarationLine, Project project, User assignedTo)
       throws AxelorException;
 
   ProjectTask create(TaskTemplate template, Project project, LocalDateTime date, BigDecimal qty);

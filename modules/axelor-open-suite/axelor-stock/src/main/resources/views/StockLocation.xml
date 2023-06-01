@@ -107,7 +107,7 @@
         action="action-location-details-view-location-content" canSearch="true" height="600"/>
       <panel name="configPanel" title="Configuration" if-module="axelor-supplychain"
         if="__config__.app.isApp('supplychain')">
-        <field name="usableOnSaleOrder" colSpan="3"/>
+        <field name="usableOnDeclaration" colSpan="3"/>
         <field name="usableOnPurchaseOrder" colSpan="3"/>
         <field name="usableOnProduction" colSpan="3"/>
         <field name="directOrderLocation" colSpan="3"/>
@@ -252,7 +252,7 @@
       if="!__config__.app.getApp('base')?.getEnableMultiCompany()"/>
     <field name="isWorkshop" hidden="true"
       if="!(__config__.app.isApp('production') &amp;&amp; __config__.app.getApp('production')?.getManageWorkshop())"/>
-    <field name="usableOnSaleOrder" hidden="true" if="!__config__.app.isApp('supplychain')"/>
+    <field name="usableOnDeclaration" hidden="true" if="!__config__.app.isApp('supplychain')"/>
     <field name="usableOnPurchaseOrder" hidden="true"
       if="!__config__.app.isApp('supplychain')"/>
     <field name="usableOnProduction" hidden="true" if="!__config__.app.isApp('supplychain')"/>

@@ -20,8 +20,8 @@ package com.axelor.web;
 
 import com.axelor.apps.base.db.Country;
 import com.axelor.apps.base.service.MapService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -43,7 +43,7 @@ public class MapRestSale {
 
   @Inject MapService mapService;
 
-  @Inject private SaleOrderRepository saleOrderRepo;
+  @Inject private DeclarationRepository declarationRepo;
 
   @Path("/geomap/turnover")
   @GET
@@ -52,7 +52,7 @@ public class MapRestSale {
   public JsonNode getGeoMapData() {
 
     Map<String, BigDecimal> data = new HashMap<String, BigDecimal>();
-    List<? extends SaleOrder> orders = saleOrderRepo.all().filter("self.statusSelect=?", 3).fetch();
+    List<? extends Declaration> orders = declarationRepo.all().filter("self.statusSelect=?", 3).fetch();
     JsonNodeFactory factory = JsonNodeFactory.instance;
     ObjectNode mainNode = factory.objectNode();
     ArrayNode arrayNode = factory.arrayNode();
@@ -62,7 +62,7 @@ public class MapRestSale {
     labelNode.add("Turnover");
     arrayNode.add(labelNode);
 
-    for (SaleOrder so : orders) {
+    for (Declaration so : orders) {
 
       Country country = so.getMainInvoicingAddress().getAddressL7Country();
       BigDecimal value = so.getExTaxTotal();

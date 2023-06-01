@@ -25,9 +25,9 @@ import com.axelor.apps.base.db.repo.ProductCategoryRepository;
 import com.axelor.apps.base.db.repo.TraceBackRepository;
 import com.axelor.apps.base.exceptions.BaseExceptionMessage;
 import com.axelor.apps.base.service.ProductCategoryServiceImpl;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.i18n.I18n;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
@@ -40,39 +40,39 @@ import java.util.stream.Collectors;
 public class ProductCategoryServiceSaleImpl extends ProductCategoryServiceImpl
     implements ProductCategorySaleService {
 
-  protected SaleOrderLineRepository saleOrderLineRepository;
+  protected DeclarationLineRepository declarationLineRepository;
 
   @Inject
   public ProductCategoryServiceSaleImpl(
       ProductCategoryRepository productCategoryRepository,
-      SaleOrderLineRepository saleOrderLineRepository) {
+      DeclarationLineRepository declarationLineRepository) {
     super(productCategoryRepository);
-    this.saleOrderLineRepository = saleOrderLineRepository;
+    this.declarationLineRepository = declarationLineRepository;
   }
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public void updateSaleOrderLines(ProductCategory productCategory) throws AxelorException {
+  public void updateDeclarationLines(ProductCategory productCategory) throws AxelorException {
     List<ProductCategory> impactedProductCategories =
         fetchImpactedChildrenProductCategories(productCategory);
     impactedProductCategories.add(productCategory);
-    saleOrderLineRepository
+    declarationLineRepository
         .all()
         .filter(
             // fetch children
             "self.product.productCategory.id IN :productCategoryIds "
-                + "AND self.saleOrder.statusSelect != :statusCompleted "
-                + "AND self.saleOrder.statusSelect != :statusCanceled")
+                + "AND self.declaration.statusSelect != :statusCompleted "
+                + "AND self.declaration.statusSelect != :statusCanceled")
         .bind(
             "productCategoryIds",
             impactedProductCategories.stream()
                 .map(ProductCategory::getId)
                 .collect(Collectors.toList()))
-        .bind("statusCompleted", SaleOrderRepository.STATUS_ORDER_COMPLETED)
-        .bind("statusCanceled", SaleOrderRepository.STATUS_CANCELED)
+        .bind("statusCompleted", DeclarationRepository.STATUS_ORDER_COMPLETED)
+        .bind("statusCanceled", DeclarationRepository.STATUS_CANCELED)
         .fetchStream()
-        .filter(saleOrderLine -> hasDiscountBecameTooHigh(productCategory, saleOrderLine))
-        .forEach(saleOrderLine -> saleOrderLine.setDiscountsNeedReview(true));
+        .filter(declarationLine -> hasDiscountBecameTooHigh(productCategory, declarationLine))
+        .forEach(declarationLine -> declarationLine.setDiscountsNeedReview(true));
   }
 
   /**
@@ -126,7 +126,7 @@ public class ProductCategoryServiceSaleImpl extends ProductCategoryServiceImpl
   }
 
   protected boolean hasDiscountBecameTooHigh(
-      ProductCategory productCategory, SaleOrderLine saleOrderLine) {
+      ProductCategory productCategory, DeclarationLine declarationLine) {
     ProductCategory productCategoryIt = productCategory;
     BigDecimal maxDiscount = productCategory.getMaxDiscount();
     while (maxDiscount.signum() == 0 && productCategoryIt.getParentProductCategory() != null) {
@@ -137,25 +137,25 @@ public class ProductCategoryServiceSaleImpl extends ProductCategoryServiceImpl
       return false;
     }
     // compute discount percent in sale order line
-    BigDecimal saleOrderLineDiscount;
-    switch (saleOrderLine.getDiscountTypeSelect()) {
+    BigDecimal declarationLineDiscount;
+    switch (declarationLine.getDiscountTypeSelect()) {
       case PriceListLineRepository.AMOUNT_TYPE_PERCENT:
-        saleOrderLineDiscount = saleOrderLine.getDiscountAmount();
+        declarationLineDiscount = declarationLine.getDiscountAmount();
         break;
       case PriceListLineRepository.AMOUNT_TYPE_FIXED:
-        saleOrderLineDiscount =
-            saleOrderLine.getPrice().signum() != 0
-                ? saleOrderLine
+        declarationLineDiscount =
+            declarationLine.getPrice().signum() != 0
+                ? declarationLine
                     .getDiscountAmount()
                     .multiply(new BigDecimal("100"))
-                    .divide(saleOrderLine.getPrice(), 2, RoundingMode.HALF_UP)
+                    .divide(declarationLine.getPrice(), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
         break;
       case PriceListLineRepository.AMOUNT_TYPE_NONE:
       default:
-        saleOrderLineDiscount = BigDecimal.ZERO;
+        declarationLineDiscount = BigDecimal.ZERO;
         break;
     }
-    return saleOrderLineDiscount.compareTo(maxDiscount) > 0;
+    return declarationLineDiscount.compareTo(maxDiscount) > 0;
   }
 }

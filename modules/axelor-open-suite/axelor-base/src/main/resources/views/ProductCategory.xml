@@ -88,7 +88,7 @@
   <action-method name="action-method-product-category-update-sale-order-lines"
     if-module="axelor-sale">
     <call class="com.axelor.apps.sale.web.ProductCategoryController"
-      method="updateSaleOrderLines"/>
+      method="updateDeclarationLines"/>
   </action-method>
 
   <action-method name="action-method-product-category-show-existing-discounts">

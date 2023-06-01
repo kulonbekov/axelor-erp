@@ -46,10 +46,10 @@ import com.axelor.apps.sale.db.ConfiguratorCreator;
 import com.axelor.apps.sale.db.ConfiguratorFormula;
 import com.axelor.apps.sale.db.ConfiguratorProductFormula;
 import com.axelor.apps.sale.db.ConfiguratorSOLineFormula;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.sale.db.repo.ConfiguratorCreatorRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.auth.AuthUtils;
 import com.axelor.auth.db.Group;
 import com.axelor.auth.db.User;
@@ -94,7 +94,7 @@ public class ConfiguratorCreatorServiceImpl implements ConfiguratorCreatorServic
   protected final MetaFieldRepository metaFieldRepository;
   protected final MetaJsonFieldRepository metaJsonFieldRepository;
   protected final MetaModelRepository metaModelRepository;
-  protected final SaleOrderRepository saleOrderRepository;
+  protected final DeclarationRepository declarationRepository;
 
   @Inject
   public ConfiguratorCreatorServiceImpl(
@@ -103,13 +103,13 @@ public class ConfiguratorCreatorServiceImpl implements ConfiguratorCreatorServic
       MetaFieldRepository metaFieldRepository,
       MetaJsonFieldRepository metaJsonFieldRepository,
       MetaModelRepository metaModelRepository,
-      SaleOrderRepository saleOrderRepository) {
+      DeclarationRepository declarationRepository) {
     this.configuratorCreatorRepo = configuratorCreatorRepo;
     this.appBaseService = appBaseService;
     this.metaFieldRepository = metaFieldRepository;
     this.metaJsonFieldRepository = metaJsonFieldRepository;
     this.metaModelRepository = metaModelRepository;
-    this.saleOrderRepository = saleOrderRepository;
+    this.declarationRepository = declarationRepository;
   }
 
   @Override
@@ -182,7 +182,7 @@ public class ConfiguratorCreatorServiceImpl implements ConfiguratorCreatorServic
     }
     attributesValues.put(
         ConfiguratorFormulaService.PARENT_SALE_ORDER_ID_FIELD_NAME,
-        saleOrderRepository.all().fetchStream(1).map(SaleOrder::getId).findAny().orElse(1L));
+        declarationRepository.all().fetchStream(1).map(Declaration::getId).findAny().orElse(1L));
     return new ScriptBindings(attributesValues);
   }
 
@@ -542,7 +542,7 @@ public class ConfiguratorCreatorServiceImpl implements ConfiguratorCreatorServic
         creator.addConfiguratorProductFormulaListItem(createProductFormula(field.getName()));
       }
     }
-    for (Field field : SaleOrderLine.class.getDeclaredFields()) {
+    for (Field field : DeclarationLine.class.getDeclaredFields()) {
       if (field.getAnnotation(NotNull.class) != null) {
         creator.addConfiguratorSOLineFormulaListItem(createSOLineFormula(field.getName()));
       }
@@ -569,7 +569,7 @@ public class ConfiguratorCreatorServiceImpl implements ConfiguratorCreatorServic
    */
   protected ConfiguratorSOLineFormula createSOLineFormula(String name) {
     ConfiguratorSOLineFormula configuratorSOLineFormula = new ConfiguratorSOLineFormula();
-    completeFormula(configuratorSOLineFormula, name, "SaleOrderLine");
+    completeFormula(configuratorSOLineFormula, name, "DeclarationLine");
     return configuratorSOLineFormula;
   }
 

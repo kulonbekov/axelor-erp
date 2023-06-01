@@ -29,5 +29,5 @@ public interface ProductCategorySaleService {
    *
    * @param productCategory a product category having its maxDiscount being changed.
    */
-  void updateSaleOrderLines(ProductCategory productCategory) throws AxelorException;
+  void updateDeclarationLines(ProductCategory productCategory) throws AxelorException;
 }

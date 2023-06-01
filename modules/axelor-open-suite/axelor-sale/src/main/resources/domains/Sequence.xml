@@ -10,7 +10,7 @@
     <extra-code><![CDATA[
 
         //SEQUENCE SELECT
-  		public static final String SALES_ORDER = "saleOrder";
+  		public static final String SALES_ORDER = "declaration";
 
      ]]></extra-code>
 

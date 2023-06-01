@@ -59,9 +59,9 @@ import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
 import com.axelor.apps.report.engine.ReportSettings;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.supplychain.service.invoice.generator.InvoiceLineGeneratorSupplyChain;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
@@ -112,7 +112,7 @@ public class InvoicingProjectService {
           I18n.get(BusinessProjectExceptionMessage.INVOICING_PROJECT_PROJECT));
     }
 
-    if (invoicingProject.getSaleOrderLineSet().isEmpty()
+    if (invoicingProject.getDeclarationLineSet().isEmpty()
         && invoicingProject.getPurchaseOrderLineSet().isEmpty()
         && invoicingProject.getLogTimesSet().isEmpty()
         && invoicingProject.getExpenseLineSet().isEmpty()
@@ -189,8 +189,8 @@ public class InvoicingProjectService {
 
   public List<InvoiceLine> populate(Invoice invoice, InvoicingProject folder)
       throws AxelorException {
-    List<SaleOrderLine> saleOrderLineList =
-        new ArrayList<SaleOrderLine>(folder.getSaleOrderLineSet());
+    List<DeclarationLine> declarationLineList =
+        new ArrayList<DeclarationLine>(folder.getDeclarationLineSet());
     List<PurchaseOrderLine> purchaseOrderLineList =
         new ArrayList<PurchaseOrderLine>(folder.getPurchaseOrderLineSet());
     List<TimesheetLine> timesheetLineList = new ArrayList<TimesheetLine>(folder.getLogTimesSet());
@@ -199,8 +199,8 @@ public class InvoicingProjectService {
 
     List<InvoiceLine> invoiceLineList = new ArrayList<InvoiceLine>();
     invoiceLineList.addAll(
-        this.createSaleOrderInvoiceLines(
-            invoice, saleOrderLineList, folder.getSaleOrderLineSetPrioritySelect()));
+        this.createDeclarationInvoiceLines(
+            invoice, declarationLineList, folder.getDeclarationLineSetPrioritySelect()));
     invoiceLineList.addAll(
         this.createPurchaseOrderInvoiceLines(
             invoice, purchaseOrderLineList, folder.getPurchaseOrderLineSetPrioritySelect()));
@@ -224,15 +224,15 @@ public class InvoicingProjectService {
     return invoiceLineList;
   }
 
-  public List<InvoiceLine> createSaleOrderInvoiceLines(
-      Invoice invoice, List<SaleOrderLine> saleOrderLineList, int priority) throws AxelorException {
+  public List<InvoiceLine> createDeclarationInvoiceLines(
+      Invoice invoice, List<DeclarationLine> declarationLineList, int priority) throws AxelorException {
 
     List<InvoiceLine> invoiceLineList = new ArrayList<InvoiceLine>();
     int count = 1;
-    for (SaleOrderLine saleOrderLine : saleOrderLineList) {
+    for (DeclarationLine declarationLine : declarationLineList) {
 
       invoiceLineList.addAll(
-          this.createInvoiceLine(invoice, saleOrderLine, priority * 100 + count));
+          this.createInvoiceLine(invoice, declarationLine, priority * 100 + count));
       count++;
     }
 
@@ -240,21 +240,21 @@ public class InvoicingProjectService {
   }
 
   public List<InvoiceLine> createInvoiceLine(
-      Invoice invoice, SaleOrderLine saleOrderLine, int priority) throws AxelorException {
+      Invoice invoice, DeclarationLine declarationLine, int priority) throws AxelorException {
 
-    Product product = saleOrderLine.getProduct();
+    Product product = declarationLine.getProduct();
 
     InvoiceLineGenerator invoiceLineGenerator =
         new InvoiceLineGeneratorSupplyChain(
             invoice,
             product,
-            saleOrderLine.getProductName(),
-            saleOrderLine.getDescription(),
-            saleOrderLine.getQty(),
-            saleOrderLine.getUnit(),
+            declarationLine.getProductName(),
+            declarationLine.getDescription(),
+            declarationLine.getQty(),
+            declarationLine.getUnit(),
             priority,
             false,
-            saleOrderLine,
+            declarationLine,
             null,
             null) {
 
@@ -262,7 +262,7 @@ public class InvoicingProjectService {
           public List<InvoiceLine> creates() throws AxelorException {
 
             InvoiceLine invoiceLine = this.createInvoiceLine();
-            invoiceLine.setProject(saleOrderLine.getProject());
+            invoiceLine.setProject(declarationLine.getProject());
             List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
             invoiceLines.add(invoiceLine);
 
@@ -354,12 +354,12 @@ public class InvoicingProjectService {
 
     StringBuilder solQueryBuilder = new StringBuilder(commonQuery);
     solQueryBuilder.append(
-        " AND (self.saleOrder.statusSelect = :statusConfirmed OR self.saleOrder.statusSelect = :statusCompleted)");
+        " AND (self.declaration.statusSelect = :statusConfirmed OR self.declaration.statusSelect = :statusCompleted)");
 
     Map<String, Object> solQueryMap = new HashMap<>();
     solQueryMap.put("project", project);
-    solQueryMap.put("statusConfirmed", SaleOrderRepository.STATUS_ORDER_CONFIRMED);
-    solQueryMap.put("statusCompleted", SaleOrderRepository.STATUS_ORDER_COMPLETED);
+    solQueryMap.put("statusConfirmed", DeclarationRepository.STATUS_ORDER_CONFIRMED);
+    solQueryMap.put("statusCompleted", DeclarationRepository.STATUS_ORDER_COMPLETED);
 
     StringBuilder polQueryBuilder = new StringBuilder(commonQuery);
     polQueryBuilder.append(
@@ -407,7 +407,7 @@ public class InvoicingProjectService {
     taskQueryMap.put("invoicingTypePackage", ProjectTaskRepository.INVOICING_TYPE_PACKAGE);
 
     if (invoicingProject.getDeadlineDate() != null) {
-      solQueryBuilder.append(" AND self.saleOrder.creationDate <= :deadlineDate");
+      solQueryBuilder.append(" AND self.declaration.creationDate <= :deadlineDate");
       solQueryMap.put("deadlineDate", invoicingProject.getDeadlineDate());
 
       polQueryBuilder.append(" AND self.purchaseOrder.orderDate <= :deadlineDate");
@@ -418,9 +418,9 @@ public class InvoicingProjectService {
     }
 
     invoicingProject
-        .getSaleOrderLineSet()
+        .getDeclarationLineSet()
         .addAll(
-            Beans.get(SaleOrderLineRepository.class)
+            Beans.get(DeclarationLineRepository.class)
                 .all()
                 .filter(solQueryBuilder.toString())
                 .bind(solQueryMap)
@@ -456,7 +456,7 @@ public class InvoicingProjectService {
 
   public void clearLines(InvoicingProject invoicingProject) {
 
-    invoicingProject.setSaleOrderLineSet(new HashSet<SaleOrderLine>());
+    invoicingProject.setDeclarationLineSet(new HashSet<DeclarationLine>());
     invoicingProject.setPurchaseOrderLineSet(new HashSet<PurchaseOrderLine>());
     invoicingProject.setLogTimesSet(new HashSet<TimesheetLine>());
     invoicingProject.setExpenseLineSet(new HashSet<ExpenseLine>());
@@ -483,7 +483,7 @@ public class InvoicingProjectService {
 
     query += " AND self.toInvoice = true AND self.invoiced = false";
 
-    toInvoiceCount += Beans.get(SaleOrderLineRepository.class).all().filter(query, project).count();
+    toInvoiceCount += Beans.get(DeclarationLineRepository.class).all().filter(query, project).count();
 
     toInvoiceCount +=
         Beans.get(PurchaseOrderLineRepository.class).all().filter(query, project).count();
@@ -561,7 +561,7 @@ public class InvoicingProjectService {
     clearLines(invoicingProject);
     setLines(invoicingProject, project, 0);
 
-    if (invoicingProject.getSaleOrderLineSet().isEmpty()
+    if (invoicingProject.getDeclarationLineSet().isEmpty()
         && invoicingProject.getPurchaseOrderLineSet().isEmpty()
         && invoicingProject.getLogTimesSet().isEmpty()
         && invoicingProject.getExpenseLineSet().isEmpty()

@@ -27,11 +27,11 @@ import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import java.lang.invoke.MethodHandles;
@@ -47,22 +47,22 @@ public class WorkflowCancelServiceSupplychainImpl extends WorkflowCancelServiceI
 
   private final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private SaleOrderInvoiceService saleOrderInvoiceService;
+  private DeclarationInvoiceService declarationInvoiceService;
 
   private PurchaseOrderInvoiceService purchaseOrderInvoiceService;
 
-  private SaleOrderRepository saleOrderRepository;
+  private DeclarationRepository declarationRepository;
 
   @Inject
   public WorkflowCancelServiceSupplychainImpl(
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
-      SaleOrderRepository saleOrderRepository,
+      DeclarationRepository declarationRepository,
       PurchaseOrderRepository purchaseOrderRepository) {
 
-    this.saleOrderInvoiceService = saleOrderInvoiceService;
+    this.declarationInvoiceService = declarationInvoiceService;
     this.purchaseOrderInvoiceService = purchaseOrderInvoiceService;
-    this.saleOrderRepository = saleOrderRepository;
+    this.declarationRepository = declarationRepository;
     this.purchaseOrderRepository = purchaseOrderRepository;
   }
 
@@ -84,56 +84,56 @@ public class WorkflowCancelServiceSupplychainImpl extends WorkflowCancelServiceI
 
       } else {
 
-        // Update amount remaining to invoiced on SaleOrder
-        this.saleOrderProcess(invoice);
+        // Update amount remaining to invoiced on Declaration
+        this.declarationProcess(invoice);
       }
     }
   }
 
-  public void saleOrderProcess(Invoice invoice) throws AxelorException {
+  public void declarationProcess(Invoice invoice) throws AxelorException {
 
-    SaleOrder invoiceSaleOrder = invoice.getSaleOrder();
+    Declaration invoiceDeclaration = invoice.getDeclaration();
 
-    if (invoiceSaleOrder != null) {
+    if (invoiceDeclaration != null) {
 
       log.debug(
-          "Update the invoiced amount of the sale order : {}", invoiceSaleOrder.getSaleOrderSeq());
-      invoiceSaleOrder.setAmountInvoiced(
-          saleOrderInvoiceService.getInvoicedAmount(invoiceSaleOrder, invoice.getId(), true));
+          "Update the invoiced amount of the sale order : {}", invoiceDeclaration.getDeclarationSeq());
+      invoiceDeclaration.setAmountInvoiced(
+          declarationInvoiceService.getInvoicedAmount(invoiceDeclaration, invoice.getId(), true));
 
     } else {
 
-      // Get all different saleOrders from invoice
-      List<SaleOrder> saleOrderList = Lists.newArrayList();
+      // Get all different declarations from invoice
+      List<Declaration> declarationList = Lists.newArrayList();
 
       for (InvoiceLine invoiceLine : invoice.getInvoiceLineList()) {
 
-        SaleOrder saleOrder = this.saleOrderLineProcess(invoice, invoiceLine);
+        Declaration declaration = this.declarationLineProcess(invoice, invoiceLine);
 
-        if (saleOrder != null && !saleOrderList.contains(saleOrder)) {
-          saleOrderList.add(saleOrder);
+        if (declaration != null && !declarationList.contains(declaration)) {
+          declarationList.add(declaration);
         }
       }
 
-      for (SaleOrder saleOrder : saleOrderList) {
-        log.debug("Update the invoiced amount of the sale order : {}", saleOrder.getSaleOrderSeq());
-        saleOrder.setAmountInvoiced(
-            saleOrderInvoiceService.getInvoicedAmount(saleOrder, invoice.getId(), true));
-        saleOrderRepository.save(saleOrder);
+      for (Declaration declaration : declarationList) {
+        log.debug("Update the invoiced amount of the sale order : {}", declaration.getDeclarationSeq());
+        declaration.setAmountInvoiced(
+            declarationInvoiceService.getInvoicedAmount(declaration, invoice.getId(), true));
+        declarationRepository.save(declaration);
       }
     }
   }
 
-  public SaleOrder saleOrderLineProcess(Invoice invoice, InvoiceLine invoiceLine)
+  public Declaration declarationLineProcess(Invoice invoice, InvoiceLine invoiceLine)
       throws AxelorException {
 
-    SaleOrderLine saleOrderLine = invoiceLine.getSaleOrderLine();
+    DeclarationLine declarationLine = invoiceLine.getDeclarationLine();
 
-    if (saleOrderLine == null) {
+    if (declarationLine == null) {
       return null;
     }
 
-    SaleOrder saleOrder = saleOrderLine.getSaleOrder();
+    Declaration declaration = declarationLine.getDeclaration();
 
     // Update invoiced amount on sale order line
     BigDecimal invoicedAmountToAdd = invoiceLine.getExTaxTotal();
@@ -143,21 +143,21 @@ public class WorkflowCancelServiceSupplychainImpl extends WorkflowCancelServiceI
       invoicedAmountToAdd = invoicedAmountToAdd.negate();
     }
 
-    if (!invoice.getCurrency().equals(saleOrder.getCurrency())
-        && saleOrderLine.getCompanyExTaxTotal().compareTo(BigDecimal.ZERO) != 0) {
+    if (!invoice.getCurrency().equals(declaration.getCurrency())
+        && declarationLine.getCompanyExTaxTotal().compareTo(BigDecimal.ZERO) != 0) {
       // If the sale order currency is different from the invoice currency, use company currency to
       // calculate a rate. This rate will be applied to sale order line
       BigDecimal currentCompanyInvoicedAmount = invoiceLine.getCompanyExTaxTotal();
       BigDecimal rate =
           currentCompanyInvoicedAmount.divide(
-              saleOrderLine.getCompanyExTaxTotal(), 4, RoundingMode.HALF_UP);
-      invoicedAmountToAdd = rate.multiply(saleOrderLine.getExTaxTotal());
+              declarationLine.getCompanyExTaxTotal(), 4, RoundingMode.HALF_UP);
+      invoicedAmountToAdd = rate.multiply(declarationLine.getExTaxTotal());
     }
 
-    saleOrderLine.setAmountInvoiced(
-        saleOrderLine.getAmountInvoiced().subtract(invoicedAmountToAdd));
+    declarationLine.setAmountInvoiced(
+        declarationLine.getAmountInvoiced().subtract(invoicedAmountToAdd));
 
-    return saleOrder;
+    return declaration;
   }
 
   public void purchaseOrderProcess(Invoice invoice) throws AxelorException {

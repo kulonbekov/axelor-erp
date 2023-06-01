@@ -40,8 +40,8 @@ import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
 import com.axelor.apps.purchase.service.PurchaseOrderLineService;
 import com.axelor.apps.purchase.service.PurchaseOrderServiceImpl;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.ShipmentMode;
 import com.axelor.apps.stock.db.StockConfig;
 import com.axelor.apps.stock.db.StockLocation;
@@ -316,7 +316,7 @@ public class PurchaseOrderServiceSupplychainImpl extends PurchaseOrderServiceImp
       Beans.get(IntercoService.class).generateIntercoSaleFromPurchase(purchaseOrder);
     }
     if (purchaseOrder.getCreatedByInterco()) {
-      fillIntercompanySaleOrderCounterpart(purchaseOrder);
+      fillIntercompanyDeclarationCounterpart(purchaseOrder);
     }
   }
 
@@ -325,15 +325,15 @@ public class PurchaseOrderServiceSupplychainImpl extends PurchaseOrderServiceImp
    *
    * @param purchaseOrder
    */
-  protected void fillIntercompanySaleOrderCounterpart(PurchaseOrder purchaseOrder) {
-    SaleOrder saleOrder =
-        Beans.get(SaleOrderRepository.class)
+  protected void fillIntercompanyDeclarationCounterpart(PurchaseOrder purchaseOrder) {
+    Declaration declaration =
+        Beans.get(DeclarationRepository.class)
             .all()
-            .filter("self.saleOrderSeq = :saleOrderSeq")
-            .bind("saleOrderSeq", purchaseOrder.getExternalReference())
+            .filter("self.declarationSeq = :declarationSeq")
+            .bind("declarationSeq", purchaseOrder.getExternalReference())
             .fetchOne();
-    if (saleOrder != null) {
-      saleOrder.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
+    if (declaration != null) {
+      declaration.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
     }
   }
 

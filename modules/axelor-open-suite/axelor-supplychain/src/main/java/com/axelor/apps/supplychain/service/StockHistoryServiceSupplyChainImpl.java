@@ -63,8 +63,8 @@ public class StockHistoryServiceSupplyChainImpl extends StockHistoryServiceImpl 
               stockMoveLine.getRealQty(),
               stockMoveLine.getRealQty().scale(),
               stockMoveLine.getProduct());
-      if (stockMoveLine.getSaleOrderLine() != null
-          && stockMoveLine.getSaleOrderLine().getSaleOrder().getOneoffSale()) {
+      if (stockMoveLine.getDeclarationLine() != null
+          && stockMoveLine.getDeclarationLine().getDeclaration().getOneoffSale()) {
         sumOneoffSaleOutQtyPeriod = sumOneoffSaleOutQtyPeriod.add(qtyConverted);
       } else {
         sumOutQtyPeriod = sumOutQtyPeriod.add(qtyConverted);

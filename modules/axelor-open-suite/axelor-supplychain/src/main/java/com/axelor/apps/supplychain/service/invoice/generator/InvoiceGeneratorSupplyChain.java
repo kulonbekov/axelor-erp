@@ -25,8 +25,8 @@ import com.axelor.apps.account.service.config.AccountConfigService;
 import com.axelor.apps.account.service.invoice.generator.InvoiceGenerator;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.purchase.db.PurchaseOrder;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.repo.StockMoveRepository;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
@@ -34,37 +34,37 @@ import com.axelor.inject.Beans;
 
 public abstract class InvoiceGeneratorSupplyChain extends InvoiceGenerator {
 
-  protected SaleOrder saleOrder;
+  protected Declaration declaration;
 
   protected PurchaseOrder purchaseOrder;
 
-  protected InvoiceGeneratorSupplyChain(SaleOrder saleOrder) throws AxelorException {
-    this(saleOrder, false);
+  protected InvoiceGeneratorSupplyChain(Declaration declaration) throws AxelorException {
+    this(declaration, false);
   }
 
-  protected InvoiceGeneratorSupplyChain(SaleOrder saleOrder, boolean isRefund)
+  protected InvoiceGeneratorSupplyChain(Declaration declaration, boolean isRefund)
       throws AxelorException {
     super(
         isRefund
             ? InvoiceRepository.OPERATION_TYPE_CLIENT_REFUND
             : InvoiceRepository.OPERATION_TYPE_CLIENT_SALE,
-        saleOrder.getCompany(),
-        saleOrder.getPaymentCondition(),
-        isRefund ? saleOrder.getClientPartner().getOutPaymentMode() : saleOrder.getPaymentMode(),
-        saleOrder.getMainInvoicingAddress(),
-        saleOrder.getInvoicedPartner() != null
-            ? saleOrder.getInvoicedPartner()
-            : saleOrder.getClientPartner(),
-        saleOrder.getContactPartner(),
-        saleOrder.getCurrency(),
-        saleOrder.getPriceList(),
-        saleOrder.getSaleOrderSeq(),
-        saleOrder.getExternalReference(),
-        saleOrder.getInAti(),
-        saleOrder.getCompanyBankDetails(),
-        saleOrder.getTradingName(),
-        saleOrder.getGroupProductsOnPrintings());
-    this.saleOrder = saleOrder;
+        declaration.getCompany(),
+        declaration.getPaymentCondition(),
+        isRefund ? declaration.getClientPartner().getOutPaymentMode() : declaration.getPaymentMode(),
+        declaration.getMainInvoicingAddress(),
+        declaration.getInvoicedPartner() != null
+            ? declaration.getInvoicedPartner()
+            : declaration.getClientPartner(),
+        declaration.getContactPartner(),
+        declaration.getCurrency(),
+        declaration.getPriceList(),
+        declaration.getDeclarationSeq(),
+        declaration.getExternalReference(),
+        declaration.getInAti(),
+        declaration.getCompanyBankDetails(),
+        declaration.getTradingName(),
+        declaration.getGroupProductsOnPrintings());
+    this.declaration = declaration;
   }
 
   protected InvoiceGeneratorSupplyChain(PurchaseOrder purchaseOrder) throws AxelorException {
@@ -124,7 +124,7 @@ public abstract class InvoiceGeneratorSupplyChain extends InvoiceGenerator {
     this.groupProductsOnPrintings = stockMove.getGroupProductsOnPrintings();
     if (StockMoveRepository.ORIGIN_SALE_ORDER.equals(stockMove.getOriginTypeSelect())
         && stockMove.getOriginId() != null) {
-      saleOrder = Beans.get(SaleOrderRepository.class).find(stockMove.getOriginId());
+      declaration = Beans.get(DeclarationRepository.class).find(stockMove.getOriginId());
     }
   }
 
@@ -137,9 +137,9 @@ public abstract class InvoiceGeneratorSupplyChain extends InvoiceGenerator {
       return invoice;
     }
 
-    if (saleOrder != null) {
-      invoice.setPrintingSettings(saleOrder.getPrintingSettings());
-      invoice.setFiscalPosition(saleOrder.getFiscalPosition());
+    if (declaration != null) {
+      invoice.setPrintingSettings(declaration.getPrintingSettings());
+      invoice.setFiscalPosition(declaration.getFiscalPosition());
     } else if (purchaseOrder != null) {
       invoice.setPrintingSettings(purchaseOrder.getPrintingSettings());
       invoice.setFiscalPosition(purchaseOrder.getFiscalPosition());

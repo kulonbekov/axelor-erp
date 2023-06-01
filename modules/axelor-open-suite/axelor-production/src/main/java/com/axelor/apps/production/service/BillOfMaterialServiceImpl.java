@@ -34,7 +34,7 @@ import com.axelor.apps.production.db.repo.TempBomTreeRepository;
 import com.axelor.apps.production.exceptions.ProductionExceptionMessage;
 import com.axelor.apps.production.report.IReport;
 import com.axelor.apps.production.service.app.AppProductionService;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.auth.AuthUtils;
 import com.axelor.auth.db.User;
 import com.axelor.db.JPA;
@@ -112,10 +112,10 @@ public class BillOfMaterialServiceImpl implements BillOfMaterialService {
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public BillOfMaterial customizeBillOfMaterial(SaleOrderLine saleOrderLine)
+  public BillOfMaterial customizeBillOfMaterial(DeclarationLine declarationLine)
       throws AxelorException {
 
-    BillOfMaterial billOfMaterial = saleOrderLine.getBillOfMaterial();
+    BillOfMaterial billOfMaterial = declarationLine.getBillOfMaterial();
     return customizeBillOfMaterial(billOfMaterial);
   }
 

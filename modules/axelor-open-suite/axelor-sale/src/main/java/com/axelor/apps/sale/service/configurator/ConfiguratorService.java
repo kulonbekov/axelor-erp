@@ -20,7 +20,7 @@ package com.axelor.apps.sale.service.configurator;
 
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.sale.db.Configurator;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.db.Model;
 import com.axelor.meta.db.MetaJsonField;
 import com.axelor.rpc.JsonContext;
@@ -36,11 +36,11 @@ public interface ConfiguratorService {
    *
    * @param configurator
    * @param attributes
-   * @param saleOrderId id of parent sale order, can be null.
+   * @param declarationId id of parent sale order, can be null.
    * @param indicators @return the new values of indicators
    */
   void updateIndicators(
-      Configurator configurator, JsonContext attributes, JsonContext indicators, Long saleOrderId)
+      Configurator configurator, JsonContext attributes, JsonContext indicators, Long declarationId)
       throws AxelorException;
 
   /**
@@ -59,13 +59,13 @@ public interface ConfiguratorService {
    * @param configurator
    * @param jsonAttributes
    * @param jsonIndicators
-   * @param saleOrderId
+   * @param declarationId
    */
   void generateProduct(
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      Long saleOrderId)
+      Long declarationId)
       throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
           JSONException, ClassNotFoundException, AxelorException;
 
@@ -74,13 +74,13 @@ public interface ConfiguratorService {
    * line to the sale order.
    *
    * @param configurator
-   * @param saleOrder
+   * @param declaration
    * @param jsonAttributes
    * @param jsonIndicators
    */
-  void addLineToSaleOrder(
+  void addLineToDeclaration(
       Configurator configurator,
-      SaleOrder saleOrder,
+      Declaration declaration,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators)
       throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,

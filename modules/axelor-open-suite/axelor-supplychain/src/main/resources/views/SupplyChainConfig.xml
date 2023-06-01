@@ -33,7 +33,7 @@
       <field name="autoAllocateOnAvailabilityRequest" widget="boolean-switch"
         if="__config__.app.getApp('supplychain')?.getManageStockReservation()" colSpan="6"/>
       <spacer colSpan="6"/>
-      <field name="saleOrderReservationDateSelect"
+      <field name="declarationReservationDateSelect"
         if="__config__.app.getApp('supplychain')?.getManageStockReservation()" colSpan="12"/>
       <field name="activateIncStockMovePartialInvoicing" widget="boolean-switch" colSpan="6"/>
       <field name="activateOutStockMovePartialInvoicing" widget="boolean-switch" colSpan="6"/>

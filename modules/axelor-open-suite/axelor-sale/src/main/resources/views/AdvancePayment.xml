@@ -39,10 +39,10 @@
 
   <action-record name="action-advance-payment-record-new"
     model="com.axelor.apps.sale.db.AdvancePayment">
-    <field name="currency" expr="eval: _saleOrder?.currency"/>
+    <field name="currency" expr="eval: _declaration?.currency"/>
     <field name="advancePaymentDate" expr="eval: __config__.date"/>
-    <field name="saleOrder" expr="eval: _saleOrder"/>
-    <field name="paymentMode" expr="eval: _saleOrder?.paymentMode"/>
+    <field name="declaration" expr="eval: _declaration"/>
+    <field name="paymentMode" expr="eval: _declaration?.paymentMode"/>
   </action-record>
 
   <action-record name="action-advance-payment-record-change-amount"

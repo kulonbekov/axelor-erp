@@ -22,11 +22,11 @@ import com.axelor.apps.account.db.AccountingSituation;
 import com.axelor.apps.account.service.AccountingSituationService;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.db.Partner;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 
 public interface AccountingSituationSupplychainService extends AccountingSituationService {
 
-  public void updateCustomerCreditFromSaleOrder(SaleOrder saleOrder) throws AxelorException;
+  public void updateCustomerCreditFromDeclaration(Declaration declaration) throws AxelorException;
 
   public AccountingSituation computeUsedCredit(AccountingSituation accountingSituation)
       throws AxelorException;

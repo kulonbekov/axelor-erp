@@ -24,125 +24,125 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.axelor.apps.base.AxelorException;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSaleOrderStockService {
+public class TestDeclarationStockService {
 
-  private SaleOrderStockServiceImpl saleOrderStockService;
+  private DeclarationStockServiceImpl declarationStockService;
 
   @Before
   public void prepare() throws AxelorException {
-    saleOrderStockService = mock(SaleOrderStockServiceImpl.class);
-    when(saleOrderStockService.isStockMoveProduct(any(SaleOrderLine.class), any(SaleOrder.class)))
+    declarationStockService = mock(DeclarationStockServiceImpl.class);
+    when(declarationStockService.isStockMoveProduct(any(DeclarationLine.class), any(Declaration.class)))
         .thenReturn(true);
-    doCallRealMethod().when(saleOrderStockService).computeDeliveryState(any(SaleOrder.class));
+    doCallRealMethod().when(declarationStockService).computeDeliveryState(any(Declaration.class));
   }
 
   @Test
-  public void testUpdateDeliveryStateSaleOrderWithNull() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
+  public void testUpdateDeliveryStateDeclarationWithNull() throws AxelorException {
+    Declaration declaration = new Declaration();
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStateEmptySaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    saleOrder.setSaleOrderLineList(new ArrayList<>());
+  public void testUpdateDeliveryStateEmptyDeclaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    declaration.setDeclarationLineList(new ArrayList<>());
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStateDeliveredSaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    saleOrder.setSaleOrderLineList(new ArrayList<>());
-    SaleOrderLine saleOrderLine1 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine2 = new SaleOrderLine();
-    saleOrderLine1.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_DELIVERED);
-    saleOrderLine2.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_DELIVERED);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine1);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine2);
+  public void testUpdateDeliveryStateDeliveredDeclaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    declaration.setDeclarationLineList(new ArrayList<>());
+    DeclarationLine declarationLine1 = new DeclarationLine();
+    DeclarationLine declarationLine2 = new DeclarationLine();
+    declarationLine1.setDeliveryState(DeclarationRepository.DELIVERY_STATE_DELIVERED);
+    declarationLine2.setDeliveryState(DeclarationRepository.DELIVERY_STATE_DELIVERED);
+    declaration.addDeclarationLineListItem(declarationLine1);
+    declaration.addDeclarationLineListItem(declarationLine2);
 
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStatePartiallyDeliveredSaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    SaleOrderLine saleOrderLine1 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine2 = new SaleOrderLine();
-    saleOrderLine1.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_DELIVERED);
-    saleOrderLine2.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine1);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine2);
+  public void testUpdateDeliveryStatePartiallyDeliveredDeclaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    DeclarationLine declarationLine1 = new DeclarationLine();
+    DeclarationLine declarationLine2 = new DeclarationLine();
+    declarationLine1.setDeliveryState(DeclarationRepository.DELIVERY_STATE_DELIVERED);
+    declarationLine2.setDeliveryState(DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED);
+    declaration.addDeclarationLineListItem(declarationLine1);
+    declaration.addDeclarationLineListItem(declarationLine2);
 
-    saleOrderStockService.updateDeliveryState(saleOrder);
+    declarationStockService.updateDeliveryState(declaration);
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStatePartiallyDelivered2SaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    SaleOrderLine saleOrderLine1 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine2 = new SaleOrderLine();
-    saleOrderLine1.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED);
-    saleOrderLine2.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_DELIVERED);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine1);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine2);
+  public void testUpdateDeliveryStatePartiallyDelivered2Declaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    DeclarationLine declarationLine1 = new DeclarationLine();
+    DeclarationLine declarationLine2 = new DeclarationLine();
+    declarationLine1.setDeliveryState(DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED);
+    declarationLine2.setDeliveryState(DeclarationRepository.DELIVERY_STATE_DELIVERED);
+    declaration.addDeclarationLineListItem(declarationLine1);
+    declaration.addDeclarationLineListItem(declarationLine2);
 
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStatePartiallyDeliveredLinesSaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    saleOrder.setSaleOrderLineList(new ArrayList<>());
-    SaleOrderLine saleOrderLine1 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine2 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine3 = new SaleOrderLine();
-    saleOrderLine1.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_DELIVERED);
-    saleOrderLine2.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED);
-    saleOrderLine3.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine1);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine2);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine3);
+  public void testUpdateDeliveryStatePartiallyDeliveredLinesDeclaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    declaration.setDeclarationLineList(new ArrayList<>());
+    DeclarationLine declarationLine1 = new DeclarationLine();
+    DeclarationLine declarationLine2 = new DeclarationLine();
+    DeclarationLine declarationLine3 = new DeclarationLine();
+    declarationLine1.setDeliveryState(DeclarationRepository.DELIVERY_STATE_DELIVERED);
+    declarationLine2.setDeliveryState(DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED);
+    declarationLine3.setDeliveryState(DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
+    declaration.addDeclarationLineListItem(declarationLine1);
+    declaration.addDeclarationLineListItem(declarationLine2);
+    declaration.addDeclarationLineListItem(declarationLine3);
 
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 
   @Test
-  public void testUpdateDeliveryStateOnlyPartiallyDeliveredLinesSaleOrder() throws AxelorException {
-    SaleOrder saleOrder = new SaleOrder();
-    saleOrder.setSaleOrderLineList(new ArrayList<>());
-    SaleOrderLine saleOrderLine1 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine2 = new SaleOrderLine();
-    SaleOrderLine saleOrderLine3 = new SaleOrderLine();
-    saleOrderLine1.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_NOT_DELIVERED);
-    saleOrderLine2.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
-    saleOrderLine3.setDeliveryState(SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine1);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine2);
-    saleOrder.addSaleOrderLineListItem(saleOrderLine3);
+  public void testUpdateDeliveryStateOnlyPartiallyDeliveredLinesDeclaration() throws AxelorException {
+    Declaration declaration = new Declaration();
+    declaration.setDeclarationLineList(new ArrayList<>());
+    DeclarationLine declarationLine1 = new DeclarationLine();
+    DeclarationLine declarationLine2 = new DeclarationLine();
+    DeclarationLine declarationLine3 = new DeclarationLine();
+    declarationLine1.setDeliveryState(DeclarationRepository.DELIVERY_STATE_NOT_DELIVERED);
+    declarationLine2.setDeliveryState(DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
+    declarationLine3.setDeliveryState(DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED);
+    declaration.addDeclarationLineListItem(declarationLine1);
+    declaration.addDeclarationLineListItem(declarationLine2);
+    declaration.addDeclarationLineListItem(declarationLine3);
 
     Assert.assertEquals(
-        SaleOrderRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
-        saleOrderStockService.computeDeliveryState(saleOrder));
+        DeclarationRepository.DELIVERY_STATE_PARTIALLY_DELIVERED,
+        declarationStockService.computeDeliveryState(declaration));
   }
 }

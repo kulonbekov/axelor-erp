@@ -28,14 +28,14 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.apps.supplychain.service.StockMoveInvoiceServiceImpl;
 import com.axelor.apps.supplychain.service.StockMoveLineServiceSupplychain;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
@@ -50,22 +50,22 @@ public class ProjectStockMoveInvoiceServiceImpl extends StockMoveInvoiceServiceI
 
   @Inject
   public ProjectStockMoveInvoiceServiceImpl(
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
       StockMoveLineServiceSupplychain stockMoveLineServiceSupplychain,
       InvoiceRepository invoiceRepository,
-      SaleOrderRepository saleOrderRepo,
+      DeclarationRepository declarationRepo,
       PurchaseOrderRepository purchaseOrderRepo,
       StockMoveLineRepository stockMoveLineRepository,
       InvoiceLineRepository invoiceLineRepository,
       SupplyChainConfigService supplyChainConfigService,
       AppSupplychainService appSupplychainService) {
     super(
-        saleOrderInvoiceService,
+        declarationInvoiceService,
         purchaseOrderInvoiceService,
         stockMoveLineServiceSupplychain,
         invoiceRepository,
-        saleOrderRepo,
+        declarationRepo,
         purchaseOrderRepo,
         stockMoveLineRepository,
         invoiceLineRepository,
@@ -83,9 +83,9 @@ public class ProjectStockMoveInvoiceServiceImpl extends StockMoveInvoiceServiceI
       return invoiceLine;
     }
 
-    SaleOrderLine saleOrderLine = invoiceLine.getSaleOrderLine();
-    if (saleOrderLine != null) {
-      invoiceLine.setProject(saleOrderLine.getProject());
+    DeclarationLine declarationLine = invoiceLine.getDeclarationLine();
+    if (declarationLine != null) {
+      invoiceLine.setProject(declarationLine.getProject());
     }
 
     PurchaseOrderLine purchaseOrderLine = invoiceLine.getPurchaseOrderLine();
@@ -98,13 +98,13 @@ public class ProjectStockMoveInvoiceServiceImpl extends StockMoveInvoiceServiceI
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public Invoice createInvoiceFromSaleOrder(
-      StockMove stockMove, SaleOrder saleOrder, Map<Long, BigDecimal> qtyToInvoiceMap)
+  public Invoice createInvoiceFromDeclaration(
+      StockMove stockMove, Declaration declaration, Map<Long, BigDecimal> qtyToInvoiceMap)
       throws AxelorException {
-    Invoice invoice = super.createInvoiceFromSaleOrder(stockMove, saleOrder, qtyToInvoiceMap);
+    Invoice invoice = super.createInvoiceFromDeclaration(stockMove, declaration, qtyToInvoiceMap);
 
     if (invoice != null) {
-      Project project = saleOrder.getProject();
+      Project project = declaration.getProject();
       if (project != null) {
         invoice.setProject(project);
       }

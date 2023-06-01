@@ -50,7 +50,7 @@ import com.axelor.apps.hr.db.repo.EmployeeHRRepository;
 import com.axelor.apps.hr.db.repo.ExpenseRepository;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.report.engine.ReportSettings;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.supplychain.db.Timetable;
 import com.axelor.apps.supplychain.db.repo.TimetableRepository;
 import com.axelor.common.ObjectUtils;
@@ -367,7 +367,7 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
       case ForecastRecapLineTypeRepository.ELEMENT_INVOICE:
         return Invoice.class;
       case ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER:
-        return SaleOrder.class;
+        return Declaration.class;
       case ForecastRecapLineTypeRepository.ELEMENT_PURCHASE_ORDER:
         return PurchaseOrder.class;
       case ForecastRecapLineTypeRepository.ELEMENT_EXPENSE:
@@ -436,7 +436,7 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
       case ForecastRecapLineTypeRepository.ELEMENT_OPPORTUNITY:
         return "self.company = :company "
             + "AND self.expectedCloseDate BETWEEN :fromDate AND :toDate "
-            + "AND self.saleOrderList IS EMPTY "
+            + "AND self.declarationList IS EMPTY "
             + "AND (:bankDetails IS NULL OR self.bankDetails = :bankDetails) "
             + ((forecastRecapLineType.getStatusSelect() == null
                     || forecastRecapLineType.getStatusSelect().isEmpty())
@@ -487,11 +487,11 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
             ? invoice.getCompanyInTaxTotalRemaining()
             : invoice.getCompanyInTaxTotal();
       case ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER:
-        SaleOrder saleOrder = (SaleOrder) forecastModel;
+        Declaration declaration = (Declaration) forecastModel;
         return currencyService
             .getAmountCurrencyConvertedAtDate(
-                saleOrder.getCurrency(),
-                saleOrder.getCompany().getCurrency(),
+                declaration.getCurrency(),
+                declaration.getCompany().getCurrency(),
                 getOrderAmount(forecastRecap, forecastRecapLineType, forecastModel),
                 today)
             .setScale(AppBaseService.DEFAULT_NB_DECIMAL_DIGITS, RoundingMode.HALF_UP);
@@ -542,8 +542,8 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
         == ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER) {
       operationTypeRefund = InvoiceRepository.OPERATION_TYPE_CLIENT_REFUND;
       operationTypeInvoice = InvoiceRepository.OPERATION_TYPE_CLIENT_SALE;
-      SaleOrder saleOrder = (SaleOrder) forecastModel;
-      orderTotal = saleOrder.getInTaxTotal();
+      Declaration declaration = (Declaration) forecastModel;
+      orderTotal = declaration.getInTaxTotal();
     } else {
       operationTypeRefund = InvoiceRepository.OPERATION_TYPE_SUPPLIER_REFUND;
       operationTypeInvoice = InvoiceRepository.OPERATION_TYPE_SUPPLIER_PURCHASE;
@@ -565,7 +565,7 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
                     + "AND operationTypeSelect = :operationTypeRefund )) "
                     + (forecastRecapLineType.getElementSelect()
                             == ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER
-                        ? "AND invoice.saleOrder.id = :orderId"
+                        ? "AND invoice.declaration.id = :orderId"
                         : "AND invoice.purchaseOrder.id = :orderId"),
                 BigDecimal.class)
             .setParameter("orderId", forecastModel.getId())
@@ -617,10 +617,10 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
         Invoice invoice = (Invoice) forecastModel;
         return invoice.getDueDate();
       case ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER:
-        SaleOrder saleOrder = (SaleOrder) forecastModel;
-        return saleOrder.getExpectedRealisationDate() == null
-            ? saleOrder.getCreationDate().plusDays(forecastRecapLineType.getEstimatedDuration())
-            : saleOrder.getExpectedRealisationDate();
+        Declaration declaration = (Declaration) forecastModel;
+        return declaration.getExpectedRealisationDate() == null
+            ? declaration.getCreationDate().plusDays(forecastRecapLineType.getEstimatedDuration())
+            : declaration.getExpectedRealisationDate();
       case ForecastRecapLineTypeRepository.ELEMENT_PURCHASE_ORDER:
         PurchaseOrder purchaseOrder = (PurchaseOrder) forecastModel;
         return purchaseOrder.getExpectedRealisationDate() == null
@@ -663,8 +663,8 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
         Invoice invoice = (Invoice) forecastModel;
         return invoice.getInvoiceId();
       case ForecastRecapLineTypeRepository.ELEMENT_SALE_ORDER:
-        SaleOrder saleOrder = (SaleOrder) forecastModel;
-        return saleOrder.getSaleOrderSeq();
+        Declaration declaration = (Declaration) forecastModel;
+        return declaration.getDeclarationSeq();
       case ForecastRecapLineTypeRepository.ELEMENT_PURCHASE_ORDER:
         PurchaseOrder purchaseOrder = (PurchaseOrder) forecastModel;
         return purchaseOrder.getPurchaseOrderSeq();
@@ -729,16 +729,16 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
           timetableRepo
               .all()
               .filter(
-                  "self.estimatedDate BETWEEN :fromDate AND :toDate AND self.saleOrder.company = :company"
-                      + " AND self.saleOrder.statusSelect IN (:saleOrderStatusList) AND self.amount != 0"
+                  "self.estimatedDate BETWEEN :fromDate AND :toDate AND self.declaration.company = :company"
+                      + " AND self.declaration.statusSelect IN (:declarationStatusList) AND self.amount != 0"
                       + (CollectionUtils.isNotEmpty(forecastRecap.getBankDetailsSet())
-                          ? " AND self.saleOrder.companyBankDetails IN (:bankDetailsSet) "
+                          ? " AND self.declaration.companyBankDetails IN (:bankDetailsSet) "
                           : "")
                       + " AND (self.invoice IS NULL OR self.invoice.statusSelect NOT IN (:invoiceStatusSelectList)) ")
               .bind("fromDate", forecastRecap.getFromDate())
               .bind("toDate", forecastRecap.getToDate())
               .bind("company", forecastRecap.getCompany())
-              .bind("saleOrderStatusList", statusList)
+              .bind("declarationStatusList", statusList)
               .bind(
                   "bankDetailsSet",
                   CollectionUtils.isEmpty(forecastRecap.getBankDetailsSet())
@@ -754,7 +754,7 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
         BigDecimal amountCompanyCurr =
             currencyService
                 .getAmountCurrencyConvertedAtDate(
-                    timetable.getSaleOrder().getCurrency(),
+                    timetable.getDeclaration().getCurrency(),
                     forecastRecap.getCompany().getCurrency(),
                     timetable.getAmount(),
                     today)
@@ -763,9 +763,9 @@ public class ForecastRecapServiceImpl implements ForecastRecapService {
             timetable.getEstimatedDate(),
             forecastRecapLineType.getTypeSelect(),
             amountCompanyCurr,
-            SaleOrder.class.getName(),
-            timetable.getSaleOrder().getId(),
-            timetable.getSaleOrder().getSaleOrderSeq(),
+            Declaration.class.getName(),
+            timetable.getDeclaration().getId(),
+            timetable.getDeclaration().getDeclarationSeq(),
             forecastRecapLineTypeRepo.find(forecastRecapLineType.getId()),
             forecastRecapRepo.find(forecastRecap.getId()));
       }

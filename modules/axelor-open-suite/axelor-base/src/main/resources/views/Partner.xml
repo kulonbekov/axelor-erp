@@ -517,7 +517,7 @@
       </panel>
       <panel name="customerPanel" title="Customer" if-module="axelor-sale" showIf="isCustomer"
         if="__config__.app.isApp('sale')">
-        <field name="saleOrderInformation"/>
+        <field name="declarationInformation"/>
         <field name="payerQuality" if-module="axelor-account"
           if="__config__.app.isApp('account')" hideIf="isEmployee"/>
         <field name="salePartnerPriceList" canEdit="false" domain="self.typeSelect = 1"
@@ -542,13 +542,13 @@
             onChange="action-attrs-update-manually-blocked-account"/>
           <field name="hasManuallyBlockedAccount" hidden="true"/>
         </panel>
-        <panel name="saleOrderCommentsPanel" title="Comment to display on sale order"
+        <panel name="declarationCommentsPanel" title="Comment to display on sale order"
           colSpan="12">
-          <field name="saleOrderComments" widget="html" colSpan="12" showTitle="false"/>
+          <field name="declarationComments" widget="html" colSpan="12" showTitle="false"/>
         </panel>
-        <panel name="saleOrderPanel" colSpan="12" if="__config__.app.isApp('sale')"
+        <panel name="declarationPanel" colSpan="12" if="__config__.app.isApp('sale')"
           if-module="axelor-sale">
-          <button name="createSaleOrderBtn" title="Create sale quotation" colSpan="4"
+          <button name="createDeclarationBtn" title="Create sale quotation" colSpan="4"
             onClick="save,action-partner-view-create-order" readonlyIf="id == null || id &lt; 1"
             showIf="isProspect || isCustomer"/>
           <panel-include view="incl-sales-partner-form"/>
@@ -744,7 +744,7 @@
       <panel-dashlet name="contactOpportunitiesPanel" title="Opportunity" colSpan="12"
         action="action-contact-view-opportunities" height="550" showIf="id != null"
         if-module="axelor-crm" hideIf="isEmployee" if="__config__.app.isApp('crm')"/>
-      <panel name="saleOrderContactPanel" title="Sales orders" showIf="id != null"
+      <panel name="declarationContactPanel" title="Sales orders" showIf="id != null"
         if-module="axelor-supplychain" if="__config__.app.isApp('supplychain')">
         <panel-include view="incl-sales-contact-form"/>
       </panel>
@@ -1142,7 +1142,7 @@
         if="__config__.app.isApp('crm')">
         <panel-include view="incl-activities-contact-form"/>
       </panel>
-      <panel name="saleOrderContactPanel" title="Sales orders" showIf="id != null"
+      <panel name="declarationContactPanel" title="Sales orders" showIf="id != null"
         if-module="axelor-supplychain" if="__config__.app.isApp('supplychain')">
         <panel-include view="incl-sales-contact-form"/>
       </panel>
@@ -1337,7 +1337,7 @@
 
   <action-method name="action-partner-method-check-any-sale-order-attached">
     <call class="com.axelor.apps.sale.web.PartnerSaleController"
-      method="checkAnySaleOrderAttached"/>
+      method="checkAnyDeclarationAttached"/>
   </action-method>
 
   <action-method name="action-partner-method-check-any-receivable-move-line-attached">
@@ -1731,14 +1731,14 @@
     <field name="paymentDelay" hidden="true" if="!__config__.app.isApp('cash-management')"/>
     <field name="invoiceComments" hidden="true" if="!__config__.app.isApp('invoice')"/>
     <field name="accountingSituationList" hidden="true" if="!__config__.app.isApp('account')"/>
-    <field name="saleOrderInformation" hidden="true" if="!__config__.app.isApp('sale')"/>
+    <field name="declarationInformation" hidden="true" if="!__config__.app.isApp('sale')"/>
     <field name="payerQuality" hidden="true" if="!__config__.app.isApp('account')"/>
     <field name="salePartnerPriceList" hidden="true" if="!__config__.app.isApp('sale')"/>
     <field name="chargeBackPurchaseSelect" hidden="true"
       if="!__config__.app.isApp('business-project')"/>
     <field name="chargeBackPurchase" hidden="true"
       if="!__config__.app.isApp('business-project')"/>
-    <field name="saleOrderComments" hidden="true" if="!__config__.app.isApp('sale')"/>
+    <field name="declarationComments" hidden="true" if="!__config__.app.isApp('sale')"/>
     <field name="purchaseOrderInformation" hidden="true"
       if="!__config__.app.isApp('purchase')"/>
     <field name="purchasePartnerPriceList" hidden="true"

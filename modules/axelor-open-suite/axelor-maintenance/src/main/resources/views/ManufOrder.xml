@@ -112,7 +112,7 @@
           onChange="action-manuf-order-atts-sale-order-onchange-client-partner"
           domain="self.isCustomer=true AND :company member of self.companySet"
           form-view="partner-form" grid-view="partner-grid" hidden="true" colSpan="6"/>
-        <field name="saleOrderSet" widget="TagSelect" canEdit="false"
+        <field name="declarationSet" widget="TagSelect" canEdit="false"
           onSelect="action-manuf-order-attrs-sale-order-onselect" form-view="sale-order-form"
           grid-view="sale-order-grid" hidden="true" colSpan="6"/>
         <field name="manufOrderMergeResult" showIf="manufOrderMergeResult" canNew="false"
@@ -209,13 +209,13 @@
         colSpan="12" action="action-manuf-order-view-merged-manuf-orders"/>
       <panel name="notePanel" title="Note">
         <field name="note" showTitle="false" colSpan="12"/>
-        <panel name="moCommentFromSaleOrderPanel" title="MO's comment from sale order"
+        <panel name="moCommentFromDeclarationPanel" title="MO's comment from sale order"
           colSpan="12">
-          <field name="moCommentFromSaleOrder" showTitle="false" colSpan="12" widget="Html"/>
+          <field name="moCommentFromDeclaration" showTitle="false" colSpan="12" widget="Html"/>
         </panel>
-        <panel name="moCommentFromSaleOrderLinePanel"
+        <panel name="moCommentFromDeclarationLinePanel"
           title="MO's comment from sale order line" colSpan="12">
-          <field name="moCommentFromSaleOrderLine" showTitle="false" colSpan="12"
+          <field name="moCommentFromDeclarationLine" showTitle="false" colSpan="12"
             widget="Html"/>
         </panel>
       </panel>

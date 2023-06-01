@@ -42,7 +42,7 @@
           <button name="$tasksDue" title="Tasks due" width="190px" widget="info-button"
             onClick="action-method-show-client-view-tasks-due"/>
         </panel>
-        <panel name="saleOrderPanel" title="Sale order" if-module="axelor-sale" itemSpan="12"
+        <panel name="declarationPanel" title="Sale order" if-module="axelor-sale" itemSpan="12"
           hidden="true">
           <button name="$myQuotation" title="My quotations" width="190px"
             widget="info-button" onClick="action-method-show-client-view-my-quotation"/>
@@ -99,9 +99,9 @@
 
   <action-attrs name="action-attrs-client-view-hide-modules">
     <attribute name="hidden" for="myQuotationsBtn"
-      expr="eval: !(__config__.app.isApp('portal') &amp;&amp; __config__.app.getApp('portal')?.getManageSaleOrders())"/>
-    <attribute name="hidden" for="saleOrderPanel"
-      expr="eval: !(__config__.app.isApp('portal') &amp;&amp; __config__.app.getApp('portal')?.getManageSaleOrders())"/>
+      expr="eval: !(__config__.app.isApp('portal') &amp;&amp; __config__.app.getApp('portal')?.getManageDeclarations())"/>
+    <attribute name="hidden" for="declarationPanel"
+      expr="eval: !(__config__.app.isApp('portal') &amp;&amp; __config__.app.getApp('portal')?.getManageDeclarations())"/>
     <attribute name="hidden" for="myInvoicesBtn"
       expr="eval: !(__config__.app.isApp('portal') &amp;&amp; __config__.app.getApp('portal')?.getManageInvoices())"/>
     <attribute name="hidden" for="invoicePanel"
@@ -151,7 +151,7 @@
   </action-view>
 
   <action-view name="wizard-client-form-open-my-quotations" title="My quotations"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="grid" name="sale-order-grid-client"/>
     <view type="form" name="sale-order-form-client"/>
     <domain>self.clientPartner = :_myPartner</domain>
@@ -198,7 +198,7 @@
     <call class="com.axelor.apps.portal.web.ClientViewController" method="showClientMyTasksDue"/>
   </action-method>
 
-  <!-- SaleOrder OnClick -->
+  <!-- Declaration OnClick -->
   <action-method name="action-method-show-client-view-orders-in-progress"
     model="com.axelor.utils.db.Wizard">
     <call class="com.axelor.apps.portal.web.ClientViewController"

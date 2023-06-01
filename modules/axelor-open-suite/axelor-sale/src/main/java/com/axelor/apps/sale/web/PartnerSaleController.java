@@ -23,7 +23,7 @@ import com.axelor.apps.base.db.Product;
 import com.axelor.apps.base.db.repo.PartnerRepository;
 import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.base.service.exception.TraceBackService;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.sale.service.PartnerSaleService;
 import com.axelor.inject.Beans;
 import com.axelor.rpc.ActionRequest;
@@ -115,17 +115,17 @@ public class PartnerSaleController {
     this.averageByCustomer("markup", request, response);
   }
 
-  public void checkAnySaleOrderAttached(ActionRequest request, ActionResponse response) {
+  public void checkAnyDeclarationAttached(ActionRequest request, ActionResponse response) {
     try {
       Partner partner = request.getContext().asType(Partner.class);
       if (!partner.getIsCustomer()) {
-        long saleOrderCount =
-            Beans.get(SaleOrderRepository.class)
+        long declarationCount =
+            Beans.get(DeclarationRepository.class)
                 .all()
                 .filter("self.clientPartner = :partner")
                 .bind("partner", partner.getId())
                 .count();
-        if (saleOrderCount > 0) {
+        if (declarationCount > 0) {
           response.setValue("customerCantBeRemoved", true);
         }
       }

@@ -2641,7 +2641,7 @@ left outer join base_product_category as ProductCategory on (Product.product_cat
 left outer join base_unit as Unit on (InvoiceLine.unit = Unit.id)
 left outer join base_currency as Currency on (Invoice.currency = Currency.id)
 left outer join sale_customer_catalog as CustomerCatalog on (CustomerCatalog.product = Product.id and CustomerCatalog.customer_partner = Invoice.partner)
-left outer join sale_sale_order_line as SaleOrderLine on InvoiceLine.sale_order_line = SaleOrderLine.id
+left outer join sale_sale_order_line as DeclarationLine on InvoiceLine.sale_order_line = DeclarationLine.id
 where Invoice.id = invoiceId;
 ELSE
 return query
@@ -2684,7 +2684,7 @@ left outer join base_product_category as ProductCategory on (Product.product_cat
 left outer join base_unit as Unit on (InvoiceLine.unit = Unit.id)
 left outer join base_currency as Currency on (Invoice.currency = Currency.id)
 left outer join sale_customer_catalog as CustomerCatalog on (CustomerCatalog.product = Product.id and CustomerCatalog.customer_partner = Invoice.partner)
-left outer join sale_sale_order_line as SaleOrderLine on InvoiceLine.sale_order_line = SaleOrderLine.id
+left outer join sale_sale_order_line as DeclarationLine on InvoiceLine.sale_order_line = DeclarationLine.id
 where Invoice.id = invoiceId;
 END IF;
 END;

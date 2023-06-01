@@ -23,7 +23,7 @@
       initParam="true"/>
     <many-to-one name="clientPartner" ref="com.axelor.apps.base.db.Partner"
       title="Customer"/>
-    <many-to-many name="saleOrderSet" ref="com.axelor.apps.sale.db.SaleOrder"
+    <many-to-many name="declarationSet" ref="com.axelor.apps.sale.db.Declaration"
       title="Sale orders"/>
 
     <string name="manufOrderSeq" title="MO" namecolumn="true" initParam="true"/>
@@ -102,8 +102,8 @@
 
     <string name="cancelReasonStr" title="Cancel Reason" large="true"/>
 
-    <string name="moCommentFromSaleOrder" title="MO's comment from sale order" large="true"/>
-    <string name="moCommentFromSaleOrderLine" title="MO's comment from sale order line"
+    <string name="moCommentFromDeclaration" title="MO's comment from sale order" large="true"/>
+    <string name="moCommentFromDeclarationLine" title="MO's comment from sale order line"
       large="true"/>
     <boolean name="outsourcing" title="Outsourcing" initParam="true"/>
     <many-to-one name="purchaseOrder" title="Purchase order"

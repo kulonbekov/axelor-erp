@@ -11,7 +11,7 @@
 
     <date name="advancePaymentDate" title="Date" required="true"/>
 
-    <many-to-one name="saleOrder" ref="com.axelor.apps.sale.db.SaleOrder"/>
+    <many-to-one name="declaration" ref="com.axelor.apps.sale.db.Declaration"/>
     <many-to-one name="currency" ref="com.axelor.apps.base.db.Currency" title="Currency"
       required="true"/>
     <integer name="statusSelect" title="Status" selection="advance.payment.status.select"/>
@@ -27,7 +27,7 @@
     <track>
       <field name="amount" on="UPDATE"/>
       <field name="advancePaymentDate" on="UPDATE"/>
-      <field name="saleOrder" on="UPDATE"/>
+      <field name="declaration" on="UPDATE"/>
       <field name="currency" on="UPDATE"/>
       <field name="statusSelect" on="UPDATE"/>
     </track>

@@ -19,8 +19,8 @@
 package com.axelor.apps.sale.db.repo;
 
 import com.axelor.apps.sale.db.AdvancePayment;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.service.saleorder.SaleOrderComputeService;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.service.declaration.DeclarationComputeService;
 import com.axelor.inject.Beans;
 import javax.persistence.PersistenceException;
 
@@ -29,8 +29,8 @@ public class AdvancePaymentSaleRepository extends AdvancePaymentRepository {
   @Override
   public AdvancePayment save(AdvancePayment advancePayment) {
     try {
-      SaleOrder saleOrder = advancePayment.getSaleOrder();
-      Beans.get(SaleOrderComputeService.class)._computeSaleOrder(saleOrder);
+      Declaration declaration = advancePayment.getDeclaration();
+      Beans.get(DeclarationComputeService.class)._computeDeclaration(declaration);
       return super.save(advancePayment);
     } catch (Exception e) {
       throw new PersistenceException(e.getMessage(), e);

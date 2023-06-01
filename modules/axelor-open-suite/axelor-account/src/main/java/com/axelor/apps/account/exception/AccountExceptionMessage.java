@@ -827,7 +827,7 @@ public final class AccountExceptionMessage {
       "The partner is required and must be the same for all invoices" /*)*/;
   public static final String INVOICE_MERGE_ERROR_COMPANY = /*$$(*/
       "The company is required and must be the same for all invoices" /*)*/;
-  public static final String INVOICE_MERGE_ERROR_SALEORDER = /*$$(*/
+  public static final String INVOICE_MERGE_ERROR_DECLARATION = /*$$(*/
       "The sale order must be the same for all invoices" /*)*/;
   public static final String INVOICE_MERGE_ERROR_PURCHASEORDER = /*$$(*/
       "The purchase order must be the same for all invoices" /*)*/;

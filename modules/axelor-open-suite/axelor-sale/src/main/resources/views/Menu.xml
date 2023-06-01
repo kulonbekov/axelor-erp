@@ -71,7 +71,7 @@
     title="Sale quotations" action="sc.root.sale.quotations" if="__config__.app.isApp('sale')"/>
 
   <action-view name="sc.root.sale.quotations" title="Sale quotations"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-quotation-cards"/>
     <view type="grid" name="sale-order-quotation-grid"/>
     <view type="calendar" name="sale-order-calendar"/>
@@ -87,10 +87,10 @@
   </action-view>
 
   <menuitem name="sc-root-sale-orders" parent="sc-root-sale" order="600"
-    title="Sale orders" action="sc.root.sale.orders"/>
+    title="Declaration" action="sc.root.sale.orders"/>
 
-  <action-view name="sc.root.sale.orders" title="Sale orders"
-    model="com.axelor.apps.sale.db.SaleOrder">
+  <action-view name="sc.root.sale.orders" title="Declaration"
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-cards"/>
     <view type="grid" name="sale-order-grid"/>
     <view type="calendar" name="sale-order-calendar"/>
@@ -106,7 +106,7 @@
   </action-view>
 
   <search-filters name="sc.root.sale.templates.filter"
-    model="com.axelor.apps.sale.db.SaleOrder" title="My Templates">
+    model="com.axelor.apps.sale.db.Declaration" title="My Templates">
     <filter title="My templates">
       <domain>self.template = true AND self.templateUser = :_user</domain>
       <context name="_user" value="__user__"/>
@@ -128,7 +128,7 @@
     order="1100" action="sc.hist.sale.orders"/>
 
   <action-view name="sc.hist.sale.orders" title="Historical"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-cards"/>
     <view type="grid" name="sale-order-grid"/>
     <view type="calendar" name="sale-order-calendar"/>
@@ -166,7 +166,7 @@
     <view type="form" name="cancel-reason-form"/>
     <view-param name="search-filters" value="cancel-reason-filters"/>
     <domain>self.applicationType = :_xApplicationType</domain>
-    <context name="_xApplicationType" expr="eval: com.axelor.apps.sale.db.SaleOrder"/>
+    <context name="_xApplicationType" expr="eval: com.axelor.apps.sale.db.Declaration"/>
   </action-view>
 
   <menuitem name="sale-conf-duration" parent="sc-root-sale-conf" title="Durations"
@@ -215,7 +215,7 @@
   <menuitem name="sc-root-sale-templates" parent="sc-root-sale-conf"
     title="Quotations template" action="sc.root.sale.templates" order="700"/>
 
-  <action-view name="sc.root.sale.templates" model="com.axelor.apps.sale.db.SaleOrder"
+  <action-view name="sc.root.sale.templates" model="com.axelor.apps.sale.db.Declaration"
     title="Quotations template">
     <view name="sale-order-template-grid" type="grid"/>
     <view name="sale-order-template-form" type="form"/>
@@ -286,7 +286,7 @@
     title="Sale quotations" action="top.menu.sales.quotations" top="true"/>
 
   <action-view name="top.menu.sales.quotations" title="Sale quotations"
-    model="com.axelor.apps.sale.db.SaleOrder">
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-quotation-cards"/>
     <view type="grid" name="sale-order-quotation-grid"/>
     <view type="calendar" name="sale-order-calendar"/>
@@ -300,11 +300,11 @@
     <context name="_template" expr="eval:false"/>
   </action-view>
 
-  <menuitem name="top-menu-sales-sale-orders" parent="top-menu-sales" title="Sale orders"
+  <menuitem name="top-menu-sales-sale-orders" parent="top-menu-sales" title="Declarations"
     action="top.menu.sales.sale.orders" top="true"/>
 
-  <action-view name="top.menu.sales.sale.orders" title="Sale orders"
-    model="com.axelor.apps.sale.db.SaleOrder">
+  <action-view name="top.menu.sales.sale.orders" title="Declarations"
+    model="com.axelor.apps.sale.db.Declaration">
     <view type="cards" name="sale-order-cards"/>
     <view type="grid" name="sale-order-grid"/>
     <view type="calendar" name="sale-order-calendar"/>

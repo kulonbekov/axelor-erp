@@ -25,14 +25,14 @@ import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.production.db.ConfiguratorBOM;
 import com.axelor.apps.production.service.configurator.ConfiguratorBomService;
 import com.axelor.apps.sale.db.Configurator;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.apps.sale.service.configurator.ConfiguratorFormulaService;
 import com.axelor.apps.sale.service.configurator.ConfiguratorMetaJsonFieldService;
 import com.axelor.apps.sale.service.configurator.ConfiguratorServiceImpl;
-import com.axelor.apps.sale.service.saleorder.SaleOrderComputeService;
-import com.axelor.apps.sale.service.saleorder.SaleOrderLineService;
+import com.axelor.apps.sale.service.declaration.DeclarationComputeService;
+import com.axelor.apps.sale.service.declaration.DeclarationLineService;
 import com.axelor.inject.Beans;
 import com.axelor.meta.db.repo.MetaFieldRepository;
 import com.axelor.rpc.JsonContext;
@@ -46,18 +46,18 @@ public class ConfiguratorServiceProductionImpl extends ConfiguratorServiceImpl {
       AppBaseService appBaseService,
       ConfiguratorFormulaService configuratorFormulaService,
       ProductRepository productRepository,
-      SaleOrderLineService saleOrderLineService,
-      SaleOrderLineRepository saleOrderLineRepository,
-      SaleOrderComputeService saleOrderComputeService,
+      DeclarationLineService declarationLineService,
+      DeclarationLineRepository declarationLineRepository,
+      DeclarationComputeService declarationComputeService,
       MetaFieldRepository metaFieldRepository,
       ConfiguratorMetaJsonFieldService configuratorMetaJsonFieldService) {
     super(
         appBaseService,
         configuratorFormulaService,
         productRepository,
-        saleOrderLineService,
-        saleOrderLineRepository,
-        saleOrderComputeService,
+        declarationLineService,
+        declarationLineRepository,
+        declarationComputeService,
         metaFieldRepository,
         configuratorMetaJsonFieldService);
   }
@@ -68,7 +68,7 @@ public class ConfiguratorServiceProductionImpl extends ConfiguratorServiceImpl {
    * @param configurator
    * @param jsonAttributes
    * @param jsonIndicators
-   * @param saleOrderId
+   * @param declarationId
    * @throws AxelorException
    */
   @Override
@@ -77,9 +77,9 @@ public class ConfiguratorServiceProductionImpl extends ConfiguratorServiceImpl {
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      Long saleOrderId)
+      Long declarationId)
       throws AxelorException {
-    super.generateProduct(configurator, jsonAttributes, jsonIndicators, saleOrderId);
+    super.generateProduct(configurator, jsonAttributes, jsonIndicators, declarationId);
     ConfiguratorBOM configuratorBOM = configurator.getConfiguratorCreator().getConfiguratorBom();
     if (configuratorBOM != null) {
       Product generatedProduct = configurator.getProduct();
@@ -91,21 +91,21 @@ public class ConfiguratorServiceProductionImpl extends ConfiguratorServiceImpl {
 
   /** In this implementation, we also create a bill of material. */
   @Override
-  protected SaleOrderLine generateSaleOrderLine(
+  protected DeclarationLine generateDeclarationLine(
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      SaleOrder saleOrder)
+      Declaration declaration)
       throws AxelorException {
 
-    SaleOrderLine saleOrderLine =
-        super.generateSaleOrderLine(configurator, jsonAttributes, jsonIndicators, saleOrder);
+    DeclarationLine declarationLine =
+        super.generateDeclarationLine(configurator, jsonAttributes, jsonIndicators, declaration);
     ConfiguratorBOM configuratorBOM = configurator.getConfiguratorCreator().getConfiguratorBom();
     if (configuratorBOM != null) {
       Beans.get(ConfiguratorBomService.class)
           .generateBillOfMaterial(configuratorBOM, jsonAttributes, 0, null)
-          .ifPresent(saleOrderLine::setBillOfMaterial);
+          .ifPresent(declarationLine::setBillOfMaterial);
     }
-    return saleOrderLine;
+    return declarationLine;
   }
 }

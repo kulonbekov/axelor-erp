@@ -22,9 +22,9 @@ import com.axelor.apps.account.db.Invoice;
 import com.axelor.apps.account.db.repo.InvoiceRepository;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.service.app.AppBaseService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.auth.AuthUtils;
 import com.axelor.auth.db.User;
 import com.axelor.db.Query;
@@ -41,17 +41,17 @@ public class SubscriptionInvoiceServiceImpl implements SubscriptionInvoiceServic
 
   @Inject private AppBaseService appBaseService;
 
-  @Inject private SaleOrderRepository saleOrderRepo;
+  @Inject private DeclarationRepository declarationRepo;
 
-  @Inject private SaleOrderInvoiceService saleOrderInvoiceService;
+  @Inject private DeclarationInvoiceService declarationInvoiceService;
 
   @Override
   public List<Invoice> generateSubscriptionInvoices() throws AxelorException {
 
     List<Invoice> invoices = new ArrayList<>();
 
-    for (SaleOrder saleOrder : getSubscriptionOrders(null)) {
-      Invoice invoice = generateSubscriptionInvoice(saleOrder);
+    for (Declaration declaration : getSubscriptionOrders(null)) {
+      Invoice invoice = generateSubscriptionInvoice(declaration);
       invoices.add(invoice);
     }
 
@@ -59,18 +59,18 @@ public class SubscriptionInvoiceServiceImpl implements SubscriptionInvoiceServic
   }
 
   @Override
-  public List<SaleOrder> getSubscriptionOrders(Integer limit) {
+  public List<Declaration> getSubscriptionOrders(Integer limit) {
 
-    Query<SaleOrder> query =
-        saleOrderRepo
+    Query<Declaration> query =
+        declarationRepo
             .all()
             .filter(
-                "self.saleOrderTypeSelect = :saleOrderType "
-                    + "AND self.statusSelect = :saleOrderStatus "
+                "self.declarationTypeSelect = :declarationType "
+                    + "AND self.statusSelect = :declarationStatus "
                     + "AND :subScriptionDate >= self.nextInvoicingDate "
                     + "AND (self.contractEndDate IS NULL OR self.contractEndDate >= :subScriptionDate)")
-            .bind("saleOrderType", SaleOrderRepository.SALE_ORDER_TYPE_SUBSCRIPTION)
-            .bind("saleOrderStatus", SaleOrderRepository.STATUS_ORDER_CONFIRMED)
+            .bind("declarationType", DeclarationRepository.SALE_ORDER_TYPE_SUBSCRIPTION)
+            .bind("declarationStatus", DeclarationRepository.STATUS_ORDER_CONFIRMED)
             .bind(
                 "subScriptionDate",
                 appBaseService.getTodayDate(
@@ -87,39 +87,39 @@ public class SubscriptionInvoiceServiceImpl implements SubscriptionInvoiceServic
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public Invoice generateSubscriptionInvoice(SaleOrder saleOrder) throws AxelorException {
+  public Invoice generateSubscriptionInvoice(Declaration declaration) throws AxelorException {
 
     TemporalUnit temporalUnit = ChronoUnit.MONTHS;
 
     Invoice invoice =
-        saleOrderInvoiceService.generateInvoice(saleOrderRepo.find(saleOrder.getId()));
+        declarationInvoiceService.generateInvoice(declarationRepo.find(declaration.getId()));
 
     if (invoice != null) {
-      if (saleOrder.getPeriodicityTypeSelect() == 1) {
+      if (declaration.getPeriodicityTypeSelect() == 1) {
         temporalUnit = ChronoUnit.DAYS;
       }
-      invoice.setInvoiceDate(appBaseService.getTodayDate(saleOrder.getCompany()));
+      invoice.setInvoiceDate(appBaseService.getTodayDate(declaration.getCompany()));
       invoice.setOperationSubTypeSelect(InvoiceRepository.OPERATION_SUB_TYPE_SUBSCRIPTION);
 
-      LocalDate invoicingPeriodStartDate = saleOrder.getNextInvoicingStartPeriodDate();
+      LocalDate invoicingPeriodStartDate = declaration.getNextInvoicingStartPeriodDate();
       invoice.setSubscriptionFromDate(invoicingPeriodStartDate);
-      invoice.setSubscriptionToDate(saleOrder.getNextInvoicingEndPeriodDate());
+      invoice.setSubscriptionToDate(declaration.getNextInvoicingEndPeriodDate());
       if (invoicingPeriodStartDate != null) {
         LocalDate nextInvoicingStartPeriodDate =
-            invoicingPeriodStartDate.plus(saleOrder.getNumberOfPeriods(), temporalUnit);
-        saleOrder.setNextInvoicingStartPeriodDate(nextInvoicingStartPeriodDate);
+            invoicingPeriodStartDate.plus(declaration.getNumberOfPeriods(), temporalUnit);
+        declaration.setNextInvoicingStartPeriodDate(nextInvoicingStartPeriodDate);
         LocalDate nextInvoicingEndPeriodDate =
             nextInvoicingStartPeriodDate
-                .plus(saleOrder.getNumberOfPeriods(), temporalUnit)
+                .plus(declaration.getNumberOfPeriods(), temporalUnit)
                 .minusDays(1);
-        saleOrder.setNextInvoicingEndPeriodDate(nextInvoicingEndPeriodDate);
+        declaration.setNextInvoicingEndPeriodDate(nextInvoicingEndPeriodDate);
       }
 
-      LocalDate nextInvoicingDate = saleOrder.getNextInvoicingDate();
+      LocalDate nextInvoicingDate = declaration.getNextInvoicingDate();
       if (nextInvoicingDate != null) {
-        nextInvoicingDate = nextInvoicingDate.plus(saleOrder.getNumberOfPeriods(), temporalUnit);
+        nextInvoicingDate = nextInvoicingDate.plus(declaration.getNumberOfPeriods(), temporalUnit);
       }
-      saleOrder.setNextInvoicingDate(nextInvoicingDate);
+      declaration.setNextInvoicingDate(nextInvoicingDate);
     }
 
     return invoice;

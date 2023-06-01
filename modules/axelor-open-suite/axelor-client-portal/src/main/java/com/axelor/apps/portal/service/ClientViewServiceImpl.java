@@ -27,8 +27,8 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.ProjectTask;
 import com.axelor.apps.project.db.repo.ProjectRepository;
 import com.axelor.apps.project.db.repo.ProjectTaskRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.repo.StockMoveRepository;
 import com.axelor.auth.db.User;
@@ -48,7 +48,7 @@ import java.util.Map;
 
 public class ClientViewServiceImpl implements ClientViewService {
 
-  protected SaleOrderRepository saleOrderRepo;
+  protected DeclarationRepository declarationRepo;
   protected StockMoveRepository stockMoveRepo;
   protected ProjectRepository projectRepo;
   protected TicketRepository ticketRepo;
@@ -61,7 +61,7 @@ public class ClientViewServiceImpl implements ClientViewService {
 
   @Inject
   public ClientViewServiceImpl(
-      SaleOrderRepository saleOrderRepo,
+      DeclarationRepository declarationRepo,
       StockMoveRepository stockMoveRepo,
       ProjectRepository projectRepo,
       TicketRepository ticketRepo,
@@ -69,7 +69,7 @@ public class ClientViewServiceImpl implements ClientViewService {
       ProjectTaskRepository projectTaskRepo,
       JpaSecurity jpaSecurity,
       AppService appService) {
-    this.saleOrderRepo = saleOrderRepo;
+    this.declarationRepo = declarationRepo;
     this.stockMoveRepo = stockMoveRepo;
     this.projectRepo = projectRepo;
     this.ticketRepo = ticketRepo;
@@ -88,7 +88,7 @@ public class ClientViewServiceImpl implements ClientViewService {
   public Map<String, Object> updateClientViewIndicators() {
     Map<String, Object> map = new HashMap<>();
     User user = getClientUser();
-    /* SaleOrder */
+    /* Declaration */
     map.put("$ordersInProgress", getOrdersInProgressIndicator(user));
     map.put("$myQuotation", getQuotationsIndicator(user));
     map.put("$lastOrder", getLastOrderIndicator(user));
@@ -114,28 +114,28 @@ public class ClientViewServiceImpl implements ClientViewService {
     return map;
   }
 
-  /* SaleOrder Indicators */
+  /* Declaration Indicators */
   protected Integer getOrdersInProgressIndicator(User user) {
     List<Filter> filters = getOrdersInProgressOfUser(user);
-    List<SaleOrder> saleOrderList = Filter.and(filters).build(SaleOrder.class).fetch();
-    return !saleOrderList.isEmpty() ? saleOrderList.size() : 0;
+    List<Declaration> declarationList = Filter.and(filters).build(Declaration.class).fetch();
+    return !declarationList.isEmpty() ? declarationList.size() : 0;
   }
 
   protected Integer getQuotationsIndicator(User user) {
     List<Filter> filters = getQuotationsOfUser(user);
-    List<SaleOrder> saleOrderList = Filter.and(filters).build(SaleOrder.class).fetch();
-    return !saleOrderList.isEmpty() ? saleOrderList.size() : 0;
+    List<Declaration> declarationList = Filter.and(filters).build(Declaration.class).fetch();
+    return !declarationList.isEmpty() ? declarationList.size() : 0;
   }
 
   protected String getLastOrderIndicator(User user) {
     List<Filter> filters = getLastOrderOfUser(user);
-    SaleOrder saleOrder =
-        Filter.and(filters).build(SaleOrder.class).order("-confirmationDateTime").fetchOne();
-    if (saleOrder == null) {
+    Declaration declaration =
+        Filter.and(filters).build(Declaration.class).order("-confirmationDateTime").fetchOne();
+    if (declaration == null) {
       return I18n.get(CLIENT_PORTAL_NO_DATE);
     }
-    return saleOrder.getConfirmationDateTime() != null
-        ? L10n.getInstance().format(saleOrder.getConfirmationDateTime().toLocalDate())
+    return declaration.getConfirmationDateTime() != null
+        ? L10n.getInstance().format(declaration.getConfirmationDateTime().toLocalDate())
         : I18n.get(CLIENT_PORTAL_NO_DATE);
   }
 
@@ -252,18 +252,18 @@ public class ClientViewServiceImpl implements ClientViewService {
     return !projectTaskList.isEmpty() ? projectTaskList.size() : 0;
   }
 
-  /* SaleOrder Query */
+  /* Declaration Query */
   @Override
   public List<Filter> getOrdersInProgressOfUser(User user) {
 
     List<Filter> filters = new ArrayList<>();
-    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, SaleOrder.class);
+    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, Declaration.class);
     Filter filter =
         new JPQLFilter(
             "self.clientPartner.id = "
                 + user.getPartner().getId()
                 + " AND self.statusSelect = "
-                + SaleOrderRepository.STATUS_ORDER_CONFIRMED);
+                + DeclarationRepository.STATUS_ORDER_CONFIRMED);
 
     if (user.getActiveCompany() != null) {
       filter =
@@ -278,15 +278,15 @@ public class ClientViewServiceImpl implements ClientViewService {
   @Override
   public List<Filter> getQuotationsOfUser(User user) {
     List<Filter> filters = new ArrayList<>();
-    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, SaleOrder.class);
+    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, Declaration.class);
     Filter filter =
         new JPQLFilter(
             "self.clientPartner.id = "
                 + user.getPartner().getId()
                 + " AND self.statusSelect IN ("
-                + SaleOrderRepository.STATUS_DRAFT_QUOTATION
+                + DeclarationRepository.STATUS_DRAFT_QUOTATION
                 + ","
-                + SaleOrderRepository.STATUS_FINALIZED_QUOTATION
+                + DeclarationRepository.STATUS_FINALIZED_QUOTATION
                 + ")");
 
     if (user.getActiveCompany() != null) {
@@ -303,13 +303,13 @@ public class ClientViewServiceImpl implements ClientViewService {
   @Override
   public List<Filter> getLastOrderOfUser(User user) {
     List<Filter> filters = new ArrayList<>();
-    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, SaleOrder.class);
+    Filter filterFromPermission = security.getFilter(JpaSecurity.CAN_READ, Declaration.class);
     Filter filter =
         new JPQLFilter(
             "self.clientPartner.id = "
                 + user.getPartner().getId()
                 + " AND self.statusSelect = "
-                + SaleOrderRepository.STATUS_ORDER_COMPLETED);
+                + DeclarationRepository.STATUS_ORDER_COMPLETED);
 
     if (user.getActiveCompany() != null) {
       filter =

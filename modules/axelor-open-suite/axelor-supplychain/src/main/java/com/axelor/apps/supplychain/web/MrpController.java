@@ -26,7 +26,7 @@ import com.axelor.apps.supplychain.db.Mrp;
 import com.axelor.apps.supplychain.db.repo.MrpRepository;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
 import com.axelor.apps.supplychain.report.IReport;
-import com.axelor.apps.supplychain.service.MrpFilterSaleOrderLineService;
+import com.axelor.apps.supplychain.service.MrpFilterDeclarationLineService;
 import com.axelor.apps.supplychain.service.MrpService;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
@@ -178,17 +178,17 @@ public class MrpController {
     }
   }
 
-  public void setSaleOrderLineSetDomain(ActionRequest request, ActionResponse response) {
+  public void setDeclarationLineSetDomain(ActionRequest request, ActionResponse response) {
     Mrp mrp = request.getContext().asType(Mrp.class);
 
     try {
       List<Long> idList =
-          Beans.get(MrpFilterSaleOrderLineService.class)
-              .getSaleOrderLinesComplyingToMrpLineTypes(mrp);
+          Beans.get(MrpFilterDeclarationLineService.class)
+              .getDeclarationLinesComplyingToMrpLineTypes(mrp);
 
       String idListStr = idList.stream().map(Object::toString).collect(Collectors.joining(","));
 
-      response.setAttr("saleOrderLineSet", "domain", "self.id IN (" + idListStr + ")");
+      response.setAttr("declarationLineSet", "domain", "self.id IN (" + idListStr + ")");
     } catch (Exception e) {
       TraceBackService.trace(response, e);
     }

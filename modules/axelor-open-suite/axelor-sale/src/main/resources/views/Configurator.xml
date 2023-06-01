@@ -113,7 +113,7 @@
   </action-method>
 
   <action-method name="action-configurator-method-generate">
-    <call class="com.axelor.apps.sale.web.ConfiguratorController" method="generateForSaleOrder"/>
+    <call class="com.axelor.apps.sale.web.ConfiguratorController" method="generateForDeclaration"/>
   </action-method>
 
   <action-attrs name="action-configurator-attrs-create-configurator">

@@ -7,7 +7,7 @@
 
   <entity name="Opportunity">
 
-    <one-to-many name="saleOrderList" ref="com.axelor.apps.sale.db.SaleOrder"
+    <one-to-many name="declarationList" ref="com.axelor.apps.sale.db.Declaration"
       title="Sale orders" mappedBy="opportunity"/>
 
   </entity>

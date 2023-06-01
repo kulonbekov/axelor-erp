@@ -24,8 +24,8 @@ import com.axelor.apps.account.service.invoice.InvoiceToolService;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.db.repo.TraceBackRepository;
 import com.axelor.apps.purchase.db.PurchaseOrder;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.supplychain.db.Timetable;
 import com.axelor.apps.supplychain.db.TimetableTemplate;
 import com.axelor.apps.supplychain.db.TimetableTemplateLine;
@@ -43,7 +43,7 @@ import java.util.List;
 
 public class TimetableServiceImpl implements TimetableService {
 
-  @Inject SaleOrderInvoiceService saleOrderInvoiceService;
+  @Inject DeclarationInvoiceService declarationInvoiceService;
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
@@ -57,23 +57,23 @@ public class TimetableServiceImpl implements TimetableService {
 
   @Override
   public Invoice createInvoice(Timetable timetable) throws AxelorException {
-    SaleOrder saleOrder = timetable.getSaleOrder();
+    Declaration declaration = timetable.getDeclaration();
     PurchaseOrder purchaseOrder = timetable.getPurchaseOrder();
 
-    if (saleOrder != null) {
-      if (saleOrder.getCurrency() == null) {
+    if (declaration != null) {
+      if (declaration.getCurrency() == null) {
         throw new AxelorException(
             timetable,
             TraceBackRepository.CATEGORY_CONFIGURATION_ERROR,
             I18n.get(SupplychainExceptionMessage.SO_INVOICE_6),
-            saleOrder.getSaleOrderSeq());
+            declaration.getDeclarationSeq());
       }
       List<Long> timetableId = new ArrayList<>();
       timetableId.add(timetable.getId());
       Invoice invoice =
-          saleOrderInvoiceService.generateInvoice(
-              saleOrder,
-              SaleOrderRepository.INVOICE_TIMETABLES,
+          declarationInvoiceService.generateInvoice(
+              declaration,
+              DeclarationRepository.INVOICE_TIMETABLES,
               BigDecimal.ZERO,
               true,
               null,

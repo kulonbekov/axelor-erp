@@ -40,7 +40,7 @@ import com.axelor.apps.base.db.repo.TraceBackRepository;
 import com.axelor.apps.base.exceptions.BaseExceptionMessage;
 import com.axelor.apps.base.service.CurrencyService;
 import com.axelor.apps.sale.db.AdvancePayment;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.sale.db.repo.AdvancePaymentRepository;
 import com.axelor.apps.sale.service.AdvancePaymentServiceImpl;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
@@ -84,7 +84,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
 
     advancePayment.setStatusSelect(AdvancePaymentRepository.STATUS_VALIDATED);
 
-    Company company = advancePayment.getSaleOrder().getCompany();
+    Company company = advancePayment.getDeclaration().getCompany();
 
     if (accountConfigService.getAccountConfig(company).getGenerateMoveForAdvancePayment()
         && advancePayment.getAmount().compareTo(BigDecimal.ZERO) != 0) {
@@ -105,21 +105,21 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
     advancePaymentRepository.save(advancePayment);
   }
 
-  public void createInvoicePayments(Invoice invoice, SaleOrder saleOrder) {
-    if (saleOrder.getAdvancePaymentList() == null || saleOrder.getAdvancePaymentList().isEmpty()) {
+  public void createInvoicePayments(Invoice invoice, Declaration declaration) {
+    if (declaration.getAdvancePaymentList() == null || declaration.getAdvancePaymentList().isEmpty()) {
       return;
     }
 
-    BigDecimal total = saleOrder.getInTaxTotal();
+    BigDecimal total = declaration.getInTaxTotal();
 
-    //		for (AdvancePayment advancePayment : saleOrder.getAdvancePaymentList())  {
+    //		for (AdvancePayment advancePayment : declaration.getAdvancePaymentList())  {
     //
     //			if(advancePayment.getAmountRemainingToUse().compareTo(BigDecimal.ZERO) != 0 &&
     // total.compareTo(BigDecimal.ZERO) != 0)  {
     //				if(total.max(advancePayment.getAmountRemainingToUse()) == total)  {
     //					total = total.subtract(advancePayment.getAmountRemainingToUse());
     //					InvoicePayment invoicePayment = createInvoicePayment(advancePayment, invoice,
-    // advancePayment.getAmountRemainingToUse(), saleOrder);
+    // advancePayment.getAmountRemainingToUse(), declaration);
     //					invoice.addInvoicePaymentListItem(invoicePayment);
     //					advancePayment.setAmountRemainingToUse(BigDecimal.ZERO);
     //				}
@@ -127,7 +127,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
     //
     //	advancePayment.setAmountRemainingToUse(advancePayment.getAmountRemainingToUse().subtract(total));
     //					InvoicePayment invoicePayment = createInvoicePayment(advancePayment, invoice, total,
-    // saleOrder);
+    // declaration);
     //					invoicePayment.setInvoice(invoice);
     //					invoice.addInvoicePaymentListItem(invoicePayment);
     //					total = BigDecimal.ZERO;
@@ -139,13 +139,13 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
   @Transactional(rollbackOn = {Exception.class})
   public Move createMoveForAdvancePayment(AdvancePayment advancePayment) throws AxelorException {
 
-    SaleOrder saleOrder = advancePayment.getSaleOrder();
-    Company company = saleOrder.getCompany();
+    Declaration declaration = advancePayment.getDeclaration();
+    Company company = declaration.getCompany();
     PaymentMode paymentMode = advancePayment.getPaymentMode();
-    Partner clientPartner = saleOrder.getClientPartner();
+    Partner clientPartner = declaration.getClientPartner();
     LocalDate advancePaymentDate = advancePayment.getAdvancePaymentDate();
-    BankDetails bankDetails = saleOrder.getCompanyBankDetails();
-    String origin = saleOrder.getSaleOrderSeq();
+    BankDetails bankDetails = declaration.getCompanyBankDetails();
+    String origin = declaration.getDeclarationSeq();
 
     AccountConfig accountConfig = accountConfigService.getAccountConfig(company);
 
@@ -157,7 +157,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
           I18n.get(BaseExceptionMessage.EXCEPTION),
           company.getName(),
           paymentMode.getName(),
-          saleOrder.getSaleOrderSeq());
+          declaration.getDeclarationSeq());
     }
     Journal journal = paymentModeService.getPaymentModeJournal(paymentMode, company, bankDetails);
 
@@ -170,7 +170,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
             advancePaymentDate,
             advancePaymentDate,
             paymentMode,
-            saleOrder.getFiscalPosition(),
+            declaration.getFiscalPosition(),
             MoveRepository.TECHNICAL_ORIGIN_AUTOMATIC,
             MoveRepository.FUNCTIONAL_ORIGIN_PAYMENT,
             origin,
@@ -180,7 +180,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
     BigDecimal amountConverted =
         currencyService.getAmountCurrencyConvertedAtDate(
             advancePayment.getCurrency(),
-            saleOrder.getCurrency(),
+            declaration.getCurrency(),
             advancePayment.getAmount(),
             advancePaymentDate);
 
@@ -222,7 +222,7 @@ public class AdvancePaymentServiceSupplychainImpl extends AdvancePaymentServiceI
   public InvoicePayment createInvoicePayment(
       AdvancePayment advancePayment, Invoice invoice, BigDecimal amount) {
 
-    log.debug("Creating InvoicePayment from SaleOrder AdvancePayment");
+    log.debug("Creating InvoicePayment from Declaration AdvancePayment");
     InvoicePayment invoicePayment = new InvoicePayment();
 
     invoicePayment.setAmount(amount);

@@ -25,7 +25,7 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.supplychain.service.PurchaseOrderLineServiceSupplychainImpl;
 import com.axelor.inject.Beans;
 import com.google.inject.Inject;
@@ -39,14 +39,14 @@ public class PurchaseOrderLineServiceProjectImpl extends PurchaseOrderLineServic
 
   @Override
   public PurchaseOrderLine createPurchaseOrderLine(
-      PurchaseOrder purchaseOrder, SaleOrderLine saleOrderLine) throws AxelorException {
+      PurchaseOrder purchaseOrder, DeclarationLine declarationLine) throws AxelorException {
 
-    PurchaseOrderLine line = super.createPurchaseOrderLine(purchaseOrder, saleOrderLine);
+    PurchaseOrderLine line = super.createPurchaseOrderLine(purchaseOrder, declarationLine);
 
     if (line != null
-        && saleOrderLine != null
+        && declarationLine != null
         && Beans.get(AppBusinessProjectService.class).isApp("business-project")) {
-      line.setProject(saleOrderLine.getProject());
+      line.setProject(declarationLine.getProject());
     }
 
     return line;

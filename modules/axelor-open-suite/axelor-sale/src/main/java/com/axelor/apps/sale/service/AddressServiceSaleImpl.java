@@ -19,7 +19,7 @@
 package com.axelor.apps.sale.service;
 
 import com.axelor.apps.base.service.AddressServiceImpl;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.db.JPA;
 
 public class AddressServiceSaleImpl extends AddressServiceImpl {
@@ -28,7 +28,7 @@ public class AddressServiceSaleImpl extends AddressServiceImpl {
   }
 
   private static boolean checkAddressUsedSale(Long addressId) {
-    return JPA.all(SaleOrder.class)
+    return JPA.all(Declaration.class)
             .filter("self.mainInvoicingAddress.id = ?1 OR self.deliveryAddress.id = ?1", addressId)
             .fetchOne()
         != null;

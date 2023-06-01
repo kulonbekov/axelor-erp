@@ -1554,9 +1554,9 @@ pcNumber;</expression>
 	LogisticalFormLine.unit_net_mass,
 	StockMove.stock_move_seq,
 	Product.code as product_code,
-	SaleOrder.sale_order_seq,
-	SaleOrder.order_number,
-	SaleOrder.external_reference,
+	Declaration.sale_order_seq,
+	Declaration.order_number,
+	Declaration.external_reference,
 	StockMoveLine.net_mass,
 	StockMoveLine.product_name,
 	coalesce(nullif(translat.message_value, ''), translat.message_key) as line_format
@@ -1565,7 +1565,7 @@ from stock_logistical_form_line as LogisticalFormLine
 left join stock_stock_move_line as StockMoveLine on LogisticalFormLine.stock_move_line = StockMoveLine.id
 left join stock_stock_move as StockMove on StockMoveLine.stock_move = StockMove.id
 left join base_product as Product on StockMoveLine.product = Product.id
-left join sale_sale_order as SaleOrder on StockMove.origin_id = SaleOrder.id
+left join sale_sale_order as Declaration on StockMove.origin_id = Declaration.id
 left join meta_translation as translat on translat.language = ?
 and translat.message_key = case LogisticalFormLine.type_select
 when 1 then 'LogisticalFormLine.parcelNo <strong>{0}</strong> - LogisticalFormLine.dimensions <strong>{1}</strong> - LogisticalFormLine.grossMass ({2}): <strong>{3}</strong>'

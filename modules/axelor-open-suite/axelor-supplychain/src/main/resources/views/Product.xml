@@ -38,7 +38,7 @@
             onClick="action-method-suppplychain-stock-location-line-view-requested-reserved"/>
         </panel>
         <panel name="supplychainIndicators" colSpan="12" itemSpan="3">
-          <button name="$saleOrderQty" title="Sale order quantity" icon="fa-shopping-cart"
+          <button name="$declarationQty" title="Sale order quantity" icon="fa-shopping-cart"
             widget="info-button" onClick="action-method-supplychain-sale-order-product-planned"/>
           <button name="$purchaseOrderQty" title="Purchase order quantity"
             icon="fa-shopping-cart" widget="info-button"
@@ -124,15 +124,15 @@
   </action-view>
 
   <action-view
-    name="action-stock-location-line-view-for-a-product-from-saleorderline-view"
+    name="action-stock-location-line-view-for-a-product-from-declarationline-view"
     title="Stock location lines by product" model="com.axelor.utils.db.Wizard">
     <view type="form" name="supplychain-stock-details-by-product-form"/>
     <view-param name="popup" value="true"/>
     <view-param name="popup-save" value="false"/>
     <view-param name="popup.maximized" value="true"/>
     <context name="_product" expr="eval:product"/>
-    <context name="_stockLocation" expr="eval:saleOrder?.stockLocation"/>
-    <context name="_company" expr="eval:saleOrder?.company"/>
+    <context name="_stockLocation" expr="eval:declaration?.stockLocation"/>
+    <context name="_company" expr="eval:declaration?.company"/>
   </action-view>
 
   <action-method
@@ -218,7 +218,7 @@
 
   <action-method name="action-method-supplychain-sale-order-product-planned">
     <call class="com.axelor.apps.supplychain.web.ProjectedStockController"
-      method="showSaleOrderOfProduct"/>
+      method="showDeclarationOfProduct"/>
   </action-method>
 
   <action-method name="action-method-supplychain-stock-available-product">

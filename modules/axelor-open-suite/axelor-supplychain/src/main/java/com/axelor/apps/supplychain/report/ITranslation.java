@@ -43,7 +43,7 @@ public class ITranslation {
       "MrpList.productCategoriesTitle"; /*)*/
   public static final String MRP_LIST_PRODUCT_FAMILIES_TITLE = /*$$(*/
       "MrpList.productFamiliesTitle"; /*)*/
-  public static final String MRP_LIST_SALE_ORDERS_TITLE = /*$$(*/ "MrpList.saleOrdersTitle"; /*)*/
+  public static final String MRP_LIST_SALE_ORDERS_TITLE = /*$$(*/ "MrpList.declarationsTitle"; /*)*/
   public static final String MRP_LIST_FORECASTS_TITLE = /*$$(*/ "MrpList.forecastsTitle"; /*)*/
 
   public static final String MRP_LIST_CODE = /*$$(*/ "MrpList.code"; /*)*/

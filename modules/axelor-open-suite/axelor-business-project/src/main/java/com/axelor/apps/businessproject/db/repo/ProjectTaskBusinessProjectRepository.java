@@ -26,7 +26,7 @@ public class ProjectTaskBusinessProjectRepository extends ProjectTaskHRRepositor
   @Override
   public ProjectTask copy(ProjectTask entity, boolean deep) {
     ProjectTask task = super.copy(entity, deep);
-    task.setSaleOrderLine(null);
+    task.setDeclarationLine(null);
     task.setInvoiceLine(null);
     return task;
   }

@@ -81,15 +81,15 @@ public class ManufOrderController {
       Beans.get(ManufOrderWorkflowService.class).start(manufOrder);
       response.setReload(true);
       String message = "";
-      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrder())) {
-        message = manufOrder.getMoCommentFromSaleOrder();
+      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclaration())) {
+        message = manufOrder.getMoCommentFromDeclaration();
       }
 
-      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrderLine())) {
+      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclarationLine())) {
         message =
             message
                 .concat(System.lineSeparator())
-                .concat(manufOrder.getMoCommentFromSaleOrderLine());
+                .concat(manufOrder.getMoCommentFromDeclarationLine());
       }
 
       if (!message.isEmpty()) {
@@ -233,19 +233,19 @@ public class ManufOrderController {
 
       for (ManufOrder manufOrder : manufOrders) {
         Beans.get(ManufOrderWorkflowService.class).plan(manufOrder);
-        if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrder())) {
-          message = manufOrder.getMoCommentFromSaleOrder();
+        if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclaration())) {
+          message = manufOrder.getMoCommentFromDeclaration();
         }
 
         if (manufOrder.getProdProcess().getGeneratePurchaseOrderOnMoPlanning()) {
           Beans.get(ManufOrderWorkflowService.class).createPurchaseOrder(manufOrder);
         }
 
-        if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrderLine())) {
+        if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclarationLine())) {
           message =
               message
                   .concat(System.lineSeparator())
-                  .concat(manufOrder.getMoCommentFromSaleOrderLine());
+                  .concat(manufOrder.getMoCommentFromDeclarationLine());
         }
       }
       response.setReload(true);

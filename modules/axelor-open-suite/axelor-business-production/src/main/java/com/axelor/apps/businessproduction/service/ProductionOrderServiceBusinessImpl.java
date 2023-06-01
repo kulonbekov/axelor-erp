@@ -28,8 +28,8 @@ import com.axelor.apps.production.service.manuforder.ManufOrderService;
 import com.axelor.apps.production.service.manuforder.ManufOrderService.ManufOrderOriginTypeProduction;
 import com.axelor.apps.production.service.productionorder.ProductionOrderServiceImpl;
 import com.axelor.apps.project.db.Project;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import java.math.BigDecimal;
@@ -53,11 +53,11 @@ public class ProductionOrderServiceBusinessImpl extends ProductionOrderServiceIm
       Project project,
       LocalDateTime startDate,
       LocalDateTime endDate,
-      SaleOrder saleOrder,
-      SaleOrderLine saleOrderLine)
+      Declaration declaration,
+      DeclarationLine declarationLine)
       throws AxelorException {
 
-    ProductionOrder productionOrder = this.createProductionOrder(saleOrder);
+    ProductionOrder productionOrder = this.createProductionOrder(declaration);
     productionOrder.setProject(project);
 
     this.addManufOrder(
@@ -67,8 +67,8 @@ public class ProductionOrderServiceBusinessImpl extends ProductionOrderServiceIm
         qtyRequested,
         startDate,
         endDate,
-        saleOrder,
-        saleOrderLine,
+        declaration,
+        declarationLine,
         ManufOrderOriginTypeProduction.ORIGIN_TYPE_OTHER);
 
     return productionOrderRepo.save(productionOrder);

@@ -23,10 +23,10 @@ import com.axelor.apps.base.db.repo.BlockingRepository;
 import com.axelor.apps.base.db.repo.ExceptionOriginRepository;
 import com.axelor.apps.base.service.BlockingService;
 import com.axelor.apps.base.service.exception.TraceBackService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.supplychain.db.SupplychainBatch;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.db.JPA;
 import com.axelor.db.Query;
 import com.axelor.inject.Beans;
@@ -45,7 +45,7 @@ public class BatchOrderInvoicingSale extends BatchOrderInvoicing {
   protected void process() {
     SupplychainBatch supplychainBatch = batch.getSupplychainBatch();
     List<String> filterList = new ArrayList<>();
-    Query<SaleOrder> query = Beans.get(SaleOrderRepository.class).all();
+    Query<Declaration> query = Beans.get(DeclarationRepository.class).all();
 
     if (supplychainBatch.getCompany() != null) {
       filterList.add("self.company = :company");
@@ -88,9 +88,9 @@ public class BatchOrderInvoicingSale extends BatchOrderInvoicing {
 
     filterList.add(
         "NOT EXISTS (SELECT 1 FROM Invoice invoice WHERE invoice.statusSelect != :invoiceStatusSelect "
-            + "AND (invoice.saleOrder = self "
-            + "OR invoice.saleOrder IS NULL AND EXISTS (SELECT 1 FROM invoice.invoiceLineList invoiceLine "
-            + "WHERE invoiceLine.saleOrderLine MEMBER OF self.saleOrderLineList)))");
+            + "AND (invoice.declaration = self "
+            + "OR invoice.declaration IS NULL AND EXISTS (SELECT 1 FROM invoice.invoiceLineList invoiceLine "
+            + "WHERE invoiceLine.declarationLine MEMBER OF self.declarationLineList)))");
 
     filterList.add(
         "self.clientPartner.id NOT IN ("
@@ -111,25 +111,25 @@ public class BatchOrderInvoicingSale extends BatchOrderInvoicing {
             .collect(Collectors.joining(" AND "));
     query.filter(filter);
 
-    SaleOrderInvoiceService saleOrderInvoiceService = Beans.get(SaleOrderInvoiceService.class);
+    DeclarationInvoiceService declarationInvoiceService = Beans.get(DeclarationInvoiceService.class);
     Set<Long> treatedSet = new HashSet<>();
 
-    for (List<SaleOrder> saleOrderList;
-        !(saleOrderList = query.fetch(FETCH_LIMIT)).isEmpty();
+    for (List<Declaration> declarationList;
+        !(declarationList = query.fetch(FETCH_LIMIT)).isEmpty();
         JPA.clear()) {
-      for (SaleOrder saleOrder : saleOrderList) {
-        if (treatedSet.contains(saleOrder.getId())) {
+      for (Declaration declaration : declarationList) {
+        if (treatedSet.contains(declaration.getId())) {
           throw new IllegalArgumentException("Invoice generation error");
         }
 
-        treatedSet.add(saleOrder.getId());
+        treatedSet.add(declaration.getId());
 
         try {
-          saleOrderInvoiceService.generateInvoice(saleOrder);
+          declarationInvoiceService.generateInvoice(declaration);
           incrementDone();
         } catch (Exception e) {
           incrementAnomaly();
-          anomalyList.add(saleOrder.getId());
+          anomalyList.add(declaration.getId());
           query.bind("anomalyList", anomalyList);
           TraceBackService.trace(e, ExceptionOriginRepository.INVOICE_ORIGIN, batch.getId());
           e.printStackTrace();

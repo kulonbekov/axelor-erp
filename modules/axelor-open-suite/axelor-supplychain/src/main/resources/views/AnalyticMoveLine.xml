@@ -9,9 +9,9 @@
 
     <extend target="//field[@name='moveLine']">
       <insert position="after">
-        <field name="saleOrderLine" if="__config__.app.isApp('supplychain')" colSpan="12"
+        <field name="declarationLine" if="__config__.app.isApp('supplychain')" colSpan="12"
           requiredIf="typeSelect == 1" form-view="sale-order-line-form"
-          grid-view="sale-order-line-grid" showIf="saleOrderLine || typeSelect == 1"/>
+          grid-view="sale-order-line-grid" showIf="declarationLine || typeSelect == 1"/>
       </insert>
     </extend>
 

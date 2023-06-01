@@ -42,7 +42,7 @@
     <field name="qtyInvoiced" readonly="true" x-scale="2"/>
     <field name="unitPriceUntaxed" x-scale="2" width="120px"
       onChange="action-stock-move-line-record-price-onchange"
-      readonlyIf="lineTypeSelect == 1 || $get('stockMove.pickingIsEdited') || saleOrderLine || purchaseOrderLine"/>
+      readonlyIf="lineTypeSelect == 1 || $get('stockMove.pickingIsEdited') || declarationLine || purchaseOrderLine"/>
     <field name="unitPriceTaxed" x-scale="2" hidden="true"/>
     <field name="companyUnitPriceUntaxed" hidden="true"/>
     <field name="unit" form-view="unit-form" grid-view="unit-grid" width="70px"
@@ -73,7 +73,7 @@
     <field name="stockMove.pickingIsEdited" hidden="true"/>
     <field name="stockMove.statusSelect" hidden="true"/>
     <field name="product.productTypeSelect" hidden="true"/>
-    <field name="saleOrderLine" hidden="true" if-module="axelor-supplychain"
+    <field name="declarationLine" hidden="true" if-module="axelor-supplychain"
       if="__config__.app.isApp('supplychain')"/>
     <field name="purchaseOrderLine" hidden="true" if-module="axelor-supplychain"
       if="__config__.app.isApp('supplychain')"/>

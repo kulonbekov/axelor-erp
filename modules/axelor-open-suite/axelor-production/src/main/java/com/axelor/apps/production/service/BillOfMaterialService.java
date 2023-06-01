@@ -23,7 +23,7 @@ import com.axelor.apps.base.db.Company;
 import com.axelor.apps.base.db.Product;
 import com.axelor.apps.production.db.BillOfMaterial;
 import com.axelor.apps.production.db.TempBomTree;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.meta.CallMethod;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,7 +40,7 @@ public interface BillOfMaterialService {
 
   public void updateProductCostPrice(BillOfMaterial billOfMaterial) throws AxelorException;
 
-  public BillOfMaterial customizeBillOfMaterial(SaleOrderLine saleOrderLine) throws AxelorException;
+  public BillOfMaterial customizeBillOfMaterial(DeclarationLine declarationLine) throws AxelorException;
 
   public BillOfMaterial generateNewVersion(BillOfMaterial billOfMaterial);
 

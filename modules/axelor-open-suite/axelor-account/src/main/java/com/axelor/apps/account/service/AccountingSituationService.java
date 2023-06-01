@@ -65,7 +65,7 @@ public interface AccountingSituationService {
   Account getEmployeeAccount(Partner partner, Company company) throws AxelorException;
 
   /**
-   * Return bank details for sales to <code>partner</code> (took from SaleOrder.xml).
+   * Return bank details for sales to <code>partner</code> (took from Declaration.xml).
    *
    * @param company
    * @param partner

@@ -32,8 +32,8 @@ import com.axelor.apps.production.exceptions.ProductionExceptionMessage;
 import com.axelor.apps.production.service.manuforder.ManufOrderService;
 import com.axelor.apps.production.service.manuforder.ManufOrderService.ManufOrderOriginType;
 import com.axelor.apps.production.service.manuforder.ManufOrderService.ManufOrderOriginTypeProduction;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.i18n.I18n;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
@@ -59,12 +59,12 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     this.productionOrderRepo = productionOrderRepo;
   }
 
-  public ProductionOrder createProductionOrder(SaleOrder saleOrder) throws AxelorException {
+  public ProductionOrder createProductionOrder(Declaration declaration) throws AxelorException {
 
     ProductionOrder productionOrder = new ProductionOrder(this.getProductionOrderSeq());
-    if (saleOrder != null) {
-      productionOrder.setClientPartner(saleOrder.getClientPartner());
-      productionOrder.setSaleOrder(saleOrder);
+    if (declaration != null) {
+      productionOrder.setClientPartner(declaration.getClientPartner());
+      productionOrder.setDeclaration(declaration);
     }
     return productionOrder;
   }
@@ -128,8 +128,8 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
       BigDecimal qtyRequested,
       LocalDateTime startDate,
       LocalDateTime endDate,
-      SaleOrder saleOrder,
-      SaleOrderLine saleOrderLine,
+      Declaration declaration,
+      DeclarationLine declarationLine,
       ManufOrderOriginType manufOrderOriginType)
       throws AxelorException {
 
@@ -145,17 +145,17 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
             manufOrderOriginType);
 
     if (manufOrder != null) {
-      if (saleOrder != null) {
-        manufOrder.addSaleOrderSetItem(saleOrder);
-        manufOrder.setClientPartner(saleOrder.getClientPartner());
-        manufOrder.setMoCommentFromSaleOrder("");
-        manufOrder.setMoCommentFromSaleOrderLine("");
-        if (!Strings.isNullOrEmpty(saleOrder.getProductionNote())) {
-          manufOrder.setMoCommentFromSaleOrder(saleOrder.getProductionNote());
+      if (declaration != null) {
+        manufOrder.addDeclarationSetItem(declaration);
+        manufOrder.setClientPartner(declaration.getClientPartner());
+        manufOrder.setMoCommentFromDeclaration("");
+        manufOrder.setMoCommentFromDeclarationLine("");
+        if (!Strings.isNullOrEmpty(declaration.getProductionNote())) {
+          manufOrder.setMoCommentFromDeclaration(declaration.getProductionNote());
         }
-        if (saleOrderLine != null
-            && !Strings.isNullOrEmpty(saleOrderLine.getLineProductionComment())) {
-          manufOrder.setMoCommentFromSaleOrderLine(saleOrderLine.getLineProductionComment());
+        if (declarationLine != null
+            && !Strings.isNullOrEmpty(declarationLine.getLineProductionComment())) {
+          manufOrder.setMoCommentFromDeclarationLine(declarationLine.getLineProductionComment());
         }
       }
       productionOrder.addManufOrderSetItem(manufOrder);

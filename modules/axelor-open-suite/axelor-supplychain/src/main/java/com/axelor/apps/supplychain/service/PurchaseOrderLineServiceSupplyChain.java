@@ -21,12 +21,12 @@ package com.axelor.apps.supplychain.service;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 
 public interface PurchaseOrderLineServiceSupplyChain {
 
   public PurchaseOrderLine createPurchaseOrderLine(
-      PurchaseOrder purchaseOrder, SaleOrderLine saleOrderLine) throws AxelorException;
+      PurchaseOrder purchaseOrder, DeclarationLine declarationLine) throws AxelorException;
 
   public PurchaseOrderLine createAnalyticDistributionWithTemplate(
       PurchaseOrderLine purchaseOrderLine);

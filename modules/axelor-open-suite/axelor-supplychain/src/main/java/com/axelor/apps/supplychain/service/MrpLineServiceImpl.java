@@ -34,9 +34,9 @@ import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
 import com.axelor.apps.purchase.service.PurchaseOrderLineService;
 import com.axelor.apps.purchase.service.PurchaseOrderService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.apps.stock.db.StockRules;
 import com.axelor.apps.stock.db.repo.StockRulesRepository;
@@ -78,7 +78,7 @@ public class MrpLineServiceImpl implements MrpLineService {
   protected PurchaseOrderLineService purchaseOrderLineService;
   protected PurchaseOrderRepository purchaseOrderRepo;
   protected StockRulesService stockRulesService;
-  protected SaleOrderLineRepository saleOrderLineRepo;
+  protected DeclarationLineRepository declarationLineRepo;
   protected PurchaseOrderLineRepository purchaseOrderLineRepo;
   protected MrpForecastRepository mrpForecastRepo;
   protected MrpLineRepository mrpLineRepo;
@@ -91,7 +91,7 @@ public class MrpLineServiceImpl implements MrpLineService {
       PurchaseOrderLineService purchaseOrderLineService,
       PurchaseOrderRepository purchaseOrderRepo,
       StockRulesService stockRulesService,
-      SaleOrderLineRepository saleOrderLineRepo,
+      DeclarationLineRepository declarationLineRepo,
       PurchaseOrderLineRepository purchaseOrderLineRepo,
       MrpForecastRepository mrpForecastRepo,
       MrpLineRepository mrpLineRepo) {
@@ -102,7 +102,7 @@ public class MrpLineServiceImpl implements MrpLineService {
     this.purchaseOrderLineService = purchaseOrderLineService;
     this.purchaseOrderRepo = purchaseOrderRepo;
     this.stockRulesService = stockRulesService;
-    this.saleOrderLineRepo = saleOrderLineRepo;
+    this.declarationLineRepo = declarationLineRepo;
     this.purchaseOrderLineRepo = purchaseOrderLineRepo;
     this.mrpForecastRepo = mrpForecastRepo;
     this.mrpLineRepo = mrpLineRepo;
@@ -206,10 +206,10 @@ public class MrpLineServiceImpl implements MrpLineService {
             .get(0)
             .getRelatedToSelect()
             .equals(MrpLineOriginRepository.RELATED_TO_SALE_ORDER_LINE)) {
-          purchaseOrder.setGeneratedSaleOrderId(
-              saleOrderLineRepo
+          purchaseOrder.setGeneratedDeclarationId(
+              declarationLineRepo
                   .find(mrpLine.getMrpLineOriginList().get(0).getRelatedToSelectId())
-                  .getSaleOrder()
+                  .getDeclaration()
                   .getId());
         }
       }
@@ -255,9 +255,9 @@ public class MrpLineServiceImpl implements MrpLineService {
     if (mrpLineOrigin
         .getRelatedToSelect()
         .equals(MrpLineOriginRepository.RELATED_TO_SALE_ORDER_LINE)) {
-      SaleOrder saleOrder =
-          saleOrderLineRepo.find(mrpLineOrigin.getRelatedToSelectId()).getSaleOrder();
-      return saleOrder.getSaleOrderSeq();
+      Declaration declaration =
+          declarationLineRepo.find(mrpLineOrigin.getRelatedToSelectId()).getDeclaration();
+      return declaration.getDeclarationSeq();
     }
     if (mrpLineOrigin
         .getRelatedToSelect()
@@ -388,9 +388,9 @@ public class MrpLineServiceImpl implements MrpLineService {
 
   protected String computeRelatedName(Model model) {
 
-    if (model instanceof SaleOrderLine) {
+    if (model instanceof DeclarationLine) {
 
-      return ((SaleOrderLine) model).getSaleOrder().getSaleOrderSeq();
+      return ((DeclarationLine) model).getDeclaration().getDeclarationSeq();
 
     } else if (model instanceof PurchaseOrderLine) {
 
@@ -413,9 +413,9 @@ public class MrpLineServiceImpl implements MrpLineService {
 
   protected Partner getPartner(Model model) {
 
-    if (model instanceof SaleOrderLine) {
+    if (model instanceof DeclarationLine) {
 
-      return ((SaleOrderLine) model).getSaleOrder().getClientPartner();
+      return ((DeclarationLine) model).getDeclaration().getClientPartner();
 
     } else if (model instanceof PurchaseOrderLine) {
 

@@ -25,8 +25,8 @@ import com.axelor.apps.portal.service.ClientViewService;
 import com.axelor.apps.portal.translation.ITranslation;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.ProjectTask;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.repo.StockMoveRepository;
 import com.axelor.auth.db.User;
@@ -57,7 +57,7 @@ public class ClientViewController {
     }
   }
 
-  /* SALEORDER OnCLick */
+  /* DECLARATION OnCLick */
   public void showClientMyOrdersInProgress(ActionRequest request, ActionResponse response) {
     try {
       ClientViewService clientViewService = Beans.get(ClientViewService.class);
@@ -69,7 +69,7 @@ public class ClientViewController {
         if (filter != null) {
           response.setView(
               ActionView.define(I18n.get("Orders in progress"))
-                  .model(SaleOrder.class.getName())
+                  .model(Declaration.class.getName())
                   .add("grid", "sale-order-grid")
                   .add("form", "sale-order-form")
                   .param("search-filters", "sale-order-filters")
@@ -93,7 +93,7 @@ public class ClientViewController {
         if (filter != null) {
           response.setView(
               ActionView.define(I18n.get("My quotations"))
-                  .model(SaleOrder.class.getName())
+                  .model(Declaration.class.getName())
                   .add("grid", "sale-order-grid")
                   .add("form", "sale-order-form")
                   .param("search-filters", "sale-order-filters")
@@ -116,14 +116,14 @@ public class ClientViewController {
         Filter filter = clientViewService.getLastOrderOfUser(clientUser).get(0);
         if (filter != null) {
 
-          SaleOrder saleOrder =
-              Beans.get(SaleOrderRepository.class).all().filter(filter.getQuery()).fetchOne();
-          if (saleOrder != null) {
+          Declaration declaration =
+              Beans.get(DeclarationRepository.class).all().filter(filter.getQuery()).fetchOne();
+          if (declaration != null) {
             response.setView(
                 ActionView.define(I18n.get("Last order"))
-                    .model(SaleOrder.class.getName())
+                    .model(Declaration.class.getName())
                     .add("form", "sale-order-form")
-                    .context("_showRecord", saleOrder.getId())
+                    .context("_showRecord", declaration.getId())
                     .map());
           }
         }

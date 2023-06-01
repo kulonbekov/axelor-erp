@@ -38,7 +38,7 @@ import com.axelor.apps.production.exceptions.ProductionExceptionMessage;
 import com.axelor.apps.production.service.app.AppProductionService;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
 import com.axelor.apps.purchase.service.app.AppPurchaseService;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.apps.sale.service.app.AppSaleService;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.apps.stock.db.StockMoveLine;
@@ -60,7 +60,7 @@ import com.axelor.apps.supplychain.db.repo.MrpLineTypeRepository;
 import com.axelor.apps.supplychain.db.repo.MrpRepository;
 import com.axelor.apps.supplychain.service.MrpLineService;
 import com.axelor.apps.supplychain.service.MrpLineTypeService;
-import com.axelor.apps.supplychain.service.MrpSaleOrderCheckLateSaleService;
+import com.axelor.apps.supplychain.service.MrpDeclarationCheckLateSaleService;
 import com.axelor.apps.supplychain.service.MrpServiceImpl;
 import com.axelor.db.JPA;
 import com.axelor.i18n.I18n;
@@ -99,7 +99,7 @@ public class MrpServiceProductionImpl extends MrpServiceImpl {
       StockLocationLineRepository stockLocationLineRepository,
       MrpLineTypeRepository mrpLineTypeRepository,
       PurchaseOrderLineRepository purchaseOrderLineRepository,
-      SaleOrderLineRepository saleOrderLineRepository,
+      DeclarationLineRepository declarationLineRepository,
       MrpLineRepository mrpLineRepository,
       StockRulesService stockRulesService,
       MrpLineService mrpLineService,
@@ -112,7 +112,7 @@ public class MrpServiceProductionImpl extends MrpServiceImpl {
       AppSaleService appSaleService,
       AppPurchaseService appPurchaseService,
       StockHistoryLineRepository stockHistoryLineRepository,
-      MrpSaleOrderCheckLateSaleService mrpSaleOrderCheckLateSaleService,
+      MrpDeclarationCheckLateSaleService mrpDeclarationCheckLateSaleService,
       MrpLineTypeService mrpLineTypeService,
       ManufOrderRepository manufOrderRepository,
       ProductCompanyService productCompanyService,
@@ -126,7 +126,7 @@ public class MrpServiceProductionImpl extends MrpServiceImpl {
         stockLocationLineRepository,
         mrpLineTypeRepository,
         purchaseOrderLineRepository,
-        saleOrderLineRepository,
+        declarationLineRepository,
         mrpLineRepository,
         stockRulesService,
         mrpLineService,
@@ -139,7 +139,7 @@ public class MrpServiceProductionImpl extends MrpServiceImpl {
         appSaleService,
         appPurchaseService,
         stockHistoryLineRepository,
-        mrpSaleOrderCheckLateSaleService,
+        mrpDeclarationCheckLateSaleService,
         mrpLineTypeService);
     this.manufOrderRepository = manufOrderRepository;
     this.productCompanyService = productCompanyService;

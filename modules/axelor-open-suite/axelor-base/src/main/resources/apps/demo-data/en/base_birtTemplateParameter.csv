@@ -94,7 +94,7 @@
 93;27;"FooterHeight";"0.00";"decimal"
 94;28;"__locale";"en_EN";"string"
 95;28;"Locale";"en";"string"
-96;28;"SaleOrderId";"$SaleOrder.id$";"decimal"
+96;28;"DeclarationId";"$Declaration.id$";"decimal"
 97;28;"HeaderHeight";"0.00";"decimal"
 98;28;"FooterHeight";"0.00";"decimal"
 99;29;"__locale";"en_EN";"string"

@@ -33,8 +33,8 @@
     type="com.axelor.studio.db.AppSupplychain" search="self.app.code = :code"
     call="com.axelor.csv.script.ImportSupplyChain:importSupplyChain"/>
 
-  <input file="sale_saleOrder.csv" separator=";" search="self.importId = :importId"
-    type="com.axelor.apps.sale.db.SaleOrder">
+  <input file="sale_declaration.csv" separator=";" search="self.importId = :importId"
+    type="com.axelor.apps.sale.db.Declaration">
     <bind to="creationDate"
       eval="call:com.axelor.csv.script.ImportDateTime:importDate(creationDate)"
       column="creationDate"/>
@@ -46,15 +46,15 @@
       column="shipmentDate"/>
   </input>
 
-  <input file="sale_saleOrderLine.csv" separator=";"
-    type="com.axelor.apps.sale.db.SaleOrderLine" search="self.importId = :importId"
-    call="com.axelor.csv.script.ImportSaleOrderLine:importSaleOrderLine">
+  <input file="sale_declarationLine.csv" separator=";"
+    type="com.axelor.apps.sale.db.DeclarationLine" search="self.importId = :importId"
+    call="com.axelor.csv.script.ImportDeclarationLine:importDeclarationLine">
     <bind to="priceDiscounted" eval="price"/>
   </input>
 
-  <input file="sale_saleOrder.csv" separator=";" search="self.importId = :importId"
-    type="com.axelor.apps.sale.db.SaleOrder"
-    call="com.axelor.csv.script.ImportSupplyChain:importSaleOrderFromSupplyChain">
+  <input file="sale_declaration.csv" separator=";" search="self.importId = :importId"
+    type="com.axelor.apps.sale.db.Declaration"
+    call="com.axelor.csv.script.ImportSupplyChain:importDeclarationFromSupplyChain">
     <bind to="creationDate"
       eval="call:com.axelor.csv.script.ImportDateTime:importDate(creationDate)"
       column="creationDate"/>

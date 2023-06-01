@@ -23,7 +23,7 @@ import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.db.Company;
 import com.axelor.apps.base.db.Partner;
 import com.axelor.apps.purchase.db.PurchaseOrder;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 
 public interface IntercoService {
 
@@ -33,15 +33,15 @@ public interface IntercoService {
    * @param purchaseOrder
    * @return the generated sale order
    */
-  SaleOrder generateIntercoSaleFromPurchase(PurchaseOrder purchaseOrder) throws AxelorException;
+  Declaration generateIntercoSaleFromPurchase(PurchaseOrder purchaseOrder) throws AxelorException;
 
   /**
    * Given a sale order, generate the purchase order counterpart for the other company
    *
-   * @param saleOrder
+   * @param declaration
    * @return the generated purchase order
    */
-  PurchaseOrder generateIntercoPurchaseFromSale(SaleOrder saleOrder) throws AxelorException;
+  PurchaseOrder generateIntercoPurchaseFromSale(Declaration declaration) throws AxelorException;
 
   /**
    * Given an invoice, generate the invoice counterpart for the other company.

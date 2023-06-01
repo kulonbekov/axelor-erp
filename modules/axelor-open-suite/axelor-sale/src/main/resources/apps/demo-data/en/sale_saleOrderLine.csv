@@ -1,4 +1,4 @@
-"importId";"saleOrder.importId";"sequence";"product.importId";"productName";"qty";"unit.importId";"price";"inTaxPrice";"exTaxTotal";"hasToCreateTask";"isOrdered";"saleSupplySelect"
+"importId";"declaration.importId";"sequence";"product.importId";"productName";"qty";"unit.importId";"price";"inTaxPrice";"exTaxTotal";"hasToCreateTask";"isOrdered";"saleSupplySelect"
 14;6;1;411;"Consultant";15;103;800;960;"12000";"true";"true";3
 18;8;1;410;"Project Manager";10;103;1000;1200;"10000";"true";"true";3
 19;8;2;111;"High Performance Server";2;1;2500;3000;"5000";"true";"true";1

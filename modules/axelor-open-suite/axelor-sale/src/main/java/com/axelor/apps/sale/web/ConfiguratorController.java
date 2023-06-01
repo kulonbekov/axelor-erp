@@ -21,9 +21,9 @@ package com.axelor.apps.sale.web;
 import com.axelor.apps.base.db.Product;
 import com.axelor.apps.base.service.exception.TraceBackService;
 import com.axelor.apps.sale.db.Configurator;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.sale.db.repo.ConfiguratorRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.sale.service.configurator.ConfiguratorCreatorService;
 import com.axelor.apps.sale.service.configurator.ConfiguratorService;
 import com.axelor.i18n.I18n;
@@ -38,7 +38,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class ConfiguratorController {
 
-  protected static final String saleOrderContextIdKey = "_saleOrderId";
+  protected static final String declarationContextIdKey = "_declarationId";
 
   /**
    * Called from configurator form view, set values for the indicators JSON field. call {@link
@@ -55,7 +55,7 @@ public class ConfiguratorController {
     try {
       Beans.get(ConfiguratorService.class)
           .updateIndicators(
-              configurator, jsonAttributes, jsonIndicators, getSaleOrderId(request.getContext()));
+              configurator, jsonAttributes, jsonIndicators, getDeclarationId(request.getContext()));
       response.setValue("indicators", request.getContext().get("indicators"));
     } catch (Exception e) {
       TraceBackService.trace(response, e);
@@ -77,7 +77,7 @@ public class ConfiguratorController {
     try {
       Beans.get(ConfiguratorService.class)
           .generateProduct(
-              configurator, jsonAttributes, jsonIndicators, getSaleOrderId(request.getContext()));
+              configurator, jsonAttributes, jsonIndicators, getDeclarationId(request.getContext()));
       response.setReload(true);
       if (configurator.getProduct() != null) {
         response.setView(
@@ -97,23 +97,23 @@ public class ConfiguratorController {
 
   /**
    * Called from configurator wizard form view, call {@link
-   * ConfiguratorService#addLineToSaleOrder(Configurator, SaleOrder, JsonContext, JsonContext)}
+   * ConfiguratorService#addLineToDeclaration(Configurator, Declaration, JsonContext, JsonContext)}
    *
    * @param request
    * @param response
    */
-  public void generateForSaleOrder(ActionRequest request, ActionResponse response) {
+  public void generateForDeclaration(ActionRequest request, ActionResponse response) {
     Configurator configurator = request.getContext().asType(Configurator.class);
-    long saleOrderId = getSaleOrderId(request.getContext());
+    long declarationId = getDeclarationId(request.getContext());
 
     JsonContext jsonAttributes = (JsonContext) request.getContext().get("$attributes");
     JsonContext jsonIndicators = (JsonContext) request.getContext().get("$indicators");
 
     configurator = Beans.get(ConfiguratorRepository.class).find(configurator.getId());
-    SaleOrder saleOrder = Beans.get(SaleOrderRepository.class).find(saleOrderId);
+    Declaration declaration = Beans.get(DeclarationRepository.class).find(declarationId);
     try {
       Beans.get(ConfiguratorService.class)
-          .addLineToSaleOrder(configurator, saleOrder, jsonAttributes, jsonIndicators);
+          .addLineToDeclaration(configurator, declaration, jsonAttributes, jsonIndicators);
       response.setCanClose(true);
     } catch (Exception e) {
       TraceBackService.trace(response, e);
@@ -133,10 +133,10 @@ public class ConfiguratorController {
         Beans.get(ConfiguratorCreatorService.class).getConfiguratorCreatorDomain());
   }
 
-  protected Long getSaleOrderId(Context context) {
-    Integer saleOrderIdInt = (Integer) context.get(saleOrderContextIdKey);
-    if (saleOrderIdInt != null) {
-      return saleOrderIdInt.longValue();
+  protected Long getDeclarationId(Context context) {
+    Integer declarationIdInt = (Integer) context.get(declarationContextIdKey);
+    if (declarationIdInt != null) {
+      return declarationIdInt.longValue();
     } else {
       return null;
     }

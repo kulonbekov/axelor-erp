@@ -25,7 +25,7 @@ import com.axelor.apps.businessproject.service.ProjectBusinessService;
 import com.axelor.apps.businessproject.service.projectgenerator.ProjectGeneratorFactory;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.repo.ProjectRepository;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.i18n.I18n;
 import com.axelor.meta.schema.actions.ActionView.ActionViewBuilder;
 import com.google.inject.Inject;
@@ -46,14 +46,14 @@ public class ProjectGeneratorFactoryAlone implements ProjectGeneratorFactory {
 
   @Override
   @Transactional
-  public Project create(SaleOrder saleOrder) {
-    Project project = projectBusinessService.generateProject(saleOrder);
+  public Project create(Declaration declaration) {
+    Project project = projectBusinessService.generateProject(declaration);
     project.setIsBusinessProject(true);
     return projectRepository.save(project);
   }
 
   @Override
-  public ActionViewBuilder fill(Project project, SaleOrder saleOrder, LocalDateTime localDateTime)
+  public ActionViewBuilder fill(Project project, Declaration declaration, LocalDateTime localDateTime)
       throws AxelorException {
     throw new AxelorException(
         TraceBackRepository.CATEGORY_CONFIGURATION_ERROR,

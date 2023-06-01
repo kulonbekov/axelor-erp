@@ -32,8 +32,8 @@ import com.axelor.apps.base.service.UnitConversionService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.service.PurchaseOrderLineServiceImpl;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.auth.AuthUtils;
 import com.axelor.auth.db.User;
 import com.axelor.inject.Beans;
@@ -71,40 +71,40 @@ public class PurchaseOrderLineServiceSupplychainImpl extends PurchaseOrderLineSe
   }
 
   public PurchaseOrderLine createPurchaseOrderLine(
-      PurchaseOrder purchaseOrder, SaleOrderLine saleOrderLine) throws AxelorException {
+      PurchaseOrder purchaseOrder, DeclarationLine declarationLine) throws AxelorException {
 
     LOG.debug(
-        "Creation of a purchase order line for the product : {}", saleOrderLine.getProductName());
+        "Creation of a purchase order line for the product : {}", declarationLine.getProductName());
 
     Unit unit = null;
     BigDecimal qty = BigDecimal.ZERO;
 
-    if (saleOrderLine.getTypeSelect() == SaleOrderLineRepository.TYPE_NORMAL) {
+    if (declarationLine.getTypeSelect() == DeclarationLineRepository.TYPE_NORMAL) {
 
-      if (saleOrderLine.getProduct() != null) {
-        unit = saleOrderLine.getProduct().getPurchasesUnit();
+      if (declarationLine.getProduct() != null) {
+        unit = declarationLine.getProduct().getPurchasesUnit();
       }
-      qty = saleOrderLine.getQty();
+      qty = declarationLine.getQty();
       if (unit == null) {
-        unit = saleOrderLine.getUnit();
+        unit = declarationLine.getUnit();
       } else {
         qty =
             unitConversionService.convert(
-                saleOrderLine.getUnit(), unit, qty, qty.scale(), saleOrderLine.getProduct());
+                declarationLine.getUnit(), unit, qty, qty.scale(), declarationLine.getProduct());
       }
     }
 
     PurchaseOrderLine purchaseOrderLine =
         super.createPurchaseOrderLine(
             purchaseOrder,
-            saleOrderLine.getProduct(),
-            saleOrderLine.getProductName(),
+            declarationLine.getProduct(),
+            declarationLine.getProductName(),
             null,
             qty,
             unit);
 
     purchaseOrderLine.setIsTitleLine(
-        !(saleOrderLine.getTypeSelect() == SaleOrderLineRepository.TYPE_NORMAL));
+        !(declarationLine.getTypeSelect() == DeclarationLineRepository.TYPE_NORMAL));
     this.getAndComputeAnalyticDistribution(purchaseOrderLine, purchaseOrder);
     return purchaseOrderLine;
   }

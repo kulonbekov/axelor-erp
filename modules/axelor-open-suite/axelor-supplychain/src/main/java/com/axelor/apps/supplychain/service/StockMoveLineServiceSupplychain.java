@@ -24,7 +24,7 @@ import com.axelor.apps.base.db.Batch;
 import com.axelor.apps.base.db.Product;
 import com.axelor.apps.base.db.Unit;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import java.math.BigDecimal;
@@ -51,7 +51,7 @@ public interface StockMoveLineServiceSupplychain {
    * @param type
    * @param taxed
    * @param taxRate
-   * @param saleOrderLine
+   * @param declarationLine
    * @param purchaseOrderLine
    * @return the created stock move line.
    * @throws AxelorException
@@ -70,7 +70,7 @@ public interface StockMoveLineServiceSupplychain {
       int type,
       boolean taxed,
       BigDecimal taxRate,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       PurchaseOrderLine purchaseOrderLine)
       throws AxelorException;
 
@@ -97,7 +97,7 @@ public interface StockMoveLineServiceSupplychain {
   BigDecimal getAmountNotInvoiced(
       StockMoveLine stockMoveLine,
       PurchaseOrderLine purchaseOrderLine,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       boolean isPurchase,
       boolean ati,
       boolean recoveredTax)

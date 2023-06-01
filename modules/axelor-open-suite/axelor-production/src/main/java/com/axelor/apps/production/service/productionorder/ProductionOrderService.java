@@ -23,15 +23,15 @@ import com.axelor.apps.base.db.Product;
 import com.axelor.apps.production.db.BillOfMaterial;
 import com.axelor.apps.production.db.ProductionOrder;
 import com.axelor.apps.production.service.manuforder.ManufOrderService.ManufOrderOriginType;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 public interface ProductionOrderService {
 
-  public ProductionOrder createProductionOrder(SaleOrder saleOrder) throws AxelorException;
+  public ProductionOrder createProductionOrder(Declaration declaration) throws AxelorException;
 
   public String getProductionOrderSeq() throws AxelorException;
 
@@ -61,8 +61,8 @@ public interface ProductionOrderService {
    * @param qtyRequested
    * @param startDate
    * @param endDate
-   * @param saleOrder
-   * @param saleOrderLine
+   * @param declaration
+   * @param declarationLine
    * @param manufOrderOriginType
    * @return
    * @throws AxelorException
@@ -74,8 +74,8 @@ public interface ProductionOrderService {
       BigDecimal qtyRequested,
       LocalDateTime startDate,
       LocalDateTime endDate,
-      SaleOrder saleOrder,
-      SaleOrderLine saleOrderLine,
+      Declaration declaration,
+      DeclarationLine declarationLine,
       ManufOrderOriginType manufOrderOriginType)
       throws AxelorException;
 

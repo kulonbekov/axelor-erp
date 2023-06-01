@@ -36,7 +36,7 @@ import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.base.service.exception.TraceBackService;
 import com.axelor.apps.base.service.tax.AccountManagementService;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.apps.stock.db.StockLocationLine;
 import com.axelor.apps.stock.db.StockMove;
@@ -136,7 +136,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
       int type,
       boolean taxed,
       BigDecimal taxRate,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       PurchaseOrderLine purchaseOrderLine)
       throws AxelorException {
     if (product != null) {
@@ -157,7 +157,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
       stockMoveLine.setRequestedReservedQty(requestedReservedQty);
       stockMoveLine.setIsQtyRequested(
           requestedReservedQty != null && requestedReservedQty.signum() > 0);
-      stockMoveLine.setSaleOrderLine(saleOrderLine);
+      stockMoveLine.setDeclarationLine(declarationLine);
       stockMoveLine.setPurchaseOrderLine(purchaseOrderLine);
       TrackingNumberConfiguration trackingNumberConfiguration =
           product.getTrackingNumberConfiguration();
@@ -191,7 +191,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
 
     if (stockMove.getOriginId() != null
         && stockMove.getOriginId() != 0L
-        && (stockMoveLine.getSaleOrderLine() != null
+        && (stockMoveLine.getDeclarationLine() != null
             || stockMoveLine.getPurchaseOrderLine() != null)) {
       // the stock move comes from a sale or purchase order, we take the price from the order.
       stockMoveLine = computeFromOrder(stockMoveLine, stockMove);
@@ -207,8 +207,8 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     BigDecimal unitPriceTaxed = stockMoveLine.getUnitPriceTaxed();
     Unit orderUnit = null;
     if (StockMoveRepository.ORIGIN_SALE_ORDER.equals(stockMove.getOriginTypeSelect())) {
-      SaleOrderLine saleOrderLine = stockMoveLine.getSaleOrderLine();
-      if (saleOrderLine == null) {
+      DeclarationLine declarationLine = stockMoveLine.getDeclarationLine();
+      if (declarationLine == null) {
         // log the exception
         TraceBackService.trace(
             new AxelorException(
@@ -217,9 +217,9 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
                 stockMove.getOriginId(),
                 stockMove.getName()));
       } else {
-        unitPriceUntaxed = saleOrderLine.getPriceDiscounted();
-        unitPriceTaxed = saleOrderLine.getInTaxPrice();
-        orderUnit = saleOrderLine.getUnit();
+        unitPriceUntaxed = declarationLine.getPriceDiscounted();
+        unitPriceTaxed = declarationLine.getInTaxPrice();
+        orderUnit = declarationLine.getUnit();
       }
     } else if (StockMoveRepository.ORIGIN_PURCHASE_ORDER.equals(stockMove.getOriginTypeSelect())) {
       PurchaseOrderLine purchaseOrderLine = stockMoveLine.getPurchaseOrderLine();
@@ -285,7 +285,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     BigDecimal reservedQtyInNewLine = stockMoveLine.getRequestedReservedQty().min(qty);
     stockMoveLine.setRequestedReservedQty(reservedQtyAfterSplit);
     newStockMoveLine.setRequestedReservedQty(reservedQtyInNewLine);
-    newStockMoveLine.setSaleOrderLine(stockMoveLine.getSaleOrderLine());
+    newStockMoveLine.setDeclarationLine(stockMoveLine.getDeclarationLine());
     newStockMoveLine.setPurchaseOrderLine(stockMoveLine.getPurchaseOrderLine());
     return newStockMoveLine;
   }
@@ -362,7 +362,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     }
     StockMove stockMove = stockMoveLineList.get(0).getStockMove();
 
-    SaleOrderLine saleOrderLine = stockMoveLineList.get(0).getSaleOrderLine();
+    DeclarationLine declarationLine = stockMoveLineList.get(0).getDeclarationLine();
     PurchaseOrderLine purchaseOrderLine = stockMoveLineList.get(0).getPurchaseOrderLine();
 
     Product product;
@@ -371,11 +371,11 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     BigDecimal quantity = BigDecimal.ZERO;
     Unit unit;
 
-    if (saleOrderLine != null) {
-      product = saleOrderLine.getProduct();
-      productName = saleOrderLine.getProductName();
-      description = saleOrderLine.getDescription();
-      unit = saleOrderLine.getUnit();
+    if (declarationLine != null) {
+      product = declarationLine.getProduct();
+      productName = declarationLine.getProductName();
+      description = declarationLine.getDescription();
+      unit = declarationLine.getUnit();
 
     } else if (purchaseOrderLine != null) {
       product = purchaseOrderLine.getProduct();
@@ -405,7 +405,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
             stockMove,
             null);
 
-    generatedStockMoveLine.setSaleOrderLine(saleOrderLine);
+    generatedStockMoveLine.setDeclarationLine(declarationLine);
     generatedStockMoveLine.setPurchaseOrderLine(purchaseOrderLine);
     generatedStockMoveLine.setIsMergedStockMoveLine(true);
     return generatedStockMoveLine;
@@ -438,26 +438,26 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     }
     super.setProductInfo(stockMove, stockMoveLine, company);
 
-    SaleOrderLine saleOrderLine = stockMoveLine.getSaleOrderLine();
+    DeclarationLine declarationLine = stockMoveLine.getDeclarationLine();
     PurchaseOrderLine purchaseOrderLine = stockMoveLine.getPurchaseOrderLine();
 
-    if (saleOrderLine != null) {
-      setProductInfoFromSaleOrder(stockMoveLine, saleOrderLine);
+    if (declarationLine != null) {
+      setProductInfoFromDeclaration(stockMoveLine, declarationLine);
     }
     if (purchaseOrderLine != null) {
       setProductInfoFromPurchaseOrder(stockMoveLine, purchaseOrderLine);
     }
   }
 
-  protected void setProductInfoFromSaleOrder(
-      StockMoveLine stockMoveLine, SaleOrderLine saleOrderLine) {
+  protected void setProductInfoFromDeclaration(
+      StockMoveLine stockMoveLine, DeclarationLine declarationLine) {
 
-    stockMoveLine.setUnit(saleOrderLine.getUnit());
-    stockMoveLine.setProductName(saleOrderLine.getProductName());
+    stockMoveLine.setUnit(declarationLine.getUnit());
+    stockMoveLine.setProductName(declarationLine.getProductName());
     if (Strings.isNullOrEmpty(stockMoveLine.getDescription())) {
-      stockMoveLine.setDescription(saleOrderLine.getDescription());
+      stockMoveLine.setDescription(declarationLine.getDescription());
     }
-    stockMoveLine.setQty(saleOrderLine.getQty());
+    stockMoveLine.setQty(declarationLine.getQty());
   }
 
   protected void setProductInfoFromPurchaseOrder(
@@ -514,7 +514,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
     return this.getAmountNotInvoiced(
         stockMoveLine,
         stockMoveLine.getPurchaseOrderLine(),
-        stockMoveLine.getSaleOrderLine(),
+        stockMoveLine.getDeclarationLine(),
         isPurchase,
         ati,
         recoveredTax);
@@ -524,7 +524,7 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
   public BigDecimal getAmountNotInvoiced(
       StockMoveLine stockMoveLine,
       PurchaseOrderLine purchaseOrderLine,
-      SaleOrderLine saleOrderLine,
+      DeclarationLine declarationLine,
       boolean isPurchase,
       boolean ati,
       boolean recoveredTax)
@@ -549,20 +549,20 @@ public class StockMoveLineServiceSupplychainImpl extends StockMoveLineServiceImp
       } else {
         amountInCurrency = purchaseOrderLine.getExTaxTotal();
       }
-    } else if (!isPurchase && saleOrderLine != null) {
-      totalQty = saleOrderLine.getQty();
+    } else if (!isPurchase && declarationLine != null) {
+      totalQty = declarationLine.getQty();
 
       notInvoicedQty =
           unitConversionService.convert(
               stockMoveLine.getUnit(),
-              saleOrderLine.getUnit(),
+              declarationLine.getUnit(),
               stockMoveLine.getRealQty().subtract(stockMoveLine.getQtyInvoiced()),
               stockMoveLine.getRealQty().scale(),
-              saleOrderLine.getProduct());
+              declarationLine.getProduct());
       if (ati) {
-        amountInCurrency = saleOrderLine.getInTaxTotal();
+        amountInCurrency = declarationLine.getInTaxTotal();
       } else {
-        amountInCurrency = saleOrderLine.getExTaxTotal();
+        amountInCurrency = declarationLine.getExTaxTotal();
       }
     }
 

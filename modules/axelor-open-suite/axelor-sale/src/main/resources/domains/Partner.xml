@@ -6,7 +6,7 @@
   <module name="base" package="com.axelor.apps.base.db"/>
 
   <entity name="Partner">
-    <string name="saleOrderInformation" title="Label to be displayed on sale orders"
+    <string name="declarationInformation" title="Label to be displayed on sale orders"
       multiline="true" large="true"/>
     <string name="specificTaxNote" title="Specific tax note" large="true"/>
     <one-to-many name="customerCatalogList"

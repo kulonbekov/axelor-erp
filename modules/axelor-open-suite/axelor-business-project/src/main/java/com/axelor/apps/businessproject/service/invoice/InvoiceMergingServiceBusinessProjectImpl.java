@@ -24,10 +24,10 @@ import com.axelor.apps.account.exception.AccountExceptionMessage;
 import com.axelor.apps.account.service.invoice.InvoiceService;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.businessproject.service.PurchaseOrderInvoiceProjectServiceImpl;
-import com.axelor.apps.businessproject.service.SaleOrderInvoiceProjectServiceImpl;
+import com.axelor.apps.businessproject.service.DeclarationInvoiceProjectServiceImpl;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.apps.supplychain.service.invoice.InvoiceMergingServiceSupplychainImpl;
 import com.axelor.i18n.I18n;
 import com.google.inject.Inject;
@@ -38,18 +38,18 @@ import java.util.StringJoiner;
 public class InvoiceMergingServiceBusinessProjectImpl extends InvoiceMergingServiceSupplychainImpl {
 
   private final PurchaseOrderInvoiceProjectServiceImpl purchaseOrderInvoiceProjectServiceImpl;
-  private final SaleOrderInvoiceProjectServiceImpl saleOrderInvoiceProjectServiceImpl;
+  private final DeclarationInvoiceProjectServiceImpl declarationInvoiceProjectServiceImpl;
 
   @Inject
   public InvoiceMergingServiceBusinessProjectImpl(
       InvoiceService invoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceProjectServiceImpl purchaseOrderInvoiceProjectServiceImpl,
-      SaleOrderInvoiceProjectServiceImpl saleOrderInvoiceProjectServiceImpl) {
-    super(invoiceService, purchaseOrderInvoiceService, saleOrderInvoiceService);
+      DeclarationInvoiceProjectServiceImpl declarationInvoiceProjectServiceImpl) {
+    super(invoiceService, purchaseOrderInvoiceService, declarationInvoiceService);
     this.purchaseOrderInvoiceProjectServiceImpl = purchaseOrderInvoiceProjectServiceImpl;
-    this.saleOrderInvoiceProjectServiceImpl = saleOrderInvoiceProjectServiceImpl;
+    this.declarationInvoiceProjectServiceImpl = declarationInvoiceProjectServiceImpl;
   }
 
   protected static class CommonFieldsBusinessProjectImpl extends CommonFieldsSupplychainImpl {
@@ -155,7 +155,7 @@ public class InvoiceMergingServiceBusinessProjectImpl extends InvoiceMergingServ
           getCommonFields(result).getCommonProject());
     }
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_CLIENT_SALE)) {
-      return saleOrderInvoiceProjectServiceImpl.mergeInvoice(
+      return declarationInvoiceProjectServiceImpl.mergeInvoice(
           invoicesToMerge,
           getCommonFields(result).getCommonCompany(),
           getCommonFields(result).getCommonCurrency(),
@@ -166,7 +166,7 @@ public class InvoiceMergingServiceBusinessProjectImpl extends InvoiceMergingServ
           getCommonFields(result).getCommonPaymentCondition(),
           getCommonFields(result).getCommonTradingName(),
           getCommonFields(result).getCommonFiscalPosition(),
-          getCommonFields(result).getCommonSaleOrder(),
+          getCommonFields(result).getCommonDeclaration(),
           getCommonFields(result).getCommonProject());
     }
     return null;

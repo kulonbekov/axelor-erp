@@ -28,8 +28,8 @@ import com.axelor.apps.base.service.UnitConversionService;
 import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderLineRepository;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.apps.stock.db.StockLocationLine;
 import com.axelor.apps.stock.db.repo.StockLocationLineRepository;
@@ -99,11 +99,11 @@ public class ProductStockLocationServiceImpl implements ProductStockLocationServ
         BigDecimal futureQty = BigDecimal.ZERO;
         BigDecimal reservedQty = BigDecimal.ZERO;
         BigDecimal requestedReservedQty = BigDecimal.ZERO;
-        BigDecimal saleOrderQty = BigDecimal.ZERO;
+        BigDecimal declarationQty = BigDecimal.ZERO;
         BigDecimal purchaseOrderQty = BigDecimal.ZERO;
         BigDecimal availableQty = BigDecimal.ZERO;
 
-        saleOrderQty = this.getSaleOrderQty(product, company, stockLocation);
+        declarationQty = this.getDeclarationQty(product, company, stockLocation);
         purchaseOrderQty = this.getPurchaseOrderQty(product, company, stockLocation);
         availableQty = this.getAvailableQty(product, company, stockLocation);
         requestedReservedQty = this.getRequestedReservedQty(product, company, stockLocation);
@@ -122,7 +122,7 @@ public class ProductStockLocationServiceImpl implements ProductStockLocationServ
         map.put("$reservedQty", reservedQty.setScale(scale, RoundingMode.HALF_UP));
         map.put(
             "$requestedReservedQty", requestedReservedQty.setScale(scale, RoundingMode.HALF_UP));
-        map.put("$saleOrderQty", saleOrderQty.setScale(scale, RoundingMode.HALF_UP));
+        map.put("$declarationQty", declarationQty.setScale(scale, RoundingMode.HALF_UP));
         map.put("$purchaseOrderQty", purchaseOrderQty.setScale(scale, RoundingMode.HALF_UP));
         map.put(
             "$availableQty",
@@ -150,8 +150,8 @@ public class ProductStockLocationServiceImpl implements ProductStockLocationServ
         "$requestedReservedQty",
         this.getRequestedReservedQty(product, company, null).setScale(scale, RoundingMode.HALF_UP));
     map.put(
-        "$saleOrderQty",
-        this.getSaleOrderQty(product, company, null).setScale(scale, RoundingMode.HALF_UP));
+        "$declarationQty",
+        this.getDeclarationQty(product, company, null).setScale(scale, RoundingMode.HALF_UP));
     map.put(
         "$purchaseOrderQty",
         this.getPurchaseOrderQty(product, company, null).setScale(scale, RoundingMode.HALF_UP));
@@ -204,7 +204,7 @@ public class ProductStockLocationServiceImpl implements ProductStockLocationServ
     return sumRequestedReservedQty;
   }
 
-  protected BigDecimal getSaleOrderQty(
+  protected BigDecimal getDeclarationQty(
       Product product, Company company, StockLocation stockLocation) throws AxelorException {
     if (product == null || product.getUnit() == null) {
       return BigDecimal.ZERO;
@@ -218,34 +218,34 @@ public class ProductStockLocationServiceImpl implements ProductStockLocationServ
       stockLocationId = stockLocation.getId();
     }
     String query =
-        Beans.get(SaleOrderLineServiceSupplyChain.class)
-            .getSaleOrderLineListForAProduct(product.getId(), companyId, stockLocationId);
-    List<SaleOrderLine> saleOrderLineList =
-        Beans.get(SaleOrderLineRepository.class).all().filter(query).fetch();
+        Beans.get(DeclarationLineServiceSupplyChain.class)
+            .getDeclarationLineListForAProduct(product.getId(), companyId, stockLocationId);
+    List<DeclarationLine> declarationLineList =
+        Beans.get(DeclarationLineRepository.class).all().filter(query).fetch();
 
     // Compute
-    BigDecimal sumSaleOrderQty = BigDecimal.ZERO;
-    if (!saleOrderLineList.isEmpty()) {
+    BigDecimal sumDeclarationQty = BigDecimal.ZERO;
+    if (!declarationLineList.isEmpty()) {
       Unit unitConversion = product.getUnit();
 
-      for (SaleOrderLine saleOrderLine : saleOrderLineList) {
-        BigDecimal productSaleOrderQty = saleOrderLine.getQty();
-        if (saleOrderLine.getDeliveryState()
-            == SaleOrderLineRepository.DELIVERY_STATE_PARTIALLY_DELIVERED) {
-          productSaleOrderQty = productSaleOrderQty.subtract(saleOrderLine.getDeliveredQty());
+      for (DeclarationLine declarationLine : declarationLineList) {
+        BigDecimal productDeclarationQty = declarationLine.getQty();
+        if (declarationLine.getDeliveryState()
+            == DeclarationLineRepository.DELIVERY_STATE_PARTIALLY_DELIVERED) {
+          productDeclarationQty = productDeclarationQty.subtract(declarationLine.getDeliveredQty());
         }
-        productSaleOrderQty =
+        productDeclarationQty =
             unitConversionService.convert(
-                saleOrderLine.getUnit(),
+                declarationLine.getUnit(),
                 unitConversion,
-                productSaleOrderQty,
-                productSaleOrderQty.scale(),
+                productDeclarationQty,
+                productDeclarationQty.scale(),
                 product);
-        sumSaleOrderQty = sumSaleOrderQty.add(productSaleOrderQty);
+        sumDeclarationQty = sumDeclarationQty.add(productDeclarationQty);
       }
     }
 
-    return sumSaleOrderQty;
+    return sumDeclarationQty;
   }
 
   protected BigDecimal getPurchaseOrderQty(

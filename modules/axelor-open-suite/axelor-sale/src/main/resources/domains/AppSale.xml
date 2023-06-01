@@ -9,7 +9,7 @@
 
     <one-to-one ref="com.axelor.studio.db.App" name="app"/>
 
-    <boolean name="manageSaleOrderVersion" title="Manage sale order versions"
+    <boolean name="manageDeclarationVersion" title="Manage sale order versions"
       default="false"/>
     <boolean name="printingOnSOFinalization"
       title="Generate the pdf printing during sale order finalization" default="false"/>
@@ -17,15 +17,15 @@
     <boolean name="enableConfigurator" title="Enable business configurator"/>
     <boolean name="allowPendingOrderModification"/>
     <boolean name="manageMultipleSaleQuantity" title="Manage multiple sale quantity"/>
-    <boolean name="printingConfigPerSaleOrder" title="Printing config per Sale Order"/>
-    <boolean name="closeOpportunityUponSaleOrderConfirmation"
+    <boolean name="printingConfigPerDeclaration" title="Printing config per Sale Order"/>
+    <boolean name="closeOpportunityUponDeclarationConfirmation"
       title="Close opportunity when one of the linked sale orders is confirmed"/>
     <boolean name="isEnabledProductDescriptionCopy" title="Enable product description copy"/>
     <integer name="salespersonSelect" title="User to fill salesperson"
       selection="sale.order.fill.salesperson.select" default="1"/>
     <boolean name="enableCustomerCatalogMgt" title="Enable customer catalog management"/>
     <boolean name="enablePackManagement" title="Pack Management"/>
-    <boolean name="isDisplaySaleOrderLineNumber" title="Display sale order line number"/>
+    <boolean name="isDisplayDeclarationLineNumber" title="Display sale order line number"/>
     <boolean name="enableSalesProductByTradName" title="Filter products by trading name"
       default="false"/>
     <many-to-one name="saleUnit" title="Default unit" ref="com.axelor.apps.base.db.Unit"/>
@@ -39,19 +39,19 @@
       help="When activated, the total margin of a sale order will take into account sale order lines where the cost price or the sale price is zero."/>
 
     <track>
-      <field name="manageSaleOrderVersion" on="UPDATE"/>
+      <field name="manageDeclarationVersion" on="UPDATE"/>
       <field name="printingOnSOFinalization" on="UPDATE"/>
       <field name="manageSalesUnits" on="UPDATE"/>
       <field name="enableConfigurator" on="UPDATE"/>
       <field name="allowPendingOrderModification" on="UPDATE"/>
       <field name="manageMultipleSaleQuantity" on="UPDATE"/>
-      <field name="printingConfigPerSaleOrder" on="UPDATE"/>
-      <field name="closeOpportunityUponSaleOrderConfirmation" on="UPDATE"/>
+      <field name="printingConfigPerDeclaration" on="UPDATE"/>
+      <field name="closeOpportunityUponDeclarationConfirmation" on="UPDATE"/>
       <field name="isEnabledProductDescriptionCopy" on="UPDATE"/>
       <field name="salespersonSelect" on="UPDATE"/>
       <field name="enableCustomerCatalogMgt" on="UPDATE"/>
       <field name="enablePackManagement" on="UPDATE"/>
-      <field name="isDisplaySaleOrderLineNumber" on="UPDATE"/>
+      <field name="isDisplayDeclarationLineNumber" on="UPDATE"/>
       <field name="enableSalesProductByTradName" on="UPDATE"/>
       <field name="saleUnit" on="UPDATE"/>
       <field name="managePartnerComplementaryProduct" on="UPDATE"/>

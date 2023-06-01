@@ -7,7 +7,7 @@
 
   <entity name="StockMoveLine">
 
-    <many-to-one name="saleOrderLine" ref="com.axelor.apps.sale.db.SaleOrderLine"
+    <many-to-one name="declarationLine" ref="com.axelor.apps.sale.db.DeclarationLine"
       title="Sales order line"/>
     <many-to-one name="purchaseOrderLine"
       ref="com.axelor.apps.purchase.db.PurchaseOrderLine" title="Purchase order line"/>
@@ -25,13 +25,13 @@
 
     <datetime name="reservationDateTime" readonly="true"/>
 
-    <finder-method name="findAllBySaleOrder"
-      using="com.axelor.apps.sale.db.SaleOrder:saleOrder" all="true"
-      filter="self.stockMove.originTypeSelect LIKE 'com.axelor.apps.sale.db.SaleOrder' AND self.stockMove.originId = :saleOrder.id"/>
+    <finder-method name="findAllByDeclaration"
+      using="com.axelor.apps.sale.db.Declaration:declaration" all="true"
+      filter="self.stockMove.originTypeSelect LIKE 'com.axelor.apps.sale.db.Declaration' AND self.stockMove.originId = :declaration.id"/>
 
-    <finder-method name="findAllBySaleOrderAndStatusSelect"
-      using="com.axelor.apps.sale.db.SaleOrder:saleOrder,Integer:statusSelect" all="true"
-      filter="self.stockMove.originTypeSelect LIKE 'com.axelor.apps.sale.db.SaleOrder' AND self.stockMove.originId = :saleOrder.id AND self.stockMove.statusSelect = :statusSelect"/>
+    <finder-method name="findAllByDeclarationAndStatusSelect"
+      using="com.axelor.apps.sale.db.Declaration:declaration,Integer:statusSelect" all="true"
+      filter="self.stockMove.originTypeSelect LIKE 'com.axelor.apps.sale.db.Declaration' AND self.stockMove.originId = :declaration.id AND self.stockMove.statusSelect = :statusSelect"/>
 
 
     <finder-method name="findForDeclarationOfExchanges"
@@ -49,8 +49,8 @@
 	        != COALESCE(self.stockMove.toAddress.addressL7Country, self.stockMove.toStockLocation.address.addressL7Country)
 	        AND COALESCE(self.stockMove.fromAddress.addressL7Country.economicArea, self.stockMove.fromStockLocation.address.addressL7Country.economicArea)
 	        = COALESCE(self.stockMove.toAddress.addressL7Country.economicArea, self.stockMove.toStockLocation.address.addressL7Country.economicArea)
-	        AND ((self.saleOrderLine IS NULL AND self.purchaseOrderLine IS NULL)
-	          OR (self.saleOrderLine IS NOT NULL AND (self.saleOrderLine.saleOrder.taxNumber IS NULL OR self.saleOrderLine.saleOrder.taxNumber.includeInDEB = true))
+	        AND ((self.declarationLine IS NULL AND self.purchaseOrderLine IS NULL)
+	          OR (self.declarationLine IS NOT NULL AND (self.declarationLine.declaration.taxNumber IS NULL OR self.declarationLine.declaration.taxNumber.includeInDEB = true))
 	          OR (self.purchaseOrderLine IS NOT NULL AND (self.purchaseOrderLine.purchaseOrder.taxNumber IS NULL OR self.purchaseOrderLine.purchaseOrder.taxNumber.includeInDEB = true)))"
       orderBy="stockMove.realDate,id" all="true"/>
 

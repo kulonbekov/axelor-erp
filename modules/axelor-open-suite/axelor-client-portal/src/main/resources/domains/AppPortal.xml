@@ -9,7 +9,7 @@
 
     <one-to-one ref="com.axelor.studio.db.App" name="app"/>
 
-    <boolean name="manageSaleOrders" title="Manage sale orders" default="true"/>
+    <boolean name="manageDeclarations" title="Manage sale orders" default="true"/>
     <boolean name="manageInvoices" title="Manage invoices" default="true"/>
     <boolean name="manageTickets" title="Manage tickets" default="true"/>
     <boolean name="manageProjects" title="Manage projects" default="true"/>
@@ -31,7 +31,7 @@
 
 	]]></extra-code>
     <track>
-      <field name="manageSaleOrders" on="UPDATE"/>
+      <field name="manageDeclarations" on="UPDATE"/>
       <field name="manageInvoices" on="UPDATE"/>
       <field name="manageTickets" on="UPDATE"/>
       <field name="manageProjects" on="UPDATE"/>

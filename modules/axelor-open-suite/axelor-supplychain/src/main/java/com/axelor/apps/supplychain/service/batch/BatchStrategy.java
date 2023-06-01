@@ -21,27 +21,27 @@ package com.axelor.apps.supplychain.service.batch;
 import com.axelor.apps.account.db.Move;
 import com.axelor.apps.base.db.repo.BatchRepository;
 import com.axelor.apps.base.service.administration.AbstractBatch;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.stock.db.StockMove;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.inject.Beans;
 
 public abstract class BatchStrategy extends AbstractBatch {
 
-  protected SaleOrderInvoiceService saleOrderInvoiceService;
+  protected DeclarationInvoiceService declarationInvoiceService;
 
   protected BatchStrategy() {
     super();
   }
 
-  protected BatchStrategy(SaleOrderInvoiceService saleOrderInvoiceService) {
+  protected BatchStrategy(DeclarationInvoiceService declarationInvoiceService) {
     super();
-    this.saleOrderInvoiceService = saleOrderInvoiceService;
+    this.declarationInvoiceService = declarationInvoiceService;
   }
 
-  protected void updateSaleOrder(SaleOrder saleOrder) {
+  protected void updateDeclaration(Declaration declaration) {
 
-    saleOrder.addBatchSetItem(Beans.get(BatchRepository.class).find(batch.getId()));
+    declaration.addBatchSetItem(Beans.get(BatchRepository.class).find(batch.getId()));
 
     incrementDone();
   }

@@ -51,7 +51,7 @@ import com.axelor.apps.production.service.config.ProductionConfigService;
 import com.axelor.apps.production.service.config.StockConfigProductionService;
 import com.axelor.apps.production.service.operationorder.OperationOrderService;
 import com.axelor.apps.production.service.operationorder.OperationOrderStockMoveService;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.stock.db.StockConfig;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.apps.stock.db.StockMove;
@@ -983,8 +983,8 @@ public class ManufOrderServiceImpl implements ManufOrderService {
 
     ManufOrder mergedManufOrder = new ManufOrder();
 
-    mergedManufOrder.setMoCommentFromSaleOrder("");
-    mergedManufOrder.setMoCommentFromSaleOrderLine("");
+    mergedManufOrder.setMoCommentFromDeclaration("");
+    mergedManufOrder.setMoCommentFromDeclarationLine("");
 
     for (ManufOrder manufOrder : manufOrderList) {
       manufOrder.setStatusSelect(ManufOrderRepository.STATUS_MERGED);
@@ -993,8 +993,8 @@ public class ManufOrderServiceImpl implements ManufOrderService {
       for (ProductionOrder productionOrder : manufOrder.getProductionOrderSet()) {
         mergedManufOrder.addProductionOrderSetItem(productionOrder);
       }
-      for (SaleOrder saleOrder : manufOrder.getSaleOrderSet()) {
-        mergedManufOrder.addSaleOrderSetItem(saleOrder);
+      for (Declaration declaration : manufOrder.getDeclarationSet()) {
+        mergedManufOrder.addDeclarationSetItem(declaration);
       }
       /*
        * If unit are the same, then add the qty If not, convert the unit and get the
@@ -1017,20 +1017,20 @@ public class ManufOrderServiceImpl implements ManufOrderService {
         note += manufOrder.getManufOrderSeq() + " : " + manufOrder.getNote() + "\n";
       }
 
-      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrder())) {
-        mergedManufOrder.setMoCommentFromSaleOrder(
+      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclaration())) {
+        mergedManufOrder.setMoCommentFromDeclaration(
             mergedManufOrder
-                .getMoCommentFromSaleOrder()
+                .getMoCommentFromDeclaration()
                 .concat(System.lineSeparator())
-                .concat(manufOrder.getMoCommentFromSaleOrder()));
+                .concat(manufOrder.getMoCommentFromDeclaration()));
       }
 
-      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromSaleOrderLine())) {
-        mergedManufOrder.setMoCommentFromSaleOrderLine(
+      if (!Strings.isNullOrEmpty(manufOrder.getMoCommentFromDeclarationLine())) {
+        mergedManufOrder.setMoCommentFromDeclarationLine(
             mergedManufOrder
-                .getMoCommentFromSaleOrderLine()
+                .getMoCommentFromDeclarationLine()
                 .concat(System.lineSeparator())
-                .concat(manufOrder.getMoCommentFromSaleOrderLine()));
+                .concat(manufOrder.getMoCommentFromDeclarationLine()));
       }
     }
 

@@ -32,7 +32,7 @@ public class AnalyticDistributionLineController {
       Class<?> parentClass = request.getContext().getParent().getContextClass();
       if ((InvoiceLine.class).equals(parentClass)) {
         InvoiceLine invoiceLine = request.getContext().getParent().asType(InvoiceLine.class);
-        response.setValue("saleOrderLine", invoiceLine.getSaleOrderLine());
+        response.setValue("declarationLine", invoiceLine.getDeclarationLine());
         response.setValue("purchaseOrderLine", invoiceLine.getPurchaseOrderLine());
       }
 

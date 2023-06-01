@@ -46,7 +46,7 @@ public class ImportPaymentVoucher {
 
       String filter;
       if (orderType.equals("S")) {
-        filter = "self.saleOrder.importId = ?";
+        filter = "self.declaration.importId = ?";
       } else {
         filter = "self.purchaseOrder.importId = ?";
       }

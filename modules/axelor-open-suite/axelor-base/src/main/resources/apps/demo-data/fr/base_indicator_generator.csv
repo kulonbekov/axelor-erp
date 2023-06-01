@@ -19,7 +19,7 @@
 "Nombre d'ordres d'opération",1,"SELECT COUNT(*) FROM OperationOrder",0
 "Nombre de produits",1,"SELECT COUNT(*) FROM Product WHERE isModel = false",48
 "Nombre de nomenclatures",1,"SELECT COUNT(*) FROM BillOfMaterial",45
-"Nombre de commandes",1,"SELECT COUNT(*) FROM SaleOrder",11
+"Nombre de commandes",1,"SELECT COUNT(*) FROM Declaration",11
 "Nombre de paiements",1,"SELECT COUNT(*) FROM PaymentVoucher",10
 "Nombre d'écritures",1,"SELECT COUNT(*) FROM Move",12
 "Nombre de lignes d'écriture",1,"SELECT COUNT(*) FROM MoveLine",59

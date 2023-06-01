@@ -6,7 +6,7 @@
   <form id="sale-partner-form" model="com.axelor.apps.base.db.Partner" title="Partner"
     name="partner-form" extension="true">
 
-    <extend target="//panel[@name='saleOrderCommentsPanel']">
+    <extend target="//panel[@name='declarationCommentsPanel']">
       <insert position="after">
         <panel-related field="$saleDetailsByProduct" type="one-to-many"
           target="com.axelor.utils.db.Wizard" title="Sale details by product"

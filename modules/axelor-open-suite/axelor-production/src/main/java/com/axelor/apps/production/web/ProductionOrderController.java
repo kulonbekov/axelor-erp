@@ -96,7 +96,7 @@ public class ProductionOrderController {
                 qty,
                 startDateT.toLocalDateTime(),
                 null,
-                productionOrder.getSaleOrder(),
+                productionOrder.getDeclaration(),
                 null,
                 ManufOrderOriginTypeProduction.ORIGIN_TYPE_OTHER);
       } else {

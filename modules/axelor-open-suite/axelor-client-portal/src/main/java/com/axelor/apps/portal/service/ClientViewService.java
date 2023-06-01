@@ -36,7 +36,7 @@ public interface ClientViewService {
 
   public List<Filter> getTasksDueOfUser(User user);
 
-  /* SaleOrder */
+  /* Declaration */
   public List<Filter> getOrdersInProgressOfUser(User user);
 
   public List<Filter> getQuotationsOfUser(User user);

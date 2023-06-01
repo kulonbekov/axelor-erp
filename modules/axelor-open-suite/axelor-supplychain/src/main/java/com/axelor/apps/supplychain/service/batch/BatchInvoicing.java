@@ -23,9 +23,9 @@ import com.axelor.apps.base.db.repo.BatchRepository;
 import com.axelor.apps.base.db.repo.ExceptionOriginRepository;
 import com.axelor.apps.base.exceptions.BaseExceptionMessage;
 import com.axelor.apps.base.service.exception.TraceBackService;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.apps.supplychain.service.invoice.SubscriptionInvoiceService;
 import com.axelor.db.JPA;
 import com.axelor.i18n.I18n;
@@ -42,40 +42,40 @@ public class BatchInvoicing extends BatchStrategy {
   @Inject private SubscriptionInvoiceService subscriptionInvoiceService;
 
   @Inject
-  public BatchInvoicing(SaleOrderInvoiceService saleOrderInvoiceService) {
+  public BatchInvoicing(DeclarationInvoiceService declarationInvoiceService) {
 
-    super(saleOrderInvoiceService);
+    super(declarationInvoiceService);
   }
 
   @Override
   protected void process() {
 
-    List<SaleOrder> saleOrders = subscriptionInvoiceService.getSubscriptionOrders(FETCH_LIMIT);
+    List<Declaration> declarations = subscriptionInvoiceService.getSubscriptionOrders(FETCH_LIMIT);
 
-    while (!saleOrders.isEmpty()) {
-      for (SaleOrder saleOrder : saleOrders) {
+    while (!declarations.isEmpty()) {
+      for (Declaration declaration : declarations) {
         try {
-          subscriptionInvoiceService.generateSubscriptionInvoice(saleOrder);
-          updateSaleOrder(saleOrder);
+          subscriptionInvoiceService.generateSubscriptionInvoice(declaration);
+          updateDeclaration(declaration);
         } catch (AxelorException e) {
           TraceBackService.trace(
               new AxelorException(
-                  e, e.getCategory(), I18n.get("Order %s"), saleOrder.getSaleOrderSeq()),
+                  e, e.getCategory(), I18n.get("Order %s"), declaration.getDeclarationSeq()),
               ExceptionOriginRepository.INVOICE_ORIGIN,
               batch.getId());
           incrementAnomaly();
         } catch (Exception e) {
           TraceBackService.trace(
-              new Exception(String.format(I18n.get("Order %s"), saleOrder.getSaleOrderSeq()), e),
+              new Exception(String.format(I18n.get("Order %s"), declaration.getDeclarationSeq()), e),
               ExceptionOriginRepository.INVOICE_ORIGIN,
               batch.getId());
           incrementAnomaly();
 
-          LOG.error("Bug(Anomalie) généré(e) pour le devis {}", saleOrder.getSaleOrderSeq());
+          LOG.error("Bug(Anomalie) généré(e) pour le devis {}", declaration.getDeclarationSeq());
         }
       }
       JPA.clear();
-      saleOrders = subscriptionInvoiceService.getSubscriptionOrders(FETCH_LIMIT);
+      declarations = subscriptionInvoiceService.getSubscriptionOrders(FETCH_LIMIT);
     }
   }
 

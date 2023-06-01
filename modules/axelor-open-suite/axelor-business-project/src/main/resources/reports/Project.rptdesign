@@ -400,7 +400,7 @@ where LangTranslate.message_key = ? and LangTranslate.language = ?]]></xml-prope
   </DataSetParameters>
 </model:DesignValues>]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="SaleOrderLine" id="4537">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DeclarationLine" id="4537">
             <property name="nullsOrdering">nulls lowest</property>
             <list-property name="columnHints">
                 <structure>
@@ -10604,7 +10604,7 @@ order by task_end_date]]></xml-property>
                         <property name="canShrink">true</property>
                         <property name="height">0in</property>
                         <property name="width">7.520833333333333in</property>
-                        <property name="dataSet">SaleOrderLine</property>
+                        <property name="dataSet">DeclarationLine</property>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">all</property>

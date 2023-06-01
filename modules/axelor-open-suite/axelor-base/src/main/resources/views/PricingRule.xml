@@ -20,7 +20,7 @@
       <field name="name"/>
       <field name="concernedModel"
         onChange="action-pricing-rule-attrs-field-to-populate-clear"
-        domain="self.name = 'SaleOrderLine'"/>
+        domain="self.name = 'DeclarationLine'"/>
       <field name="company"/>
       <field name="typeSelect" onChange="action-pricing-rule-attrs-field-to-populate-clear"/>
       <field name="fieldTypeSelect" showIf="typeSelect == 1"/>

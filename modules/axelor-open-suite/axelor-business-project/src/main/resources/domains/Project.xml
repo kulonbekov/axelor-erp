@@ -40,7 +40,7 @@
     <one-to-many name="purchaseOrderLineList"
       ref="com.axelor.apps.purchase.db.PurchaseOrderLine" title="Purchase order lines"
       mappedBy="project" orphanRemoval="false"/>
-    <one-to-many name="saleOrderLineList" ref="com.axelor.apps.sale.db.SaleOrderLine"
+    <one-to-many name="declarationLineList" ref="com.axelor.apps.sale.db.DeclarationLine"
       title="Sale order lines" mappedBy="project" orphanRemoval="false"/>
     <one-to-many name="expensesLineList" ref="com.axelor.apps.hr.db.ExpenseLine"
       title="Expense lines" mappedBy="project" orphanRemoval="false"/>

@@ -1027,7 +1027,7 @@ WHERE Partner.id = ?]]></xml-property>
   </design:ResultSets>
 </model:DesignValues>]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="SaleOrderDS" id="4067">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DeclarationDS" id="4067">
             <property name="nullsOrdering">nulls lowest</property>
             <list-property name="computedColumns">
                 <structure>
@@ -1791,7 +1791,7 @@ ORDER BY Event.created_on desc]]></xml-property>
   </design:ResultSets>
 </model:DesignValues>]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.SPSelectDataSet" name="SaleOrderProc" id="4488">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.SPSelectDataSet" name="DeclarationProc" id="4488">
             <property name="nullsOrdering">nulls lowest</property>
             <list-property name="columnHints"/>
             <list-property name="parameters"/>
@@ -1812,22 +1812,22 @@ IF (SELECT COUNT(to_regclass('sale_sale_order')) != 0) THEN
 
 return query
 SELECT
-SaleOrder.id, SaleOrder.creation_date,SaleOrder.confirmation_date_time::date as confirmation_date,
-coalesce(SaleOrder.creation_date, SaleOrder.confirmation_date_time::date) as display_date,
-SaleOrder.sale_order_seq, ContactPartner.partner_type_select,
+Declaration.id, Declaration.creation_date,Declaration.confirmation_date_time::date as confirmation_date,
+coalesce(Declaration.creation_date, Declaration.confirmation_date_time::date) as display_date,
+Declaration.sale_order_seq, ContactPartner.partner_type_select,
 ContactPartner.title_select, ContactPartner.name, ContactPartner.first_name,
-SaleOrder.ex_tax_total, SaleOrder.tax_total, SaleOrder.in_tax_total, 
-SaleOrder.status_select, SaleOrder.order_date,
-(CASE WHEN SaleOrder.currency = Company.currency
+Declaration.ex_tax_total, Declaration.tax_total, Declaration.in_tax_total, 
+Declaration.status_select, Declaration.order_date,
+(CASE WHEN Declaration.currency = Company.currency
 THEN Currency.symbol
 ELSE '' END) AS currency
 FROM base_partner AS Partner
-INNER JOIN sale_sale_order AS SaleOrder ON (SaleOrder.client_partner = Partner.id)
-LEFT JOIN base_partner AS ContactPartner ON (ContactPartner.id = SaleOrder.contact_partner)
+INNER JOIN sale_sale_order AS Declaration ON (Declaration.client_partner = Partner.id)
+LEFT JOIN base_partner AS ContactPartner ON (ContactPartner.id = Declaration.contact_partner)
 INNER JOIN auth_user AS AuthUser ON (AuthUser.id = Partner.user_id)
-LEFT JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT JOIN base_currency as Currency on (Company.currency = Currency.id)
-WHERE Partner.id = partnerId and SaleOrder.company = AuthUser.active_company
+WHERE Partner.id = partnerId and Declaration.company = AuthUser.active_company
 ORDER BY display_date desc;
 
 end if;
@@ -2099,9 +2099,9 @@ $func$ LANGUAGE plpgsql;
                         <row id="4565">
                             <cell id="4566">
                                 <text id="4572">
-                                    <property name="dataSet">SaleOrderProc</property>
+                                    <property name="dataSet">DeclarationProc</property>
                                     <property name="contentType">html</property>
-                                    <text-property name="content"><![CDATA[SaleOrderProc]]></text-property>
+                                    <text-property name="content"><![CDATA[DeclarationProc]]></text-property>
                                 </text>
                             </cell>
                             <cell id="4567">
@@ -3512,7 +3512,7 @@ row["first_name"]
                     <data id="4579">
                         <property name="fontSize">8%</property>
                         <property name="display">inline</property>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">display_date</property>
@@ -3527,7 +3527,7 @@ row["first_name"]
                         <property name="fontSize">8pt</property>
                         <property name="marginTop">2pt</property>
                         <property name="display">inline</property>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">id</property>
@@ -3893,7 +3893,7 @@ row["first_name"]
                     <text id="4305">
                         <property name="fontSize">8pt</property>
                         <property name="marginTop">2pt</property>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">id</property>
@@ -4208,7 +4208,7 @@ row["first_name"]
                     <property name="verticalAlign">middle</property>
                     <table id="4317">
                         <property name="marginLeft">-2pt</property>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">id</property>
@@ -4631,7 +4631,7 @@ row["first_name"]
                     <property name="verticalAlign">middle</property>
                     <table id="4325">
                         <property name="marginLeft">-2pt</property>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">id</property>
@@ -4806,7 +4806,7 @@ BirtMath.roundUp(BirtDateTime.diffDay(row["LatestSO"], row["OldestSO"])/(row["Co
             <property name="marginTop">8pt</property>
             <property name="marginLeft">0pt</property>
             <property name="width">19.52625cm</property>
-            <property name="dataSet">SaleOrderDS</property>
+            <property name="dataSet">DeclarationDS</property>
             <list-property name="visibility">
                 <structure>
                     <property name="format">all</property>

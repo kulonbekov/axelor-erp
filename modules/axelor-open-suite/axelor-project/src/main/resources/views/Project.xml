@@ -221,15 +221,15 @@
       </panel>
       <panel title="Sales" name="salesPanel" showIf="isBusinessProject"
         if="__config__.app.isApp('business-project')
-				&amp;&amp; __config__.app.getApp('business-project').getShowSaleOrderLineRelatedToProject()"
+				&amp;&amp; __config__.app.getApp('business-project').getShowDeclarationLineRelatedToProject()"
         if-module="axelor-business-project">
         <button name="generateQuotationBtn" title="Generate quotation"
           onClick="action-project-method-generate-quotation" css="btn-custom text-left"/>
-        <button name="showSaleOrderLinesBtn" title="Show sale order lines" css="btn-custom"
+        <button name="showDeclarationLinesBtn" title="Show sale order lines" css="btn-custom"
           icon="fa-line-chart" onClick="action-project-view-show-sale-order-lines"/>
         <panel-dashlet name="saleQuotationPanel"
           action="action-project-dashlet-sale-quotation" colSpan="12" canSearch="true"/>
-        <panel-dashlet name="saleOrderPanel"
+        <panel-dashlet name="declarationPanel"
           action="action-project-dashlet-sale-order" colSpan="12" canSearch="true"/>
         <button name="selectNewSOLinesBtn" title="Select new lines"
           css="btn-custom text-left"
@@ -239,7 +239,7 @@
           onClick="save,action-project-attrs-sales-order-line-manage-lines"
           hideIf="$popup() || $readonly()" colSpan="3"/>
         <field name="$salesOrderLineSet" hidden="true" type="many-to-many" widget="TagSelect"
-          title="Sale order lines" colSpan="12" target="com.axelor.apps.sale.db.SaleOrderLine"
+          title="Sale order lines" colSpan="12" target="com.axelor.apps.sale.db.DeclarationLine"
           canEdit="false" canNew="false" grid-view="sale-order-line-project-grid"
           form-view="sale-order-line-form"/>
         <button-group name="SOLinesBtnGroup" colSpan="4">
@@ -250,7 +250,7 @@
         </button-group>
         <button name="cancelManageSOLinesBtn" colSpan="4" hidden="true" title="Cancel"
           onClick="action-project-attrs-sales-order-line-cancel-manage-lines"/>
-        <panel-dashlet name="saleOrderLinePanel"
+        <panel-dashlet name="declarationLinePanel"
           action="action-project-view-show-confirmed-sale-order-lines" colSpan="12" canSearch="true"/>
         <panel-dashlet name="customerDeliveriesPanel"
           action="action-project-dashlet-customer-deliveries" colSpan="12"/>

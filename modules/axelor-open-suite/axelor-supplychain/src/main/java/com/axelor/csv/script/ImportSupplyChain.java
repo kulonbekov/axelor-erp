@@ -32,11 +32,11 @@ import com.axelor.apps.purchase.script.ImportPurchaseOrder;
 import com.axelor.apps.purchase.service.PurchaseOrderService;
 import com.axelor.apps.purchase.service.PurchaseOrderWorkflowService;
 import com.axelor.apps.sale.db.SaleConfig;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.sale.db.repo.SaleConfigRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
-import com.axelor.apps.sale.service.saleorder.SaleOrderWorkflowService;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
+import com.axelor.apps.sale.service.declaration.DeclarationWorkflowService;
 import com.axelor.apps.stock.db.Inventory;
 import com.axelor.apps.stock.db.InventoryLine;
 import com.axelor.apps.stock.db.StockMove;
@@ -46,8 +46,8 @@ import com.axelor.apps.stock.service.StockMoveService;
 import com.axelor.apps.stock.service.config.StockConfigService;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
 import com.axelor.apps.supplychain.service.PurchaseOrderStockServiceImpl;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderStockService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationStockService;
 import com.axelor.apps.supplychain.service.SupplychainSaleConfigService;
 import com.axelor.auth.AuthUtils;
 import com.axelor.inject.Beans;
@@ -67,11 +67,11 @@ public class ImportSupplyChain {
 
   @Inject protected InvoiceService invoiceService;
 
-  @Inject protected SaleOrderStockService saleOrderStockService;
+  @Inject protected DeclarationStockService declarationStockService;
 
   @Inject protected StockMoveRepository stockMoveRepo;
 
-  @Inject protected SaleOrderRepository saleOrderRepo;
+  @Inject protected DeclarationRepository declarationRepo;
 
   @Inject protected SaleConfigRepository saleConfigRepo;
 
@@ -81,7 +81,7 @@ public class ImportSupplyChain {
 
   @Inject protected ImportPurchaseOrder importPurchaseOrder;
 
-  @Inject protected ImportSaleOrder importSaleOrder;
+  @Inject protected ImportDeclaration importDeclaration;
 
   @Inject protected InventoryLineService inventoryLineService;
 
@@ -167,53 +167,53 @@ public class ImportSupplyChain {
   }
 
   @Transactional(rollbackOn = {Exception.class})
-  public Object importSaleOrderFromSupplyChain(Object bean, Map<String, Object> values) {
+  public Object importDeclarationFromSupplyChain(Object bean, Map<String, Object> values) {
     try {
-      SaleOrderWorkflowService saleOrderWorkflowService = Beans.get(SaleOrderWorkflowService.class);
+      DeclarationWorkflowService declarationWorkflowService = Beans.get(DeclarationWorkflowService.class);
       StockMoveService stockMoveService = Beans.get(StockMoveService.class);
 
-      SaleOrder saleOrder = (SaleOrder) importSaleOrder.importSaleOrder(bean, values);
+      Declaration declaration = (Declaration) importDeclaration.importDeclaration(bean, values);
 
-      for (SaleOrderLine line : saleOrder.getSaleOrderLineList()) {
+      for (DeclarationLine line : declaration.getDeclarationLineList()) {
         Product product = line.getProduct();
         if (product.getMassUnit() == null) {
           product.setMassUnit(
-              stockConfigService.getStockConfig(saleOrder.getCompany()).getCustomsMassUnit());
+              stockConfigService.getStockConfig(declaration.getCompany()).getCustomsMassUnit());
         }
       }
-      if (saleOrder.getStatusSelect() == SaleOrderRepository.STATUS_FINALIZED_QUOTATION) {
-        // taskSaleOrderService.createTasks(saleOrder); TODO once we will have done the generation//
+      if (declaration.getStatusSelect() == DeclarationRepository.STATUS_FINALIZED_QUOTATION) {
+        // taskDeclarationService.createTasks(declaration); TODO once we will have done the generation//
         // of tasks in project module
-        saleOrderWorkflowService.confirmSaleOrder(saleOrder);
-        // Beans.get(SaleOrderPurchaseService.class).createPurchaseOrders(saleOrder);
-        //				productionOrderSaleOrderService.generateProductionOrder(saleOrder);
-        // saleOrder.setClientPartner(saleOrderWorkflowService.validateCustomer(saleOrder));
+        declarationWorkflowService.confirmDeclaration(declaration);
+        // Beans.get(DeclarationPurchaseService.class).createPurchaseOrders(declaration);
+        //				productionOrderDeclarationService.generateProductionOrder(declaration);
+        // declaration.setClientPartner(declarationWorkflowService.validateCustomer(declaration));
         // Generate invoice from sale order
-        Invoice invoice = Beans.get(SaleOrderInvoiceService.class).generateInvoice(saleOrder);
-        if (saleOrder.getConfirmationDateTime() != null) {
-          invoice.setInvoiceDate(saleOrder.getConfirmationDateTime().toLocalDate());
+        Invoice invoice = Beans.get(DeclarationInvoiceService.class).generateInvoice(declaration);
+        if (declaration.getConfirmationDateTime() != null) {
+          invoice.setInvoiceDate(declaration.getConfirmationDateTime().toLocalDate());
 
         } else {
           invoice.setInvoiceDate(
-              Beans.get(AppBaseService.class).getTodayDate(saleOrder.getCompany()));
+              Beans.get(AppBaseService.class).getTodayDate(declaration.getCompany()));
         }
         invoiceTermService.computeInvoiceTerms(invoice);
         invoiceService.validateAndVentilate(invoice);
 
-        List<Long> idList = saleOrderStockService.createStocksMovesFromSaleOrder(saleOrder);
+        List<Long> idList = declarationStockService.createStocksMovesFromDeclaration(declaration);
         for (Long id : idList) {
           StockMove stockMove = stockMoveRepo.find(id);
           if (stockMove.getStockMoveLineList() != null
               && !stockMove.getStockMoveLineList().isEmpty()) {
             stockMoveService.copyQtyToRealQty(stockMove);
             stockMoveService.realize(stockMove);
-            if (saleOrder.getConfirmationDateTime() != null) {
-              stockMove.setRealDate(saleOrder.getConfirmationDateTime().toLocalDate());
+            if (declaration.getConfirmationDateTime() != null) {
+              stockMove.setRealDate(declaration.getConfirmationDateTime().toLocalDate());
             }
           }
         }
       }
-      saleOrderRepo.save(saleOrder);
+      declarationRepo.save(declaration);
     } catch (Exception e) {
       TraceBackService.trace(e);
     }

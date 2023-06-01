@@ -8,7 +8,7 @@
     name="action-stock-config-attrs-customer-stocklocation-domain"
     model="com.axelor.apps.stock.db.StockConfig">
     <attribute name="domain" for="customerVirtualStockLocation"
-      expr="eval: &quot; self.usableOnSaleOrder = True AND self.company = :company and self.typeSelect = 3 &quot;"/>
+      expr="eval: &quot; self.usableOnDeclaration = True AND self.company = :company and self.typeSelect = 3 &quot;"/>
   </action-attrs>
 
   <action-attrs
@@ -30,7 +30,7 @@
     name="action-stock-config-attrs-pickup-stocklocation-domain"
     model="com.axelor.apps.stock.db.StockConfig">
     <attribute name="domain" for="pickupDefaultStockLocation"
-      expr="eval: &quot; self.usableOnSaleOrder = True AND self.company = :company and self.typeSelect != 3 &quot;"/>
+      expr="eval: &quot; self.usableOnDeclaration = True AND self.company = :company and self.typeSelect != 3 &quot;"/>
   </action-attrs>
 
 </object-views>

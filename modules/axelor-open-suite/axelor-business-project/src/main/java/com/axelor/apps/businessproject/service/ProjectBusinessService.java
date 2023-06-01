@@ -21,14 +21,14 @@ package com.axelor.apps.businessproject.service;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.service.ProjectService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 
 public interface ProjectBusinessService extends ProjectService {
 
-  SaleOrder generateQuotation(Project project) throws AxelorException;
+  Declaration generateQuotation(Project project) throws AxelorException;
 
-  Project generateProject(SaleOrder saleOrder);
+  Project generateProject(Declaration declaration);
 
-  Project generatePhaseProject(SaleOrderLine saleOrderLine, Project parent);
+  Project generatePhaseProject(DeclarationLine declarationLine, Project parent);
 }

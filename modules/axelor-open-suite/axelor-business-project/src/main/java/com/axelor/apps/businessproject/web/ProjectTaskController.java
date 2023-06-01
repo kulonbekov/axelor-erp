@@ -83,7 +83,7 @@ public class ProjectTaskController {
   public void onChangeCategory(ActionRequest request, ActionResponse response) {
     try {
       ProjectTask task = request.getContext().asType(ProjectTask.class);
-      if (task.getSaleOrderLine() == null && task.getInvoiceLine() == null) {
+      if (task.getDeclarationLine() == null && task.getInvoiceLine() == null) {
         ProjectTaskBusinessProjectService projectTaskBusinessProjectService =
             Beans.get(ProjectTaskBusinessProjectService.class);
         task = projectTaskBusinessProjectService.resetProjectTaskValues(task);

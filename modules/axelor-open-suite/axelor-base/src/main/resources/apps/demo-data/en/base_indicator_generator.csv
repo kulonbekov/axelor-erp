@@ -19,7 +19,7 @@
 "Number of operation orders",1,"SELECT COUNT(*) FROM OperationOrder",0
 "Number of products",1,"SELECT COUNT(*) FROM Product WHERE isModel = false",48
 "Number of bills of materials",1,"SELECT COUNT(*) FROM BillOfMaterial",45
-"Number of sale orders",1,"SELECT COUNT(*) FROM SaleOrder",11
+"Number of sale orders",1,"SELECT COUNT(*) FROM Declaration",11
 "Number of payments",1,"SELECT COUNT(*) FROM PaymentVoucher",10
 "Number of moves",1,"SELECT COUNT(*) FROM Move",12
 "Number of move lines",1,"SELECT COUNT(*) FROM MoveLine",59

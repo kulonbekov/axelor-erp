@@ -354,7 +354,7 @@
 "ManufOrder.from","From",,
 "ManufOrder.inProgress","In progress",,
 "ManufOrder.machine","Machine",,
-"ManufOrder.moCommentFromSaleOrder","MO's comment from sale order",,
+"ManufOrder.moCommentFromDeclaration","MO's comment from sale order",,
 "ManufOrder.noLocation","No workshop",,
 "ManufOrder.num","N°",,
 "ManufOrder.operation","Operation",,

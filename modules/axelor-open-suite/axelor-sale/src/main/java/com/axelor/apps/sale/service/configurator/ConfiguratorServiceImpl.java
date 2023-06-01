@@ -30,14 +30,14 @@ import com.axelor.apps.sale.db.Configurator;
 import com.axelor.apps.sale.db.ConfiguratorCreator;
 import com.axelor.apps.sale.db.ConfiguratorFormula;
 import com.axelor.apps.sale.db.ConfiguratorSOLineFormula;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.sale.db.repo.ConfiguratorRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.sale.exception.SaleExceptionMessage;
-import com.axelor.apps.sale.service.saleorder.SaleOrderComputeService;
-import com.axelor.apps.sale.service.saleorder.SaleOrderLineService;
+import com.axelor.apps.sale.service.declaration.DeclarationComputeService;
+import com.axelor.apps.sale.service.declaration.DeclarationLineService;
 import com.axelor.auth.AuthUtils;
 import com.axelor.auth.db.User;
 import com.axelor.db.JPA;
@@ -72,9 +72,9 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
   protected AppBaseService appBaseService;
   protected ConfiguratorFormulaService configuratorFormulaService;
   protected ProductRepository productRepository;
-  protected SaleOrderLineService saleOrderLineService;
-  protected SaleOrderLineRepository saleOrderLineRepository;
-  protected SaleOrderComputeService saleOrderComputeService;
+  protected DeclarationLineService declarationLineService;
+  protected DeclarationLineRepository declarationLineRepository;
+  protected DeclarationComputeService declarationComputeService;
   protected MetaFieldRepository metaFieldRepository;
   protected ConfiguratorMetaJsonFieldService configuratorMetaJsonFieldService;
 
@@ -83,17 +83,17 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
       AppBaseService appBaseService,
       ConfiguratorFormulaService configuratorFormulaService,
       ProductRepository productRepository,
-      SaleOrderLineService saleOrderLineService,
-      SaleOrderLineRepository saleOrderLineRepository,
-      SaleOrderComputeService saleOrderComputeService,
+      DeclarationLineService declarationLineService,
+      DeclarationLineRepository declarationLineRepository,
+      DeclarationComputeService declarationComputeService,
       MetaFieldRepository metaFieldRepository,
       ConfiguratorMetaJsonFieldService configuratorMetaJsonFieldService) {
     this.appBaseService = appBaseService;
     this.configuratorFormulaService = configuratorFormulaService;
     this.productRepository = productRepository;
-    this.saleOrderLineService = saleOrderLineService;
-    this.saleOrderLineRepository = saleOrderLineRepository;
-    this.saleOrderComputeService = saleOrderComputeService;
+    this.declarationLineService = declarationLineService;
+    this.declarationLineRepository = declarationLineRepository;
+    this.declarationComputeService = declarationComputeService;
     this.metaFieldRepository = metaFieldRepository;
     this.configuratorMetaJsonFieldService = configuratorMetaJsonFieldService;
   }
@@ -103,13 +103,13 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      Long saleOrderId)
+      Long declarationId)
       throws AxelorException {
     if (configurator.getConfiguratorCreator() == null) {
       return;
     }
     List<MetaJsonField> indicators = configurator.getConfiguratorCreator().getIndicators();
-    addSpecialAttributeParentSaleOrderId(jsonAttributes, saleOrderId);
+    addSpecialAttributeParentDeclarationId(jsonAttributes, declarationId);
     indicators = filterIndicators(configurator, indicators);
     for (MetaJsonField indicator : indicators) {
       try {
@@ -196,10 +196,10 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      Long saleOrderId)
+      Long declarationId)
       throws AxelorException {
 
-    addSpecialAttributeParentSaleOrderId(jsonAttributes, saleOrderId);
+    addSpecialAttributeParentDeclarationId(jsonAttributes, declarationId);
 
     cleanIndicators(jsonIndicators);
     Mapper mapper = Mapper.of(Product.class);
@@ -240,23 +240,23 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
 
   @Transactional(rollbackOn = {Exception.class})
   @Override
-  public void addLineToSaleOrder(
+  public void addLineToDeclaration(
       Configurator configurator,
-      SaleOrder saleOrder,
+      Declaration declaration,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators)
       throws AxelorException {
 
-    SaleOrderLine saleOrderLine;
+    DeclarationLine declarationLine;
     if (configurator.getConfiguratorCreator().getGenerateProduct()) {
       // generate sale order line from product
-      saleOrderLine = new SaleOrderLine();
-      saleOrderLine.setSaleOrder(saleOrder);
-      generateProduct(configurator, jsonAttributes, jsonIndicators, saleOrder.getId());
+      declarationLine = new DeclarationLine();
+      declarationLine.setDeclaration(declaration);
+      generateProduct(configurator, jsonAttributes, jsonIndicators, declaration.getId());
 
-      saleOrderLine.setProduct(configurator.getProduct());
-      this.fillSaleOrderWithProduct(saleOrderLine);
-      saleOrderLineService.computeValues(saleOrderLine.getSaleOrder(), saleOrderLine);
+      declarationLine.setProduct(configurator.getProduct());
+      this.fillDeclarationWithProduct(declarationLine);
+      declarationLineService.computeValues(declarationLine.getDeclaration(), declarationLine);
 
       String qtyFormula = configurator.getConfiguratorCreator().getQtyFormula();
       BigDecimal qty = BigDecimal.ONE;
@@ -266,36 +266,36 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
           qty = new BigDecimal(result.toString());
         }
       }
-      saleOrderLine.setQty(qty);
-      saleOrderLineRepository.save(saleOrderLine);
+      declarationLine.setQty(qty);
+      declarationLineRepository.save(declarationLine);
     } else {
-      generateSaleOrderLine(configurator, jsonAttributes, jsonIndicators, saleOrder);
+      generateDeclarationLine(configurator, jsonAttributes, jsonIndicators, declaration);
     }
-    saleOrderComputeService.computeSaleOrder(saleOrder);
+    declarationComputeService.computeDeclaration(declaration);
 
-    Beans.get(SaleOrderRepository.class).save(saleOrder);
+    Beans.get(DeclarationRepository.class).save(declaration);
   }
 
   /**
    * Fill fields of sale order line from its product
    *
-   * @param saleOrderLine
+   * @param declarationLine
    */
-  protected void fillSaleOrderWithProduct(SaleOrderLine saleOrderLine) throws AxelorException {
-    if (saleOrderLine.getProduct() != null) {
-      saleOrderLineService.computeProductInformation(saleOrderLine, saleOrderLine.getSaleOrder());
+  protected void fillDeclarationWithProduct(DeclarationLine declarationLine) throws AxelorException {
+    if (declarationLine.getProduct() != null) {
+      declarationLineService.computeProductInformation(declarationLine, declarationLine.getDeclaration());
     }
   }
 
   protected void overwriteFieldToUpdate(
-      Configurator configurator, SaleOrderLine saleOrderLine, JsonContext attributes)
+      Configurator configurator, DeclarationLine declarationLine, JsonContext attributes)
       throws AxelorException {
     // update a field if its formula has updateFromSelect to update
     // from configurator
     List<ConfiguratorSOLineFormula> formulas =
         configurator.getConfiguratorCreator().getConfiguratorSOLineFormulaList();
     if (formulas != null) {
-      Mapper mapper = Mapper.of(SaleOrderLine.class);
+      Mapper mapper = Mapper.of(DeclarationLine.class);
       for (ConfiguratorSOLineFormula formula : formulas) {
         // exclude the product field
         if (formula.getUpdateFromSelect() == ConfiguratorRepository.UPDATE_FROM_CONFIGURATOR) {
@@ -305,9 +305,9 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
                   configurator, formula.getMetaField().getName() + "_1", attributes);
           // if many to one, go search value in database.
           if ("ManyToOne".equals(formula.getMetaField().getRelationship())) {
-            fixRelationalField(saleOrderLine, (Model) valueToUpdate, formula.getMetaField());
+            fixRelationalField(declarationLine, (Model) valueToUpdate, formula.getMetaField());
           } else {
-            mapper.set(saleOrderLine, formula.getMetaField().getName(), valueToUpdate);
+            mapper.set(declarationLine, formula.getMetaField().getName(), valueToUpdate);
           }
         }
       }
@@ -383,37 +383,37 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
    * @param configurator
    * @param jsonAttributes
    * @param jsonIndicators
-   * @param saleOrder
+   * @param declaration
    * @return
    */
-  protected SaleOrderLine generateSaleOrderLine(
+  protected DeclarationLine generateDeclarationLine(
       Configurator configurator,
       JsonContext jsonAttributes,
       JsonContext jsonIndicators,
-      SaleOrder saleOrder)
+      Declaration declaration)
       throws AxelorException {
     cleanIndicators(jsonIndicators);
-    SaleOrderLine saleOrderLine = Mapper.toBean(SaleOrderLine.class, jsonIndicators);
-    saleOrderLine.setSaleOrder(saleOrder);
+    DeclarationLine declarationLine = Mapper.toBean(DeclarationLine.class, jsonIndicators);
+    declarationLine.setDeclaration(declaration);
     configuratorMetaJsonFieldService.fillAttrs(
         configurator.getConfiguratorCreator().getConfiguratorSOLineFormulaList(),
         jsonIndicators,
-        SaleOrderLine.class,
-        saleOrderLine);
-    fixRelationalFields(saleOrderLine);
-    fetchManyToManyFields(saleOrderLine);
-    fillOneToManyFields(configurator, saleOrderLine, jsonAttributes);
-    this.fillSaleOrderWithProduct(saleOrderLine);
-    this.overwriteFieldToUpdate(configurator, saleOrderLine, jsonAttributes);
-    if (saleOrderLine.getProductName() == null) {
+        DeclarationLine.class,
+        declarationLine);
+    fixRelationalFields(declarationLine);
+    fetchManyToManyFields(declarationLine);
+    fillOneToManyFields(configurator, declarationLine, jsonAttributes);
+    this.fillDeclarationWithProduct(declarationLine);
+    this.overwriteFieldToUpdate(configurator, declarationLine, jsonAttributes);
+    if (declarationLine.getProductName() == null) {
       throw new AxelorException(
           configurator,
           TraceBackRepository.CATEGORY_MISSING_FIELD,
           I18n.get(SaleExceptionMessage.CONFIGURATOR_SALE_ORDER_LINE_MISSING_PRODUCT_NAME));
     }
-    saleOrderLine = saleOrderLineRepository.save(saleOrderLine);
-    saleOrderLineService.computeValues(saleOrderLine.getSaleOrder(), saleOrderLine);
-    return saleOrderLine;
+    declarationLine = declarationLineRepository.save(declarationLine);
+    declarationLineService.computeValues(declarationLine.getDeclaration(), declarationLine);
+    return declarationLine;
   }
 
   /**
@@ -444,7 +444,7 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
         methodArg[0] = Product.class;
       } else {
         configuratorFormulaList = creator.getConfiguratorSOLineFormulaList();
-        methodArg[0] = SaleOrderLine.class;
+        methodArg[0] = DeclarationLine.class;
       }
       configuratorFormulaList =
           configuratorFormulaList.stream()
@@ -564,10 +564,10 @@ public class ConfiguratorServiceImpl implements ConfiguratorService {
     }
   }
 
-  protected void addSpecialAttributeParentSaleOrderId(
-      JsonContext jsonAttributes, Long saleOrderId) {
-    if (saleOrderId != null) {
-      jsonAttributes.put(ConfiguratorFormulaService.PARENT_SALE_ORDER_ID_FIELD_NAME, saleOrderId);
+  protected void addSpecialAttributeParentDeclarationId(
+      JsonContext jsonAttributes, Long declarationId) {
+    if (declarationId != null) {
+      jsonAttributes.put(ConfiguratorFormulaService.PARENT_SALE_ORDER_ID_FIELD_NAME, declarationId);
     }
   }
 }

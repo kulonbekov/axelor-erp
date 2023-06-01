@@ -27,7 +27,7 @@ import com.axelor.apps.businessproject.db.repo.InvoicingProjectManagementReposit
 import com.axelor.apps.businessproject.db.repo.InvoicingProjectRepository;
 import com.axelor.apps.businessproject.db.repo.ProjectBusinessProjectRepository;
 import com.axelor.apps.businessproject.db.repo.ProjectTaskBusinessProjectRepository;
-import com.axelor.apps.businessproject.db.repo.SaleOrderProjectRepository;
+import com.axelor.apps.businessproject.db.repo.DeclarationProjectRepository;
 import com.axelor.apps.businessproject.service.ContractLineServiceProjectImpl;
 import com.axelor.apps.businessproject.service.ExpenseLineProjectService;
 import com.axelor.apps.businessproject.service.ExpenseLineProjectServiceImpl;
@@ -54,9 +54,9 @@ import com.axelor.apps.businessproject.service.PurchaseOrderInvoiceProjectServic
 import com.axelor.apps.businessproject.service.PurchaseOrderLineProjectService;
 import com.axelor.apps.businessproject.service.PurchaseOrderLineServiceProjectImpl;
 import com.axelor.apps.businessproject.service.PurchaseOrderWorkflowServiceProjectImpl;
-import com.axelor.apps.businessproject.service.SaleOrderInvoiceProjectServiceImpl;
-import com.axelor.apps.businessproject.service.SaleOrderLineProjectService;
-import com.axelor.apps.businessproject.service.SaleOrderLineProjectServiceImpl;
+import com.axelor.apps.businessproject.service.DeclarationInvoiceProjectServiceImpl;
+import com.axelor.apps.businessproject.service.DeclarationLineProjectService;
+import com.axelor.apps.businessproject.service.DeclarationLineProjectServiceImpl;
 import com.axelor.apps.businessproject.service.TimesheetLineBusinessService;
 import com.axelor.apps.businessproject.service.TimesheetLineProjectServiceImpl;
 import com.axelor.apps.businessproject.service.TimesheetProjectService;
@@ -78,14 +78,14 @@ import com.axelor.apps.hr.service.timesheet.TimesheetServiceImpl;
 import com.axelor.apps.project.service.ProjectServiceImpl;
 import com.axelor.apps.project.service.ProjectTaskServiceImpl;
 import com.axelor.apps.supplychain.db.repo.InvoiceSupplychainRepository;
-import com.axelor.apps.supplychain.db.repo.SaleOrderSupplychainRepository;
+import com.axelor.apps.supplychain.db.repo.DeclarationSupplychainRepository;
 import com.axelor.apps.supplychain.service.InvoiceLineSupplychainService;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceServiceImpl;
 import com.axelor.apps.supplychain.service.PurchaseOrderLineServiceSupplychainImpl;
 import com.axelor.apps.supplychain.service.PurchaseOrderWorkflowServiceSupplychainImpl;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceServiceImpl;
-import com.axelor.apps.supplychain.service.SaleOrderLineServiceSupplyChainImpl;
-import com.axelor.apps.supplychain.service.SaleOrderPurchaseServiceImpl;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceServiceImpl;
+import com.axelor.apps.supplychain.service.DeclarationLineServiceSupplyChainImpl;
+import com.axelor.apps.supplychain.service.DeclarationPurchaseServiceImpl;
 import com.axelor.apps.supplychain.service.StockMoveInvoiceServiceImpl;
 import com.axelor.apps.supplychain.service.invoice.InvoiceMergingServiceSupplychainImpl;
 import com.axelor.apps.supplychain.service.invoice.InvoiceServiceSupplychainImpl;
@@ -96,7 +96,7 @@ public class BusinessProjectModule extends AxelorModule {
 
   @Override
   protected void configure() {
-    bind(SaleOrderInvoiceServiceImpl.class).to(SaleOrderInvoiceProjectServiceImpl.class);
+    bind(DeclarationInvoiceServiceImpl.class).to(DeclarationInvoiceProjectServiceImpl.class);
     bind(PurchaseOrderInvoiceServiceImpl.class).to(PurchaseOrderInvoiceProjectServiceImpl.class);
     bind(TimesheetServiceImpl.class).to(TimesheetProjectServiceImpl.class);
     bind(TimesheetProjectService.class).to(TimesheetProjectServiceImpl.class);
@@ -110,13 +110,13 @@ public class BusinessProjectModule extends AxelorModule {
     bind(InvoiceServiceProject.class).to(InvoiceServiceProjectImpl.class);
     bind(ProjectTaskServiceImpl.class).to(ProjectTaskBusinessProjectServiceImpl.class);
     bind(ProjectTaskBusinessProjectService.class).to(ProjectTaskBusinessProjectServiceImpl.class);
-    bind(SaleOrderSupplychainRepository.class).to(SaleOrderProjectRepository.class);
+    bind(DeclarationSupplychainRepository.class).to(DeclarationProjectRepository.class);
     bind(ProductTaskTemplateService.class).to(ProductTaskTemplateServiceImpl.class);
     bind(StockMoveInvoiceServiceImpl.class).to(ProjectStockMoveInvoiceServiceImpl.class);
-    bind(SaleOrderPurchaseServiceImpl.class).to(ProjectPurchaseServiceImpl.class);
+    bind(DeclarationPurchaseServiceImpl.class).to(ProjectPurchaseServiceImpl.class);
     bind(PurchaseOrderLineServiceSupplychainImpl.class)
         .to(PurchaseOrderLineServiceProjectImpl.class);
-    bind(SaleOrderLineProjectService.class).to(SaleOrderLineProjectServiceImpl.class);
+    bind(DeclarationLineProjectService.class).to(DeclarationLineProjectServiceImpl.class);
     bind(PurchaseOrderLineProjectService.class).to(PurchaseOrderLineServiceProjectImpl.class);
     bind(ExpenseLineProjectService.class).to(ExpenseLineProjectServiceImpl.class);
     bind(InvoiceLineProjectService.class).to(InvoiceLineProjectServiceImpl.class);
@@ -127,7 +127,7 @@ public class BusinessProjectModule extends AxelorModule {
     bind(WorkflowValidationServiceImpl.class).to(WorkflowValidationServiceProjectImpl.class);
     bind(WorkflowCancelServiceContractImpl.class).to(WorkflowCancelServiceProjectImpl.class);
     bind(ProjectTaskHRRepository.class).to(ProjectTaskBusinessProjectRepository.class);
-    bind(SaleOrderLineServiceSupplyChainImpl.class).to(SaleOrderLineProjectServiceImpl.class);
+    bind(DeclarationLineServiceSupplyChainImpl.class).to(DeclarationLineProjectServiceImpl.class);
     bind(InvoiceLineSupplychainService.class).to(InvoiceLineProjectServiceImpl.class);
     bind(ContractServiceImpl.class).to(ProjectContractServiceImpl.class);
     bind(ContractLineServiceImpl.class).to(ContractLineServiceProjectImpl.class);

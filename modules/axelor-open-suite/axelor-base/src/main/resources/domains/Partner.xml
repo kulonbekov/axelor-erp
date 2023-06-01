@@ -115,7 +115,7 @@
     <string name="headOfficeAddress" title="Head office address"/>
 
     <string name="invoiceComments" title="Comment to display on invoice" large="true"/>
-    <string name="saleOrderComments" title="Comment to display on sale order" large="true"/>
+    <string name="declarationComments" title="Comment to display on sale order" large="true"/>
     <string name="purchaseOrderComments" title="Comment to display on purchase order"
       large="true"/>
     <string name="deliveryComments" title="Comment to display on delivery" large="true"/>

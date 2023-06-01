@@ -45,7 +45,7 @@ import com.axelor.apps.project.db.TaskTemplate;
 import com.axelor.apps.project.db.repo.ProjectRepository;
 import com.axelor.apps.project.db.repo.ProjectTaskRepository;
 import com.axelor.apps.project.service.ProjectTaskServiceImpl;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.sale.service.app.AppSaleService;
 import com.axelor.auth.db.User;
 import com.axelor.common.ObjectUtils;
@@ -90,32 +90,32 @@ public class ProjectTaskBusinessProjectServiceImpl extends ProjectTaskServiceImp
   }
 
   @Override
-  public ProjectTask create(SaleOrderLine saleOrderLine, Project project, User assignedTo)
+  public ProjectTask create(DeclarationLine declarationLine, Project project, User assignedTo)
       throws AxelorException {
-    ProjectTask task = create(saleOrderLine.getFullName() + "_task", project, assignedTo);
-    task.setProduct(saleOrderLine.getProduct());
-    task.setUnit(saleOrderLine.getUnit());
+    ProjectTask task = create(declarationLine.getFullName() + "_task", project, assignedTo);
+    task.setProduct(declarationLine.getProduct());
+    task.setUnit(declarationLine.getUnit());
     task.setCurrency(project.getClientPartner().getCurrency());
     if (project.getPriceList() != null) {
       PriceListLine line =
           priceListLineRepo.findByPriceListAndProduct(
-              project.getPriceList(), saleOrderLine.getProduct());
+              project.getPriceList(), declarationLine.getProduct());
       if (line != null) {
         task.setUnitPrice(line.getAmount());
       }
     }
     if (task.getUnitPrice() == null) {
       Company company =
-          saleOrderLine.getSaleOrder() != null ? saleOrderLine.getSaleOrder().getCompany() : null;
+          declarationLine.getDeclaration() != null ? declarationLine.getDeclaration().getCompany() : null;
       task.setUnitPrice(
-          (BigDecimal) productCompanyService.get(saleOrderLine.getProduct(), "salePrice", company));
+          (BigDecimal) productCompanyService.get(declarationLine.getProduct(), "salePrice", company));
     }
-    task.setDescription(saleOrderLine.getDescription());
-    task.setQuantity(saleOrderLine.getQty());
-    task.setSaleOrderLine(saleOrderLine);
+    task.setDescription(declarationLine.getDescription());
+    task.setQuantity(declarationLine.getQty());
+    task.setDeclarationLine(declarationLine);
     task.setToInvoice(
-        saleOrderLine.getSaleOrder() != null
-            ? saleOrderLine.getSaleOrder().getToInvoiceViaTask()
+        declarationLine.getDeclaration() != null
+            ? declarationLine.getDeclaration().getToInvoiceViaTask()
             : false);
     return task;
   }
@@ -259,7 +259,7 @@ public class ProjectTaskBusinessProjectServiceImpl extends ProjectTaskServiceImp
 
             InvoiceLine invoiceLine = this.createInvoiceLine();
             invoiceLine.setProject(projectTask.getProject());
-            invoiceLine.setSaleOrderLine(projectTask.getSaleOrderLine());
+            invoiceLine.setDeclarationLine(projectTask.getDeclarationLine());
             projectTask.setInvoiceLine(invoiceLine);
 
             List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
@@ -445,7 +445,7 @@ public class ProjectTaskBusinessProjectServiceImpl extends ProjectTaskServiceImp
   @Transactional(rollbackOn = {Exception.class})
   @Override
   public ProjectTask setProjectTaskValues(ProjectTask projectTask) throws AxelorException {
-    if (projectTask.getSaleOrderLine() != null || projectTask.getInvoiceLine() != null) {
+    if (projectTask.getDeclarationLine() != null || projectTask.getInvoiceLine() != null) {
       return projectTask;
     }
     projectTask = updateTaskFinancialInfo(projectTask);

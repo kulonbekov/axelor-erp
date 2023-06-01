@@ -35,10 +35,10 @@
       <panel name="invoiceOrdersConfigurationPanel" title="Invoice orders configuration"
         showIf="actionSelect == 3">
         <field name="invoiceOrdersTypeSelect"
-          if="!__config__.app.getApp('supplychain')?.getGenerateInvoiceFromSaleOrder()"/>
+          if="!__config__.app.getApp('supplychain')?.getGenerateInvoiceFromDeclaration()"/>
         <field name="invoiceOrdersTypeSelect"
           selection="supplychain.supplychain.batch.sale.orders.invoice.orders.type.select"
-          if="__config__.app.getApp('supplychain')?.getGenerateInvoiceFromSaleOrder()"/>
+          if="__config__.app.getApp('supplychain')?.getGenerateInvoiceFromDeclaration()"/>
         <panel name="subInvoiceOrderConfig1Panel" showIf="invoiceOrdersTypeSelect == 1"
           colSpan="12">
           <field name="salespersonOrBuyerSet" widget="TagSelect" title="Salespersons"/>

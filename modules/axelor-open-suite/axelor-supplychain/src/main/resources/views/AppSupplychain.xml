@@ -5,27 +5,27 @@
 
   <form name="app-supplychain-config-form" title="App Supplychain"
     model="com.axelor.studio.db.AppSupplychain" canDelete="false" canNew="false" width="large">
-    <panel name="saleOrderPanel" title="Sale order">
+    <panel name="declarationPanel" title="Sale order">
       <field name="custStockMoveMgtOnSO"
-        readonlyIf="customerStockMoveGenerationAuto || terminateSaleOrderOnDelivery"
+        readonlyIf="customerStockMoveGenerationAuto || terminateDeclarationOnDelivery"
         widget="boolean-switch" colSpan="4"/>
       <field name="customerStockMoveGenerationAuto"
-        readonlyIf="isSaleOrderWithoutOutgoingStockMove" showIf="custStockMoveMgtOnSO"
+        readonlyIf="isDeclarationWithoutOutgoingStockMove" showIf="custStockMoveMgtOnSO"
         widget="boolean-switch" colSpan="4"/>
-      <field name="terminateSaleOrderOnDelivery" showIf="custStockMoveMgtOnSO"
+      <field name="terminateDeclarationOnDelivery" showIf="custStockMoveMgtOnSO"
         widget="boolean-switch" colSpan="4"/>
-      <field name="completeSaleOrderOnInvoicing" widget="boolean-switch" colSpan="4"
+      <field name="completeDeclarationOnInvoicing" widget="boolean-switch" colSpan="4"
         help="When this is active, sale order will be automatically set to 'Order completed' status once 'Amount invoiced W.T.' is equal to 'Total W.T.'. This will happen when all invoices linked to the sale order get to status 'Ventilated'"/>
-      <field name="cancelReasonOnChangingSaleOrder"
+      <field name="cancelReasonOnChangingDeclaration"
         domain="self.applicationType = 'com.axelor.apps.stock.db.StockMove'"
         if="__config__.app.getApp('sale')?.allowPendingOrderModification" colSpan="4"/>
-      <field name="generateInvoiceFromSaleOrder" widget="boolean-switch" colSpan="4"/>
+      <field name="generateInvoiceFromDeclaration" widget="boolean-switch" colSpan="4"/>
       <field name="purchaseOrderGenerationAuto" widget="boolean-switch" colSpan="4"/>
-      <field name="allowSusbcriptionSaleOrder" widget="boolean-switch" colSpan="4"/>
+      <field name="allowSusbcriptionDeclaration" widget="boolean-switch" colSpan="4"/>
       <field name="allowTimetableInvoicing" widget="boolean-switch" colSpan="4"/>
       <field name="checkSaleStocks" widget="boolean-switch" colSpan="4"/>
-      <field name="allowCompleteManuallySaleOrder" widget="boolean-switch" colSpan="4"/>
-      <field name="isSaleOrderWithoutOutgoingStockMove" widget="boolean-switch" colSpan="4"
+      <field name="allowCompleteManuallyDeclaration" widget="boolean-switch" colSpan="4"/>
+      <field name="isDeclarationWithoutOutgoingStockMove" widget="boolean-switch" colSpan="4"
         onChange="action-app-supply-chain-record-customer-stock-move-generation-auto"/>
       <field name="manageAdvancePaymentsFromPaymentConditions" widget="boolean-switch"
         colSpan="4"/>
@@ -68,7 +68,7 @@
       <field name="intercoPurchaseCreatingStatusSelect" selection-in="[2,3]"/>
       <field name="intercoSaleCreatingStatusSelect" selection-in="[2,3]"/>
       <field name="intercoFromInvoice" widget="boolean-switch"/>
-      <field name="intercoSaleOrderCreateFinalized" widget="boolean-switch"/>
+      <field name="intercoDeclarationCreateFinalized" widget="boolean-switch"/>
       <field name="intercoPurchaseOrderCreateRequested" widget="boolean-switch"/>
       <field name="intercoInvoiceCreateValidated" widget="boolean-switch"/>
     </panel>
@@ -97,7 +97,7 @@
     name="action-app-supply-chain-record-customer-stock-move-generation-auto"
     model="com.axelor.studio.db.AppSupplychain">
     <field name="customerStockMoveGenerationAuto" expr="eval: false"
-      if="isSaleOrderWithoutOutgoingStockMove"/>
+      if="isDeclarationWithoutOutgoingStockMove"/>
   </action-record>
 
   <action-record

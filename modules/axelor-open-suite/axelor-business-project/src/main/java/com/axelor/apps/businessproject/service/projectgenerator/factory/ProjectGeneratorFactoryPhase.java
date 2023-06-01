@@ -26,9 +26,9 @@ import com.axelor.apps.businessproject.service.ProjectBusinessService;
 import com.axelor.apps.businessproject.service.projectgenerator.ProjectGeneratorFactory;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.repo.ProjectRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
 import com.axelor.meta.schema.actions.ActionView;
 import com.axelor.meta.schema.actions.ActionView.ActionViewBuilder;
 import com.axelor.utils.StringTool;
@@ -45,42 +45,42 @@ public class ProjectGeneratorFactoryPhase implements ProjectGeneratorFactory {
 
   private ProjectBusinessService projectBusinessService;
   private ProjectRepository projectRepository;
-  private SaleOrderLineRepository saleOrderLineRepository;
+  private DeclarationLineRepository declarationLineRepository;
   private ProductTaskTemplateService productTaskTemplateService;
 
   @Inject
   public ProjectGeneratorFactoryPhase(
       ProjectBusinessService projectBusinessService,
       ProjectRepository projectRepository,
-      SaleOrderLineRepository saleOrderLineRepository,
+      DeclarationLineRepository declarationLineRepository,
       ProductTaskTemplateService productTaskTemplateService) {
     this.projectBusinessService = projectBusinessService;
     this.projectRepository = projectRepository;
-    this.saleOrderLineRepository = saleOrderLineRepository;
+    this.declarationLineRepository = declarationLineRepository;
     this.productTaskTemplateService = productTaskTemplateService;
   }
 
   @Override
-  public Project create(SaleOrder saleOrder) {
-    Project project = projectBusinessService.generateProject(saleOrder);
+  public Project create(Declaration declaration) {
+    Project project = projectBusinessService.generateProject(declaration);
     project.setIsBusinessProject(true);
     return project;
   }
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public ActionViewBuilder fill(Project project, SaleOrder saleOrder, LocalDateTime startDate)
+  public ActionViewBuilder fill(Project project, Declaration declaration, LocalDateTime startDate)
       throws AxelorException {
     List<Project> projects = new ArrayList<>();
     projectRepository.save(project);
-    for (SaleOrderLine saleOrderLine : saleOrder.getSaleOrderLineList()) {
-      Product product = saleOrderLine.getProduct();
+    for (DeclarationLine declarationLine : declaration.getDeclarationLineList()) {
+      Product product = declarationLine.getProduct();
       if (product != null
           && ProductRepository.PRODUCT_TYPE_SERVICE.equals(product.getProductTypeSelect())
-          && saleOrderLine.getSaleSupplySelect() == SaleOrderLineRepository.SALE_SUPPLY_PRODUCE) {
-        Project phase = projectBusinessService.generatePhaseProject(saleOrderLine, project);
+          && declarationLine.getSaleSupplySelect() == DeclarationLineRepository.SALE_SUPPLY_PRODUCE) {
+        Project phase = projectBusinessService.generatePhaseProject(declarationLine, project);
         phase.setFromDate(startDate);
-        saleOrderLineRepository.save(saleOrderLine);
+        declarationLineRepository.save(declarationLine);
         projects.add(phase);
 
         if (!CollectionUtils.isEmpty(product.getTaskTemplateSet())) {
@@ -91,8 +91,8 @@ public class ProjectGeneratorFactoryPhase implements ProjectGeneratorFactory {
               phase,
               null,
               startDate,
-              saleOrderLine.getQty(),
-              saleOrderLine);
+              declarationLine.getQty(),
+              declarationLine);
         }
       }
     }

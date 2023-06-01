@@ -15,13 +15,13 @@
   </action-validate>
 
   <action-method name="action-sale-method-generate-sale-order">
-    <call class="com.axelor.apps.sale.web.OpportunitySaleOrderController"
-      method="generateSaleOrder"/>
+    <call class="com.axelor.apps.sale.web.OpportunityDeclarationController"
+      method="generateDeclaration"/>
   </action-method>
 
-  <action-method name="action-opportunity-method-cancel-saleorders">
-    <call class="com.axelor.apps.sale.web.OpportunitySaleOrderController"
-      method="cancelSaleOrders"/>
+  <action-method name="action-opportunity-method-cancel-declarations">
+    <call class="com.axelor.apps.sale.web.OpportunityDeclarationController"
+      method="cancelDeclarations"/>
   </action-method>
 
 </object-views>

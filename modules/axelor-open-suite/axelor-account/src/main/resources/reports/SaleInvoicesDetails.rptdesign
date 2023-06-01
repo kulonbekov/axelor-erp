@@ -470,19 +470,19 @@ Group by Invoice.invoice_date, Product.full_name, ProductCategory.name, Partner.
 
 UNION
 
-SELECT  SaleOrder.expected_realisation_date as date,
-		SUM(SaleOrderLine.company_ex_tax_total - (SaleOrderLine.company_ex_tax_total * SaleOrderLine.amount_invoiced/SaleOrderLine.ex_tax_total)) as sum,
+SELECT  Declaration.expected_realisation_date as date,
+		SUM(DeclarationLine.company_ex_tax_total - (DeclarationLine.company_ex_tax_total * DeclarationLine.amount_invoiced/DeclarationLine.ex_tax_total)) as sum,
 		'Ordered' as type,
 		LangTranslate1.message_value as "translation",
 		Product.full_name as product,
 		ProductCategory.name as productCategory,
 		Partner.name as partner
-FROM sale_sale_order_line as SaleOrderLine
-LEFT OUTER JOIN base_product as Product on (SaleOrderLine.product = Product.id)
+FROM sale_sale_order_line as DeclarationLine
+LEFT OUTER JOIN base_product as Product on (DeclarationLine.product = Product.id)
 LEFT OUTER JOIN base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
-LEFT OUTER JOIN sale_sale_order as SaleOrder on (SaleOrderLine.sale_order = SaleOrder.id)
-LEFT OUTER JOIN base_partner as Partner on (SaleOrder.client_partner = Partner.id)
-LEFT OUTER JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT OUTER JOIN sale_sale_order as Declaration on (DeclarationLine.sale_order = Declaration.id)
+LEFT OUTER JOIN base_partner as Partner on (Declaration.client_partner = Partner.id)
+LEFT OUTER JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT OUTER JOIN account_assistant_report_invoice as Assistant on (Assistant.id = ?)
 LEFT OUTER JOIN account_assistant_report_invoice_product_set as AssistantProducts on (AssistantProducts.account_assistant_report_invoice = Assistant.id)
 LEFT OUTER JOIN account_assistant_report_invoice_partner_set as AssistantPartners on (AssistantPartners.account_assistant_report_invoice = Assistant.id)
@@ -490,13 +490,13 @@ LEFT OUTER JOIN account_assistant_report_invoice_product_category_set as Assista
 LEFT OUTER JOIN meta_translation as LangTranslate1 on (LangTranslate1.message_key = 'SaleInvoicesDetails.ordered')
 WHERE Company.id = ?
 		AND ( LangTranslate1.language = ? OR LangTranslate1.language is null )
-		AND SaleOrder.expected_realisation_date BETWEEN Assistant.from_date AND Assistant.to_date
+		AND Declaration.expected_realisation_date BETWEEN Assistant.from_date AND Assistant.to_date
 		AND (AssistantPartners.partner_set is null or Partner.id IN (AssistantPartners.partner_set))
 		AND (AssistantProducts.product_set is null or Product.id IN (AssistantProducts.product_set))
 		AND (AssistantProductCategories.product_category_set is null or ProductCategory.id IN (AssistantProductCategories.product_category_set))
-		AND SaleOrder.status_select = 3
+		AND Declaration.status_select = 3
 		AND (Assistant.turnover_type_select = 1 OR Assistant.turnover_type_select = 3)
-Group by SaleOrder.expected_realisation_date,Product.full_name, ProductCategory.name, Partner.name, LangTranslate1.message_value
+Group by Declaration.expected_realisation_date,Product.full_name, ProductCategory.name, Partner.name, LangTranslate1.message_value
 
 UNION
 
@@ -508,14 +508,14 @@ SUM(Timetable.amount - (CASE WHEN TimetableInvoice.status_select = 3 THEN Timeta
 		ProductCategory.name as productCategory,
 		Partner.name as partner
 
-FROM sale_sale_order_line as SaleOrderLine
-LEFT OUTER JOIN base_product as Product on (SaleOrderLine.product = Product.id)
+FROM sale_sale_order_line as DeclarationLine
+LEFT OUTER JOIN base_product as Product on (DeclarationLine.product = Product.id)
 LEFT OUTER JOIN base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
-LEFT OUTER JOIN sale_sale_order as SaleOrder on (SaleOrderLine.sale_order = SaleOrder.id)
-LEFT OUTER JOIN supplychain_timetable as Timetable on (Timetable.sale_order = SaleOrder.id)
+LEFT OUTER JOIN sale_sale_order as Declaration on (DeclarationLine.sale_order = Declaration.id)
+LEFT OUTER JOIN supplychain_timetable as Timetable on (Timetable.sale_order = Declaration.id)
 LEFT OUTER JOIN account_invoice as TimetableInvoice on (Timetable.invoice = TimetableInvoice.id)
-LEFT OUTER JOIN base_partner as Partner on (SaleOrder.client_partner = Partner.id)
-LEFT OUTER JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT OUTER JOIN base_partner as Partner on (Declaration.client_partner = Partner.id)
+LEFT OUTER JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT OUTER JOIN account_assistant_report_invoice as Assistant on (Assistant.id = ?)
 LEFT OUTER JOIN account_assistant_report_invoice_product_set as AssistantProducts on (AssistantProducts.account_assistant_report_invoice = Assistant.id)
 LEFT OUTER JOIN account_assistant_report_invoice_partner_set as AssistantPartners on (AssistantPartners.account_assistant_report_invoice = Assistant.id)
@@ -523,12 +523,12 @@ LEFT OUTER JOIN account_assistant_report_invoice_product_category_set as Assista
 LEFT OUTER JOIN meta_translation as LangTranslate1 on (LangTranslate1.message_key = 'SaleInvoicesDetails.ordered')
 WHERE Company.id = ? 
 		AND ( LangTranslate1.language = ? OR LangTranslate1.language is null )
-		AND SaleOrder.expected_realisation_date IS NULL
+		AND Declaration.expected_realisation_date IS NULL
 		AND Timetable.estimated_date BETWEEN Assistant.from_date AND Assistant.to_date
 		AND (AssistantPartners.partner_set is null or Partner.id IN (AssistantPartners.partner_set)) 
 		AND (AssistantProducts.product_set is null or Product.id IN (AssistantProducts.product_set))
 		AND (AssistantProductCategories.product_category_set is null or ProductCategory.id IN (AssistantProductCategories.product_category_set))
-		AND SaleOrder.status_select = 3
+		AND Declaration.status_select = 3
 		AND (Assistant.turnover_type_select = 1 OR Assistant.turnover_type_select = 3)
 Group by Timetable.estimated_date,Product.full_name, ProductCategory.name, Partner.name, LangTranslate1.message_value
 		]]></xml-property>
@@ -922,16 +922,16 @@ Group by date_trunc('month',Invoice.invoice_date)::date,LangTranslate.message_va
 
 UNION
 
-SELECT  date_trunc('month',COALESCE(SaleOrder.order_date,SaleOrder.confirmation_date_time))::date as "date",
-		SUM(SaleOrderLine.company_ex_tax_total) as sum,
+SELECT  date_trunc('month',COALESCE(Declaration.order_date,Declaration.confirmation_date_time))::date as "date",
+		SUM(DeclarationLine.company_ex_tax_total) as sum,
 		'Ordered' as type,
 		LangTranslate1.message_value as "translation"
-FROM sale_sale_order_line as SaleOrderLine
-LEFT OUTER JOIN base_product as Product on (SaleOrderLine.product = Product.id)
+FROM sale_sale_order_line as DeclarationLine
+LEFT OUTER JOIN base_product as Product on (DeclarationLine.product = Product.id)
 LEFT OUTER JOIN base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
-LEFT OUTER JOIN sale_sale_order as SaleOrder on (SaleOrderLine.sale_order = SaleOrder.id)
-LEFT OUTER JOIN base_partner as Partner on (SaleOrder.client_partner = Partner.id)
-LEFT OUTER JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT OUTER JOIN sale_sale_order as Declaration on (DeclarationLine.sale_order = Declaration.id)
+LEFT OUTER JOIN base_partner as Partner on (Declaration.client_partner = Partner.id)
+LEFT OUTER JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT OUTER JOIN account_assistant_report_invoice as Assistant on (Assistant.id = ?)
 LEFT OUTER JOIN account_assistant_report_invoice_product_set as AssistantProducts on (AssistantProducts.account_assistant_report_invoice = Assistant.id)
 LEFT OUTER JOIN account_assistant_report_invoice_partner_set as AssistantPartners on (AssistantPartners.account_assistant_report_invoice = Assistant.id)
@@ -939,12 +939,12 @@ LEFT OUTER JOIN account_assistant_report_invoice_product_category_set as Assista
 LEFT OUTER JOIN meta_translation as LangTranslate1 on (LangTranslate1.message_key = 'SaleInvoicesDetails.ordered')
 WHERE Company.id = ?
 		AND ( LangTranslate1.language = ? OR LangTranslate1.language is null )
-		AND COALESCE(SaleOrder.order_date,SaleOrder.confirmation_date_time) BETWEEN Assistant.from_date AND Assistant.to_date
+		AND COALESCE(Declaration.order_date,Declaration.confirmation_date_time) BETWEEN Assistant.from_date AND Assistant.to_date
 		AND (AssistantPartners.partner_set is null or Partner.id IN (AssistantPartners.partner_set))
 		AND (AssistantProducts.product_set is null or Product.id IN (AssistantProducts.product_set))
 		AND (AssistantProductCategories.product_category_set is null or ProductCategory.id IN (AssistantProductCategories.product_category_set))
-		AND SaleOrder.status_select IN (3,4)
-Group by date_trunc('month',COALESCE(SaleOrder.order_date,SaleOrder.confirmation_date_time))::date,LangTranslate1.message_value]]></xml-property>
+		AND Declaration.status_select IN (3,4)
+Group by date_trunc('month',COALESCE(Declaration.order_date,Declaration.confirmation_date_time))::date,LangTranslate1.message_value]]></xml-property>
         </oda-data-set>
         <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Graph2DS" id="4796">
             <property name="nullsOrdering">nulls lowest</property>
@@ -1136,16 +1136,16 @@ Group by date_trunc('month',Invoice.invoice_date)::date,LangTranslate.message_va
 
 UNION
 
-SELECT  date_trunc('month',SaleOrder.expected_realisation_date)::date as "date",
-SUM(SaleOrderLine.company_ex_tax_total - (SaleOrderLine.company_ex_tax_total * SaleOrderLine.amount_invoiced/SaleOrderLine.ex_tax_total)) as sum,
+SELECT  date_trunc('month',Declaration.expected_realisation_date)::date as "date",
+SUM(DeclarationLine.company_ex_tax_total - (DeclarationLine.company_ex_tax_total * DeclarationLine.amount_invoiced/DeclarationLine.ex_tax_total)) as sum,
 		'Ordered' as type,
 		LangTranslate1.message_value as "translation"
-FROM sale_sale_order_line as SaleOrderLine
-LEFT OUTER JOIN base_product as Product on (SaleOrderLine.product = Product.id)
+FROM sale_sale_order_line as DeclarationLine
+LEFT OUTER JOIN base_product as Product on (DeclarationLine.product = Product.id)
 LEFT OUTER JOIN base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
-LEFT OUTER JOIN sale_sale_order as SaleOrder on (SaleOrderLine.sale_order = SaleOrder.id)
-LEFT OUTER JOIN base_partner as Partner on (SaleOrder.client_partner = Partner.id)
-LEFT OUTER JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT OUTER JOIN sale_sale_order as Declaration on (DeclarationLine.sale_order = Declaration.id)
+LEFT OUTER JOIN base_partner as Partner on (Declaration.client_partner = Partner.id)
+LEFT OUTER JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT OUTER JOIN account_assistant_report_invoice as Assistant on (Assistant.id = ?)
 LEFT OUTER JOIN account_assistant_report_invoice_product_set as AssistantProducts on (AssistantProducts.account_assistant_report_invoice = Assistant.id)
 LEFT OUTER JOIN account_assistant_report_invoice_partner_set as AssistantPartners on (AssistantPartners.account_assistant_report_invoice = Assistant.id)
@@ -1153,12 +1153,12 @@ LEFT OUTER JOIN account_assistant_report_invoice_product_category_set as Assista
 LEFT OUTER JOIN meta_translation as LangTranslate1 on (LangTranslate1.message_key = 'SaleInvoicesDetails.ordered')
 WHERE Company.id = ?
 		AND ( LangTranslate1.language = ? OR LangTranslate1.language is null )
-		AND SaleOrder.expected_realisation_date BETWEEN Assistant.from_date AND Assistant.to_date
+		AND Declaration.expected_realisation_date BETWEEN Assistant.from_date AND Assistant.to_date
 		AND (AssistantPartners.partner_set is null or Partner.id IN (AssistantPartners.partner_set))
 		AND (AssistantProducts.product_set is null or Product.id IN (AssistantProducts.product_set))
 		AND (AssistantProductCategories.product_category_set is null or ProductCategory.id IN (AssistantProductCategories.product_category_set))
-		AND SaleOrder.status_select = 3
-Group by date_trunc('month',SaleOrder.expected_realisation_date)::date,LangTranslate1.message_value
+		AND Declaration.status_select = 3
+Group by date_trunc('month',Declaration.expected_realisation_date)::date,LangTranslate1.message_value
 
 UNION
 
@@ -1166,14 +1166,14 @@ SELECT  date_trunc('month',Timetable.estimated_date)::date as "date",
 SUM(Timetable.amount - (CASE WHEN TimetableInvoice.status_select = 3 THEN TimetableInvoice.company_ex_tax_total ELSE 0 END)) as sum,
 		'Ordered' as type,
 		LangTranslate1.message_value as "translation"
-FROM sale_sale_order_line as SaleOrderLine
-LEFT OUTER JOIN base_product as Product on (SaleOrderLine.product = Product.id)
+FROM sale_sale_order_line as DeclarationLine
+LEFT OUTER JOIN base_product as Product on (DeclarationLine.product = Product.id)
 LEFT OUTER JOIN base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
-LEFT OUTER JOIN sale_sale_order as SaleOrder on (SaleOrderLine.sale_order = SaleOrder.id)
-LEFT OUTER JOIN supplychain_timetable as Timetable on (Timetable.sale_order = SaleOrder.id)
+LEFT OUTER JOIN sale_sale_order as Declaration on (DeclarationLine.sale_order = Declaration.id)
+LEFT OUTER JOIN supplychain_timetable as Timetable on (Timetable.sale_order = Declaration.id)
 LEFT OUTER JOIN account_invoice as TimetableInvoice on (Timetable.invoice = TimetableInvoice.id)
-LEFT OUTER JOIN base_partner as Partner on (SaleOrder.client_partner = Partner.id)
-LEFT OUTER JOIN base_company as Company on (SaleOrder.company = Company.id)
+LEFT OUTER JOIN base_partner as Partner on (Declaration.client_partner = Partner.id)
+LEFT OUTER JOIN base_company as Company on (Declaration.company = Company.id)
 LEFT OUTER JOIN account_assistant_report_invoice as Assistant on (Assistant.id = ?)
 LEFT OUTER JOIN account_assistant_report_invoice_product_set as AssistantProducts on (AssistantProducts.account_assistant_report_invoice = Assistant.id)
 LEFT OUTER JOIN account_assistant_report_invoice_partner_set as AssistantPartners on (AssistantPartners.account_assistant_report_invoice = Assistant.id)
@@ -1181,12 +1181,12 @@ LEFT OUTER JOIN account_assistant_report_invoice_product_category_set as Assista
 LEFT OUTER JOIN meta_translation as LangTranslate1 on (LangTranslate1.message_key = 'SaleInvoicesDetails.ordered')
 WHERE Company.id = ?
 		AND ( LangTranslate1.language = ? OR LangTranslate1.language is null )
-		AND SaleOrder.expected_realisation_date IS NULL
+		AND Declaration.expected_realisation_date IS NULL
 		AND Timetable.estimated_date BETWEEN Assistant.from_date AND Assistant.to_date
 		AND (AssistantPartners.partner_set is null or Partner.id IN (AssistantPartners.partner_set))
 		AND (AssistantProducts.product_set is null or Product.id IN (AssistantProducts.product_set))
 		AND (AssistantProductCategories.product_category_set is null or ProductCategory.id IN (AssistantProductCategories.product_category_set))
-		AND SaleOrder.status_select = 3
+		AND Declaration.status_select = 3
 Group by date_trunc('month',Timetable.estimated_date)::date,LangTranslate1.message_value) as q
 
 

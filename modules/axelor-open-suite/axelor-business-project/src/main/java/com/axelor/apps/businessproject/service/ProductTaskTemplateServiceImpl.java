@@ -25,7 +25,7 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.ProjectTask;
 import com.axelor.apps.project.db.TaskTemplate;
 import com.axelor.apps.project.db.repo.ProjectTaskRepository;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import java.math.BigDecimal;
@@ -57,10 +57,10 @@ public class ProductTaskTemplateServiceImpl implements ProductTaskTemplateServic
       ProjectTask parent,
       LocalDateTime startDate,
       BigDecimal qty,
-      SaleOrderLine saleOrderLine)
+      DeclarationLine declarationLine)
       throws AxelorException {
     List<ProjectTask> tasks = new ArrayList<>();
-    Product product = saleOrderLine.getProduct();
+    Product product = declarationLine.getProduct();
 
     for (TaskTemplate template : templates) {
       BigDecimal qtyTmp = (template.getIsUniqueTaskForMultipleQuantity() ? BigDecimal.ONE : qty);
@@ -77,7 +77,7 @@ public class ProductTaskTemplateServiceImpl implements ProductTaskTemplateServic
         task.setUnitPrice(
             (BigDecimal) productCompanyService.get(product, "salePrice", project.getCompany()));
         task.setExTaxTotal(task.getUnitPrice().multiply(task.getQuantity()));
-        if (saleOrderLine.getSaleOrder().getToInvoiceViaTask()) {
+        if (declarationLine.getDeclaration().getToInvoiceViaTask()) {
           task.setToInvoice(true);
           task.setInvoicingType(ProjectTaskRepository.INVOICING_TYPE_PACKAGE);
         }
@@ -91,7 +91,7 @@ public class ProductTaskTemplateServiceImpl implements ProductTaskTemplateServic
                 task,
                 dateWithDelay,
                 BigDecimal.ONE,
-                saleOrderLine);
+                declarationLine);
         tasks.addAll(children);
 
         qtyTmp = qtyTmp.subtract(BigDecimal.ONE);

@@ -581,7 +581,7 @@ BarCodeFile.file_path as barcode_picture,
 ManufOrder.status_select,
 ManufOrder.is_cons_pro_on_operation,
 ManufOrder.mo_comment_from_sale_order,
-STRING_AGG(SaleOrder.full_name, ', ') as sale_order,
+STRING_AGG(Declaration.full_name, ', ') as sale_order,
 ManufBarCodeFile.file_path as manuf_barcode
 FROM production_manuf_order AS ManufOrder
 LEFT JOIN base_company AS Company ON (Company.id = ManufOrder.company)
@@ -592,8 +592,8 @@ left join meta_file as BarCodeFile on (BarCodeFile.id = Product.bar_code)
 left join meta_file as ManufBarCodeFile on (ManufBarCodeFile.id = ManufOrder.bar_code)
 LEFT JOIN base_unit AS Unit ON (Unit.id = BOM.unit)
 LEFT JOIN production_prod_process AS ProdProcess ON (ProdProcess.id = BOM.prod_process)
-LEFT JOIN production_manuf_order_sale_order_set AS SaleOrderSet ON (SaleOrderSet.production_manuf_order = ManufOrder.id)
-LEFT JOIN sale_sale_order AS SaleOrder ON (SaleOrder.id = SaleOrderSet.sale_order_set)
+LEFT JOIN production_manuf_order_sale_order_set AS DeclarationSet ON (DeclarationSet.production_manuf_order = ManufOrder.id)
+LEFT JOIN sale_sale_order AS Declaration ON (Declaration.id = DeclarationSet.sale_order_set)
 WHERE ManufOrder.id IN (@INJECTID)
 GROUP BY ManufOrder.id,
 ManufOrder.note,
@@ -2520,7 +2520,7 @@ WHERE manufOrder.id = ?;]]></xml-property>
                                             <structure>
                                                 <property name="paramName">param_1</property>
                                                 <simple-property-list name="expression">
-                                                    <value type="javascript">"ManufOrder.moCommentFromSaleOrder"</value>
+                                                    <value type="javascript">"ManufOrder.moCommentFromDeclaration"</value>
                                                 </simple-property-list>
                                             </structure>
                                         </list-property>

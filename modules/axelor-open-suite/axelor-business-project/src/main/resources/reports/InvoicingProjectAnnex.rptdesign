@@ -61,7 +61,7 @@
         </oda-data-source>
     </data-sources>
     <data-sets>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="SaleOrderLine DS" id="106">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DeclarationLine DS" id="106">
             <list-property name="columnHints">
                 <structure>
                     <property name="columnName">product_code</property>
@@ -2931,7 +2931,7 @@ where LangTranslate.message_key = ? and LangTranslate.language = ?]]></xml-prope
             <property name="textAlign">center</property>
             <property name="canShrink">false</property>
             <property name="width">8in</property>
-            <property name="dataSet">SaleOrderLine DS</property>
+            <property name="dataSet">DeclarationLine DS</property>
             <list-property name="visibility">
                 <structure>
                     <property name="format">all</property>

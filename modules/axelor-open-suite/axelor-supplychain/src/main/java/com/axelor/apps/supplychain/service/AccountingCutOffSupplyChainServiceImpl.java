@@ -59,9 +59,9 @@ import com.axelor.apps.base.service.UnitConversionService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
@@ -85,7 +85,7 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
 
   protected StockMoveRepository stockMoverepository;
   protected StockMoveLineRepository stockMoveLineRepository;
-  protected SaleOrderRepository saleOrderRepository;
+  protected DeclarationRepository declarationRepository;
   protected PurchaseOrderRepository purchaseOrderRepository;
   protected StockMoveLineServiceSupplychain stockMoveLineService;
   protected BankDetailsService bankDetailsService;
@@ -96,7 +96,7 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
       StockMoveRepository stockMoverepository,
       StockMoveLineRepository stockMoveLineRepository,
       MoveCreateService moveCreateService,
-      SaleOrderRepository saleOrderRepository,
+      DeclarationRepository declarationRepository,
       PurchaseOrderRepository purchaseOrderRepository,
       MoveToolService moveToolService,
       AccountManagementAccountService accountManagementAccountService,
@@ -139,7 +139,7 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
         taxAccountToolService);
     this.stockMoverepository = stockMoverepository;
     this.stockMoveLineRepository = stockMoveLineRepository;
-    this.saleOrderRepository = saleOrderRepository;
+    this.declarationRepository = declarationRepository;
     this.purchaseOrderRepository = purchaseOrderRepository;
     this.stockMoveLineService = stockMoveLineService;
     this.bankDetailsService = bankDetailsService;
@@ -307,12 +307,12 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
     Currency currency = null;
     if (StockMoveRepository.ORIGIN_SALE_ORDER.equals(stockMove.getOriginTypeSelect())
         && stockMove.getOriginId() != null) {
-      SaleOrder saleOrder = saleOrderRepository.find(stockMove.getOriginId());
-      currency = saleOrder.getCurrency();
+      Declaration declaration = declarationRepository.find(stockMove.getOriginId());
+      currency = declaration.getCurrency();
       if (partner == null) {
-        partner = saleOrder.getClientPartner();
+        partner = declaration.getClientPartner();
       }
-      fiscalPosition = saleOrder.getFiscalPosition();
+      fiscalPosition = declaration.getFiscalPosition();
       partnerAccount = forecastedInvCustAccount;
       if (partnerAccount == null) {
         throw new AxelorException(
@@ -451,7 +451,7 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
       LocalDate originDate)
       throws AxelorException {
 
-    SaleOrderLine saleOrderLine = stockMoveLine.getSaleOrderLine();
+    DeclarationLine declarationLine = stockMoveLine.getDeclarationLine();
     PurchaseOrderLine purchaseOrderLine = stockMoveLine.getPurchaseOrderLine();
     Company company = move.getCompany();
     LocalDate moveDate = move.getDate();
@@ -461,7 +461,7 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
         isPurchase && purchaseOrderLine != null && purchaseOrderLine.getFixedAssets();
     BigDecimal amountInCurrency =
         stockMoveLineService.getAmountNotInvoiced(
-            stockMoveLine, purchaseOrderLine, saleOrderLine, isPurchase, ati, recoveredTax);
+            stockMoveLine, purchaseOrderLine, declarationLine, isPurchase, ati, recoveredTax);
 
     if (amountInCurrency == null || amountInCurrency.signum() == 0) {
       return null;
@@ -470,8 +470,8 @@ public class AccountingCutOffSupplyChainServiceImpl extends AccountingCutOffServ
     Product product = stockMoveLine.getProduct();
 
     FiscalPosition fiscalPosition;
-    if (saleOrderLine != null) {
-      fiscalPosition = saleOrderLine.getSaleOrder().getFiscalPosition();
+    if (declarationLine != null) {
+      fiscalPosition = declarationLine.getDeclaration().getFiscalPosition();
     } else {
       fiscalPosition = partner.getFiscalPosition();
     }

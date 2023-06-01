@@ -35,9 +35,9 @@ import com.axelor.apps.base.service.AddressService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
@@ -71,11 +71,11 @@ import java.util.stream.Collectors;
 
 public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
 
-  protected SaleOrderInvoiceService saleOrderInvoiceService;
+  protected DeclarationInvoiceService declarationInvoiceService;
   protected PurchaseOrderInvoiceService purchaseOrderInvoiceService;
   protected StockMoveLineServiceSupplychain stockMoveLineServiceSupplychain;
   protected InvoiceRepository invoiceRepository;
-  protected SaleOrderRepository saleOrderRepo;
+  protected DeclarationRepository declarationRepo;
   protected PurchaseOrderRepository purchaseOrderRepo;
   protected StockMoveLineRepository stockMoveLineRepository;
   protected InvoiceLineRepository invoiceLineRepository;
@@ -84,21 +84,21 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
 
   @Inject
   public StockMoveInvoiceServiceImpl(
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
       StockMoveLineServiceSupplychain stockMoveLineServiceSupplychain,
       InvoiceRepository invoiceRepository,
-      SaleOrderRepository saleOrderRepo,
+      DeclarationRepository declarationRepo,
       PurchaseOrderRepository purchaseOrderRepo,
       StockMoveLineRepository stockMoveLineRepository,
       InvoiceLineRepository invoiceLineRepository,
       SupplyChainConfigService supplyChainConfigService,
       AppSupplychainService appSupplychainService) {
-    this.saleOrderInvoiceService = saleOrderInvoiceService;
+    this.declarationInvoiceService = declarationInvoiceService;
     this.purchaseOrderInvoiceService = purchaseOrderInvoiceService;
     this.stockMoveLineServiceSupplychain = stockMoveLineServiceSupplychain;
     this.invoiceRepository = invoiceRepository;
-    this.saleOrderRepo = saleOrderRepo;
+    this.declarationRepo = declarationRepo;
     this.purchaseOrderRepo = purchaseOrderRepo;
     this.stockMoveLineRepository = stockMoveLineRepository;
     this.invoiceLineRepository = invoiceLineRepository;
@@ -137,7 +137,7 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
     Long origin = stockMove.getOriginId();
 
     if (StockMoveRepository.ORIGIN_SALE_ORDER.equals(stockMove.getOriginTypeSelect())) {
-      invoice = createInvoiceFromSaleOrder(stockMove, saleOrderRepo.find(origin), qtyToInvoiceMap);
+      invoice = createInvoiceFromDeclaration(stockMove, declarationRepo.find(origin), qtyToInvoiceMap);
     } else if (StockMoveRepository.ORIGIN_PURCHASE_ORDER.equals(stockMove.getOriginTypeSelect())) {
       invoice =
           createInvoiceFromPurchaseOrder(
@@ -150,8 +150,8 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public Invoice createInvoiceFromSaleOrder(
-      StockMove stockMove, SaleOrder saleOrder, Map<Long, BigDecimal> qtyToInvoiceMap)
+  public Invoice createInvoiceFromDeclaration(
+      StockMove stockMove, Declaration declaration, Map<Long, BigDecimal> qtyToInvoiceMap)
       throws AxelorException {
 
     // we block if we are trying to invoice partially if config is deactivated
@@ -166,7 +166,7 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
     }
 
     InvoiceGenerator invoiceGenerator =
-        saleOrderInvoiceService.createInvoiceGenerator(saleOrder, stockMove.getIsReversion());
+        declarationInvoiceService.createInvoiceGenerator(declaration, stockMove.getIsReversion());
 
     Invoice invoice = invoiceGenerator.generate();
 
@@ -182,12 +182,12 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
       if (invoice.getInvoiceLineList() == null || invoice.getInvoiceLineList().isEmpty()) {
         return null;
       }
-      invoice.setSaleOrder(saleOrder);
+      invoice.setDeclaration(declaration);
       this.extendInternalReference(stockMove, invoice);
       invoice.setDeliveryAddress(stockMove.getToAddress());
       invoice.setDeliveryAddressStr(stockMove.getToAddressStr());
-      invoice.setAddressStr(saleOrder.getMainInvoicingAddressStr());
-      invoice.setIncoterm(saleOrder.getIncoterm());
+      invoice.setAddressStr(declaration.getMainInvoicingAddressStr());
+      invoice.setIncoterm(declaration.getIncoterm());
 
       // fill default advance payment invoice
       if (invoice.getOperationSubTypeSelect() != InvoiceRepository.OPERATION_SUB_TYPE_ADVANCE) {
@@ -195,14 +195,14 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
             Beans.get(InvoiceService.class).getDefaultAdvancePaymentInvoice(invoice));
       }
 
-      invoice.setPartnerTaxNbr(saleOrder.getClientPartner().getTaxNbr());
-      if (!Strings.isNullOrEmpty(saleOrder.getInvoiceComments())) {
-        invoice.setNote(saleOrder.getInvoiceComments());
+      invoice.setPartnerTaxNbr(declaration.getClientPartner().getTaxNbr());
+      if (!Strings.isNullOrEmpty(declaration.getInvoiceComments())) {
+        invoice.setNote(declaration.getInvoiceComments());
       }
 
       if (ObjectUtils.isEmpty(invoice.getProformaComments())
-          && !Strings.isNullOrEmpty(saleOrder.getProformaComments())) {
-        invoice.setProformaComments(saleOrder.getProformaComments());
+          && !Strings.isNullOrEmpty(declaration.getProformaComments())) {
+        invoice.setProformaComments(declaration.getProformaComments());
       }
 
       Set<StockMove> stockMoveSet = invoice.getStockMoveSet();
@@ -224,13 +224,13 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
     SupplyChainConfig supplyChainConfig =
         supplyChainConfigService.getSupplyChainConfig(stockMove.getCompany());
     if (stockMoveLineList != null && supplyChainConfig.getActivateOutStockMovePartialInvoicing()) {
-      for (SaleOrderLine saleOrderLine :
+      for (DeclarationLine declarationLine :
           stockMoveLineList.stream()
-              .map(StockMoveLine::getSaleOrderLine)
+              .map(StockMoveLine::getDeclarationLine)
               .filter(Objects::nonNull)
               .collect(Collectors.toList())) {
         if (stockMoveLineList.stream()
-                .filter(stockMoveLine -> saleOrderLine.equals(stockMoveLine.getSaleOrderLine()))
+                .filter(stockMoveLine -> declarationLine.equals(stockMoveLine.getDeclarationLine()))
                 .count()
             > 1) {
           throw new AxelorException(
@@ -430,11 +430,11 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
     boolean isTitleLine = false;
 
     int sequence = InvoiceLineGenerator.DEFAULT_SEQUENCE;
-    SaleOrderLine saleOrderLine = stockMoveLine.getSaleOrderLine();
+    DeclarationLine declarationLine = stockMoveLine.getDeclarationLine();
     PurchaseOrderLine purchaseOrderLine = stockMoveLine.getPurchaseOrderLine();
 
-    if (saleOrderLine != null) {
-      sequence = saleOrderLine.getSequence();
+    if (declarationLine != null) {
+      sequence = declarationLine.getSequence();
     } else if (purchaseOrderLine != null) {
       if (purchaseOrderLine.getIsTitleLine()) {
         isTitleLine = true;
@@ -464,7 +464,7 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
             stockMoveLine.getUnit(),
             sequence,
             false,
-            stockMoveLine.getSaleOrderLine(),
+            stockMoveLine.getDeclarationLine(),
             stockMoveLine.getPurchaseOrderLine(),
             stockMoveLine) {
           @Override
@@ -492,15 +492,15 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
         // sale order line reference
         StockMoveLine nonConsolidatedStockMoveLine = null;
         StockMove stockMove = stockMoveLine.getStockMove();
-        if (saleOrderLine != null) {
+        if (declarationLine != null) {
           nonConsolidatedStockMoveLine =
               stockMoveLineRepository
                   .all()
                   .filter(
-                      "self.saleOrderLine.id = :saleOrderLineId "
+                      "self.declarationLine.id = :declarationLineId "
                           + "AND self.stockMove.id = :stockMoveId "
                           + "AND self.id != :stockMoveLineId")
-                  .bind("saleOrderLineId", saleOrderLine.getId())
+                  .bind("declarationLineId", declarationLine.getId())
                   .bind("stockMoveId", stockMove.getId())
                   .bind("stockMoveLineId", stockMoveLine.getId())
                   .order("id")
@@ -544,18 +544,18 @@ public class StockMoveInvoiceServiceImpl implements StockMoveInvoiceService {
   protected List<StockMoveLine> getConsolidatedStockMoveLineList(
       List<StockMoveLine> stockMoveLineList) throws AxelorException {
 
-    Map<SaleOrderLine, List<StockMoveLine>> stockMoveLineSaleMap = new LinkedHashMap<>();
+    Map<DeclarationLine, List<StockMoveLine>> stockMoveLineSaleMap = new LinkedHashMap<>();
     Map<PurchaseOrderLine, List<StockMoveLine>> stockMoveLinePurchaseMap = new LinkedHashMap<>();
     List<StockMoveLine> resultList = new ArrayList<>();
 
     List<StockMoveLine> list;
     for (StockMoveLine stockMoveLine : stockMoveLineList) {
 
-      if (stockMoveLine.getSaleOrderLine() != null) {
-        list = stockMoveLineSaleMap.get(stockMoveLine.getSaleOrderLine());
+      if (stockMoveLine.getDeclarationLine() != null) {
+        list = stockMoveLineSaleMap.get(stockMoveLine.getDeclarationLine());
         if (list == null) {
           list = new ArrayList<>();
-          stockMoveLineSaleMap.put(stockMoveLine.getSaleOrderLine(), list);
+          stockMoveLineSaleMap.put(stockMoveLine.getDeclarationLine(), list);
         }
         list.add(stockMoveLine);
       } else if (stockMoveLine.getPurchaseOrderLine() != null) {

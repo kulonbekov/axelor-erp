@@ -29,7 +29,7 @@ public class SupplychainStockProductResponse extends ResponseStructure {
   private final BigDecimal realQty;
   private final BigDecimal futureQty;
   private final BigDecimal allocatedQty;
-  private final BigDecimal saleOrderQty;
+  private final BigDecimal declarationQty;
   private final BigDecimal purchaseOrderQty;
   private final BigDecimal availableStock;
   private final BigDecimal buildingQty;
@@ -42,7 +42,7 @@ public class SupplychainStockProductResponse extends ResponseStructure {
     this.realQty = (BigDecimal) qtys.get("$realQty");
     this.futureQty = (BigDecimal) qtys.get("$futureQty");
     this.allocatedQty = (BigDecimal) qtys.get("$reservedQty");
-    this.saleOrderQty = (BigDecimal) qtys.get("$saleOrderQty");
+    this.declarationQty = (BigDecimal) qtys.get("$declarationQty");
     this.purchaseOrderQty = (BigDecimal) qtys.get("$purchaseOrderQty");
     this.availableStock = (BigDecimal) qtys.get("$availableQty");
     this.buildingQty = (BigDecimal) qtys.get("$buildingQty");
@@ -66,8 +66,8 @@ public class SupplychainStockProductResponse extends ResponseStructure {
     return allocatedQty;
   }
 
-  public BigDecimal getSaleOrderQty() {
-    return saleOrderQty;
+  public BigDecimal getDeclarationQty() {
+    return declarationQty;
   }
 
   public BigDecimal getPurchaseOrderQty() {

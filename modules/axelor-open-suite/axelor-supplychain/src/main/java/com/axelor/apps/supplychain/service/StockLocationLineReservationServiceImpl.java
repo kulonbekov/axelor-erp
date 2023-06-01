@@ -19,7 +19,7 @@
 package com.axelor.apps.supplychain.service;
 
 import com.axelor.apps.base.AxelorException;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.stock.db.StockLocationLine;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
@@ -44,7 +44,7 @@ public class StockLocationLineReservationServiceImpl
             .subtract(stockLocationLine.getReservedQty());
     BigDecimal qtyAllocated =
         Beans.get(ReservedQtyService.class)
-            .allocateReservedQuantityInSaleOrderLines(
+            .allocateReservedQuantityInDeclarationLines(
                 qtyToAllocate,
                 stockLocationLine.getStockLocation(),
                 stockLocationLine.getProduct(),
@@ -71,9 +71,9 @@ public class StockLocationLineReservationServiceImpl
             .fetch();
     for (StockMoveLine stockMoveLine : stockMoveLineList) {
       stockMoveLine.setReservedQty(BigDecimal.ZERO);
-      SaleOrderLine saleOrderLine = stockMoveLine.getSaleOrderLine();
-      if (saleOrderLine != null) {
-        saleOrderLine.setReservedQty(BigDecimal.ZERO);
+      DeclarationLine declarationLine = stockMoveLine.getDeclarationLine();
+      if (declarationLine != null) {
+        declarationLine.setReservedQty(BigDecimal.ZERO);
       }
     }
     Beans.get(ReservedQtyService.class).updateReservedQty(stockLocationLine);

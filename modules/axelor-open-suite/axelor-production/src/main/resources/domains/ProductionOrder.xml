@@ -14,7 +14,7 @@
 
     <many-to-one name="clientPartner" ref="com.axelor.apps.base.db.Partner"
       title="Customer"/>
-    <many-to-one name="saleOrder" ref="com.axelor.apps.sale.db.SaleOrder"
+    <many-to-one name="declaration" ref="com.axelor.apps.sale.db.Declaration"
       title="Sale order"/>
 
     <many-to-many name="manufOrderSet" ref="com.axelor.apps.production.db.ManufOrder"

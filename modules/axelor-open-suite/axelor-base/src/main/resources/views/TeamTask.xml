@@ -91,7 +91,7 @@
     <field name="invoiced" hidden="true" if="!__config__.app.isApp('business-project')"/>
     <field name="project.invoicingSequenceSelect" hidden="true"
       if="!__config__.app.isApp('business-project')"/>
-    <field name="saleOrderLine" hidden="true" if="!__config__.app.isApp('business-project')"/>
+    <field name="declarationLine" hidden="true" if="!__config__.app.isApp('business-project')"/>
     <field name="invoiceLine" hidden="true" if="!__config__.app.isApp('business-project')"/>
     <field name="product" hidden="true" if="!__config__.app.isApp('business-project')"/>
     <field name="quantity" hidden="true" if="!__config__.app.isApp('business-project')"/>

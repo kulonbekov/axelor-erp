@@ -28,17 +28,17 @@ import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
 import com.axelor.apps.purchase.service.PurchaseOrderService;
 import com.axelor.apps.purchase.service.SupplierCatalogService;
 import com.axelor.apps.purchase.service.config.PurchaseConfigService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.supplychain.service.PurchaseOrderLineServiceSupplyChain;
 import com.axelor.apps.supplychain.service.PurchaseOrderSupplychainService;
-import com.axelor.apps.supplychain.service.SaleOrderPurchaseServiceImpl;
+import com.axelor.apps.supplychain.service.DeclarationPurchaseServiceImpl;
 import com.axelor.inject.Beans;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import java.util.List;
 
-public class ProjectPurchaseServiceImpl extends SaleOrderPurchaseServiceImpl {
+public class ProjectPurchaseServiceImpl extends DeclarationPurchaseServiceImpl {
 
   @Inject
   public ProjectPurchaseServiceImpl(
@@ -64,15 +64,15 @@ public class ProjectPurchaseServiceImpl extends SaleOrderPurchaseServiceImpl {
   @Override
   @Transactional(rollbackOn = {Exception.class})
   public PurchaseOrder createPurchaseOrder(
-      Partner supplierPartner, List<SaleOrderLine> saleOrderLineList, SaleOrder saleOrder)
+      Partner supplierPartner, List<DeclarationLine> declarationLineList, Declaration declaration)
       throws AxelorException {
     PurchaseOrder purchaseOrder =
-        super.createPurchaseOrder(supplierPartner, saleOrderLineList, saleOrder);
+        super.createPurchaseOrder(supplierPartner, declarationLineList, declaration);
 
     if (purchaseOrder != null
-        && saleOrder != null
+        && declaration != null
         && Beans.get(AppBusinessProjectService.class).isApp("business-project")) {
-      purchaseOrder.setProject(saleOrder.getProject());
+      purchaseOrder.setProject(declaration.getProject());
     }
 
     return purchaseOrder;

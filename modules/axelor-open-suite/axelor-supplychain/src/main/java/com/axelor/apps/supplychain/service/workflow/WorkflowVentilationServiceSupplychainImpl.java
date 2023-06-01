@@ -38,9 +38,9 @@ import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.StockMoveLine;
 import com.axelor.apps.stock.db.repo.StockMoveLineRepository;
@@ -48,7 +48,7 @@ import com.axelor.apps.supplychain.db.SupplyChainConfig;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
 import com.axelor.apps.supplychain.service.AccountingSituationSupplychainService;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.apps.supplychain.service.StockMoveInvoiceService;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
 import com.axelor.apps.supplychain.service.config.SupplyChainConfigService;
@@ -67,11 +67,11 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
 
   private final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private SaleOrderInvoiceService saleOrderInvoiceService;
+  private DeclarationInvoiceService declarationInvoiceService;
 
   private PurchaseOrderInvoiceService purchaseOrderInvoiceService;
 
-  private SaleOrderRepository saleOrderRepository;
+  private DeclarationRepository declarationRepository;
 
   private PurchaseOrderRepository purchaseOrderRepository;
 
@@ -95,9 +95,9 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
       InvoicePaymentRepository invoicePaymentRepo,
       InvoicePaymentCreateService invoicePaymentCreateService,
       InvoiceService invoiceService,
-      SaleOrderInvoiceService saleOrderInvoiceService,
+      DeclarationInvoiceService declarationInvoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
-      SaleOrderRepository saleOrderRepository,
+      DeclarationRepository declarationRepository,
       PurchaseOrderRepository purchaseOrderRepository,
       AccountingSituationSupplychainService accountingSituationSupplychainService,
       AppSupplychainService appSupplychainService,
@@ -118,9 +118,9 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
         appAccountService,
         invoiceFinancialDiscountService,
         invoiceTermService);
-    this.saleOrderInvoiceService = saleOrderInvoiceService;
+    this.declarationInvoiceService = declarationInvoiceService;
     this.purchaseOrderInvoiceService = purchaseOrderInvoiceService;
-    this.saleOrderRepository = saleOrderRepository;
+    this.declarationRepository = declarationRepository;
     this.purchaseOrderRepository = purchaseOrderRepository;
     this.accountingSituationSupplychainService = accountingSituationSupplychainService;
     this.appSupplychainService = appSupplychainService;
@@ -140,8 +140,8 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
 
     } else {
 
-      // Update amount remaining to invoiced on SaleOrder
-      this.saleOrderProcess(invoice);
+      // Update amount remaining to invoiced on Declaration
+      this.declarationProcess(invoice);
     }
     if (invoice.getInterco() || invoice.getCreatedByInterco()) {
       updateIntercoReference(invoice);
@@ -168,27 +168,27 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
     }
   }
 
-  protected void saleOrderProcess(Invoice invoice) throws AxelorException {
+  protected void declarationProcess(Invoice invoice) throws AxelorException {
 
-    // Get all different saleOrders from invoice
-    Set<SaleOrder> saleOrderSet = new HashSet<>();
+    // Get all different declarations from invoice
+    Set<Declaration> declarationSet = new HashSet<>();
 
     for (InvoiceLine invoiceLine : invoice.getInvoiceLineList()) {
-      SaleOrder saleOrder = null;
-      saleOrder = this.saleOrderLineProcess(invoice, invoiceLine);
-      if (saleOrder != null) {
-        saleOrderSet.add(saleOrder);
+      Declaration declaration = null;
+      declaration = this.declarationLineProcess(invoice, invoiceLine);
+      if (declaration != null) {
+        declarationSet.add(declaration);
       }
     }
 
-    for (SaleOrder saleOrder : saleOrderSet) {
-      log.debug("Update the invoiced amount of the sale order : {}", saleOrder.getSaleOrderSeq());
-      saleOrderInvoiceService.update(saleOrder, invoice.getId(), false);
-      saleOrderRepository.save(saleOrder);
-      accountingSituationSupplychainService.updateUsedCredit(saleOrder.getClientPartner());
+    for (Declaration declaration : declarationSet) {
+      log.debug("Update the invoiced amount of the sale order : {}", declaration.getDeclarationSeq());
+      declarationInvoiceService.update(declaration, invoice.getId(), false);
+      declarationRepository.save(declaration);
+      accountingSituationSupplychainService.updateUsedCredit(declaration.getClientPartner());
 
       // determine if the invoice is a balance invoice.
-      if (saleOrder.getAmountInvoiced().compareTo(saleOrder.getExTaxTotal()) == 0
+      if (declaration.getAmountInvoiced().compareTo(declaration.getExTaxTotal()) == 0
           && invoice.getOperationSubTypeSelect()
               != InvoiceRepository.OPERATION_SUB_TYPE_SUBSCRIPTION) {
         invoice.setOperationSubTypeSelect(InvoiceRepository.OPERATION_SUB_TYPE_BALANCE);
@@ -196,16 +196,16 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
     }
   }
 
-  protected SaleOrder saleOrderLineProcess(Invoice invoice, InvoiceLine invoiceLine)
+  protected Declaration declarationLineProcess(Invoice invoice, InvoiceLine invoiceLine)
       throws AxelorException {
 
-    SaleOrderLine saleOrderLine = invoiceLine.getSaleOrderLine();
+    DeclarationLine declarationLine = invoiceLine.getDeclarationLine();
 
-    if (saleOrderLine == null) {
+    if (declarationLine == null) {
       return null;
     }
 
-    SaleOrder saleOrder = saleOrderLine.getSaleOrder();
+    Declaration declaration = declarationLine.getDeclaration();
 
     // Update invoiced amount on sale order line
     BigDecimal invoicedAmountToAdd = invoiceLine.getExTaxTotal();
@@ -215,20 +215,20 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
       invoicedAmountToAdd = invoicedAmountToAdd.negate();
     }
 
-    if (!invoice.getCurrency().equals(saleOrder.getCurrency())
-        && saleOrderLine.getCompanyExTaxTotal().compareTo(BigDecimal.ZERO) != 0) {
+    if (!invoice.getCurrency().equals(declaration.getCurrency())
+        && declarationLine.getCompanyExTaxTotal().compareTo(BigDecimal.ZERO) != 0) {
       // If the sale order currency is different from the invoice currency, use company currency to
       // calculate a rate. This rate will be applied to sale order line
       BigDecimal currentCompanyInvoicedAmount = invoiceLine.getCompanyExTaxTotal();
       BigDecimal rate =
           currentCompanyInvoicedAmount.divide(
-              saleOrderLine.getCompanyExTaxTotal(), 4, RoundingMode.HALF_UP);
-      invoicedAmountToAdd = rate.multiply(saleOrderLine.getExTaxTotal());
+              declarationLine.getCompanyExTaxTotal(), 4, RoundingMode.HALF_UP);
+      invoicedAmountToAdd = rate.multiply(declarationLine.getExTaxTotal());
     }
 
-    saleOrderLine.setAmountInvoiced(saleOrderLine.getAmountInvoiced().add(invoicedAmountToAdd));
+    declarationLine.setAmountInvoiced(declarationLine.getAmountInvoiced().add(invoicedAmountToAdd));
 
-    return saleOrder;
+    return declaration;
   }
 
   protected void purchaseOrderProcess(Invoice invoice) throws AxelorException {
@@ -353,12 +353,12 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
         }
 
         // search in sale/purchase order lines to set split stock move lines to invoiced.
-        if (stockMoveLine.getSaleOrderLine() != null) {
+        if (stockMoveLine.getDeclarationLine() != null) {
           stockMoveLineRepository
               .all()
               .filter(
-                  "self.saleOrderLine.id = :saleOrderLineId AND self.stockMove.id = :stockMoveId")
-              .bind("saleOrderLineId", stockMoveLine.getSaleOrderLine().getId())
+                  "self.declarationLine.id = :declarationLineId AND self.stockMove.id = :stockMoveId")
+              .bind("declarationLineId", stockMoveLine.getDeclarationLine().getId())
               .bind("stockMoveId", stockMoveLine.getStockMove().getId())
               .fetch()
               .forEach(
@@ -392,7 +392,7 @@ public class WorkflowVentilationServiceSupplychainImpl extends WorkflowVentilati
       Invoice invoice, StockMoveLine stockMoveLine) throws AxelorException {
     SupplyChainConfig supplyChainConfig =
         supplyChainConfigService.getSupplyChainConfig(invoice.getCompany());
-    return stockMoveLine.getSaleOrderLine() != null
+    return stockMoveLine.getDeclarationLine() != null
             && supplyChainConfig.getActivateOutStockMovePartialInvoicing()
         || stockMoveLine.getPurchaseOrderLine() != null
             && supplyChainConfig.getActivateIncStockMovePartialInvoicing();

@@ -24,7 +24,7 @@ import com.axelor.apps.base.db.repo.PartnerRepository;
 import com.axelor.apps.base.db.repo.ProductRepository;
 import com.axelor.apps.base.service.PartnerServiceImpl;
 import com.axelor.apps.base.service.app.AppBaseService;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.sale.service.app.AppSaleService;
 import com.axelor.db.JPA;
 import com.axelor.inject.Beans;
@@ -55,17 +55,17 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
     idList.addAll(this.findMailsFromPartner(partner, emailType));
 
     if (partner.getIsContact()) {
-      idList.addAll(this.findMailsFromSaleOrderContact(partner, emailType));
+      idList.addAll(this.findMailsFromDeclarationContact(partner, emailType));
       return idList;
     } else {
-      idList.addAll(this.findMailsFromSaleOrder(partner, emailType));
+      idList.addAll(this.findMailsFromDeclaration(partner, emailType));
     }
 
     Set<Partner> contactSet = partner.getContactPartnerSet();
     if (contactSet != null && !contactSet.isEmpty()) {
       for (Partner contact : contactSet) {
         idList.addAll(this.findMailsFromPartner(contact, emailType));
-        idList.addAll(this.findMailsFromSaleOrderContact(contact, emailType));
+        idList.addAll(this.findMailsFromDeclarationContact(contact, emailType));
       }
     }
     return idList;
@@ -73,14 +73,14 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
 
   @Deprecated
   @SuppressWarnings("unchecked")
-  public List<Long> findMailsFromSaleOrder(Partner partner, int emailType) {
+  public List<Long> findMailsFromDeclaration(Partner partner, int emailType) {
 
     String query =
-        "SELECT DISTINCT(email.id) FROM Message as email, SaleOrder as so, Partner as part"
+        "SELECT DISTINCT(email.id) FROM Message as email, Declaration as so, Partner as part"
             + " WHERE part.id = "
             + partner.getId()
             + " AND so.clientPartner = part.id AND email.mediaTypeSelect = 2 AND "
-            + "email IN (SELECT message FROM MultiRelated as related WHERE related.relatedToSelect = 'com.axelor.apps.sale.db.SaleOrder' AND related.relatedToSelectId = so.id)"
+            + "email IN (SELECT message FROM MultiRelated as related WHERE related.relatedToSelect = 'com.axelor.apps.sale.db.Declaration' AND related.relatedToSelectId = so.id)"
             + " AND email.typeSelect = "
             + emailType;
 
@@ -89,14 +89,14 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
 
   @Deprecated
   @SuppressWarnings("unchecked")
-  public List<Long> findMailsFromSaleOrderContact(Partner partner, int emailType) {
+  public List<Long> findMailsFromDeclarationContact(Partner partner, int emailType) {
 
     String query =
-        "SELECT DISTINCT(email.id) FROM Message as email, SaleOrder as so, Partner as part"
+        "SELECT DISTINCT(email.id) FROM Message as email, Declaration as so, Partner as part"
             + " WHERE part.id = "
             + partner.getId()
             + " AND so.contactPartner = part.id AND email.mediaTypeSelect = 2 AND "
-            + "email IN (SELECT message FROM MultiRelated as related WHERE related.relatedToSelect = 'com.axelor.apps.sale.db.SaleOrder' AND related.relatedToSelectId = so.id)"
+            + "email IN (SELECT message FROM MultiRelated as related WHERE related.relatedToSelect = 'com.axelor.apps.sale.db.Declaration' AND related.relatedToSelectId = so.id)"
             + " AND email.typeSelect = "
             + emailType;
 
@@ -106,11 +106,11 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
   public List<Product> getProductBoughtByCustomer(Partner customer) {
     String domain =
         "self.id in (SELECT line.product"
-            + " FROM SaleOrderLine line join SaleOrder sale on line.saleOrder = sale.id"
+            + " FROM DeclarationLine line join Declaration sale on line.declaration = sale.id"
             + " WHERE sale.statusSelect IN ("
-            + SaleOrderRepository.STATUS_ORDER_CONFIRMED
+            + DeclarationRepository.STATUS_ORDER_CONFIRMED
             + ", "
-            + SaleOrderRepository.STATUS_ORDER_COMPLETED
+            + DeclarationRepository.STATUS_ORDER_COMPLETED
             + ")"
             + " AND sale.clientPartner = "
             + customer.getId()
@@ -128,11 +128,11 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
     String qtySelection = "SELECT SUM(line.qty)";
     String priceSelection = "SELECT SUM(line.subTotalCostPrice)";
     String endQuery =
-        " FROM SaleOrderLine line join SaleOrder sale on line.saleOrder = sale.id"
+        " FROM DeclarationLine line join Declaration sale on line.declaration = sale.id"
             + " WHERE sale.statusSelect IN ("
-            + SaleOrderRepository.STATUS_ORDER_CONFIRMED
+            + DeclarationRepository.STATUS_ORDER_CONFIRMED
             + ", "
-            + SaleOrderRepository.STATUS_ORDER_COMPLETED
+            + DeclarationRepository.STATUS_ORDER_COMPLETED
             + ")"
             + " AND sale.clientPartner = "
             + customer.getId()
@@ -159,11 +159,11 @@ public class PartnerSaleServiceImpl extends PartnerServiceImpl implements Partne
     String averageSelection = "SELECT AVG(sale." + averageOn + ")";
     String customerSelection = "SELECT sale.clientPartner.name";
     String endQuery =
-        " FROM SaleOrder sale"
+        " FROM Declaration sale"
             + " WHERE sale.statusSelect IN ("
-            + SaleOrderRepository.STATUS_ORDER_CONFIRMED
+            + DeclarationRepository.STATUS_ORDER_CONFIRMED
             + ", "
-            + SaleOrderRepository.STATUS_ORDER_COMPLETED
+            + DeclarationRepository.STATUS_ORDER_COMPLETED
             + ")"
             + " AND sale.confirmationDateTime BETWEEN to_date('"
             + fromDate

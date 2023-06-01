@@ -8,8 +8,8 @@
   <entity name="ComplementaryProductSelected">
     <boolean name="isSelected" title="Selected"/>
 
-    <many-to-one name="saleOrderLine" title="Sale order line"
-      ref="com.axelor.apps.sale.db.SaleOrderLine"/>
+    <many-to-one name="declarationLine" title="Sale order line"
+      ref="com.axelor.apps.sale.db.DeclarationLine"/>
 
     <many-to-one name="product" ref="com.axelor.apps.base.db.Product" title="Product"/>
     <decimal name="qty" title="Quantity" precision="20" scale="10"/>

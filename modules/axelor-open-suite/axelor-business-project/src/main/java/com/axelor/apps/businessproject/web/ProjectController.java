@@ -32,7 +32,7 @@ import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.repo.ProjectRepository;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.report.engine.ReportSettings;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
 import com.axelor.meta.schema.actions.ActionView;
@@ -51,10 +51,10 @@ public class ProjectController {
   public void generateQuotation(ActionRequest request, ActionResponse response) {
     try {
       Project project = request.getContext().asType(Project.class);
-      SaleOrder order = Beans.get(ProjectBusinessService.class).generateQuotation(project);
+      Declaration order = Beans.get(ProjectBusinessService.class).generateQuotation(project);
       response.setView(
           ActionView.define(I18n.get("Sale quotation"))
-              .model(SaleOrder.class.getName())
+              .model(Declaration.class.getName())
               .add("form", "sale-order-form")
               .param("forceTitle", "true")
               .context("_showRecord", String.valueOf(order.getId()))

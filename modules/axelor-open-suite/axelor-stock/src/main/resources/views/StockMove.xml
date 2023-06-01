@@ -581,7 +581,7 @@
           <field name="trackingNumber"/>
           <field name="modeOfTransport"/>
           <field name="deliveryCondition" height="3"
-            showIf="typeSelect == 2 &amp;&amp; originTypeSelect &amp;&amp; originTypeSelect=='com.axelor.apps.sale.db.SaleOrder'"/>
+            showIf="typeSelect == 2 &amp;&amp; originTypeSelect &amp;&amp; originTypeSelect=='com.axelor.apps.sale.db.Declaration'"/>
         </panel>
 
         <panel itemSpan="3">
@@ -1147,8 +1147,8 @@
 
   <action-method name="action-supply-chain-method-update-so-on-cancel"
     if-module="axelor-supplychain">
-    <call class="com.axelor.apps.supplychain.web.SaleOrderController"
-      method="updateSaleOrderOnCancel"/>
+    <call class="com.axelor.apps.supplychain.web.DeclarationController"
+      method="updateDeclarationOnCancel"/>
   </action-method>
 
   <action-method name="action-supply-chain-method-update-po-on-cancel"

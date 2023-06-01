@@ -25,9 +25,9 @@ import com.axelor.apps.account.service.invoice.InvoiceMergingServiceImpl;
 import com.axelor.apps.account.service.invoice.InvoiceService;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.purchase.db.PurchaseOrder;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.supplychain.service.PurchaseOrderInvoiceService;
-import com.axelor.apps.supplychain.service.SaleOrderInvoiceService;
+import com.axelor.apps.supplychain.service.DeclarationInvoiceService;
 import com.axelor.i18n.I18n;
 import com.google.inject.Inject;
 import java.util.List;
@@ -37,28 +37,28 @@ import java.util.StringJoiner;
 public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceImpl {
 
   protected final PurchaseOrderInvoiceService purchaseOrderInvoiceService;
-  protected final SaleOrderInvoiceService saleOrderInvoiceService;
+  protected final DeclarationInvoiceService declarationInvoiceService;
 
   @Inject
   public InvoiceMergingServiceSupplychainImpl(
       InvoiceService invoiceService,
       PurchaseOrderInvoiceService purchaseOrderInvoiceService,
-      SaleOrderInvoiceService saleOrderInvoiceService) {
+      DeclarationInvoiceService declarationInvoiceService) {
     super(invoiceService);
     this.purchaseOrderInvoiceService = purchaseOrderInvoiceService;
-    this.saleOrderInvoiceService = saleOrderInvoiceService;
+    this.declarationInvoiceService = declarationInvoiceService;
   }
 
   protected static class CommonFieldsSupplychainImpl extends CommonFieldsImpl {
-    private SaleOrder commonSaleOrder;
+    private Declaration commonDeclaration;
     private PurchaseOrder commonPurchaseOrder;
 
-    public SaleOrder getCommonSaleOrder() {
-      return commonSaleOrder;
+    public Declaration getCommonDeclaration() {
+      return commonDeclaration;
     }
 
-    public void setCommonSaleOrder(SaleOrder commonSaleOrder) {
-      this.commonSaleOrder = commonSaleOrder;
+    public void setCommonDeclaration(Declaration commonDeclaration) {
+      this.commonDeclaration = commonDeclaration;
     }
 
     public PurchaseOrder getCommonPurchaseOrder() {
@@ -71,15 +71,15 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
   }
 
   protected static class ChecksSupplychainImpl extends ChecksImpl {
-    private boolean existSaleOrderDiff = false;
+    private boolean existDeclarationDiff = false;
     private boolean existPurchaseOrderDiff = false;
 
-    public boolean isExistSaleOrderDiff() {
-      return existSaleOrderDiff;
+    public boolean isExistDeclarationDiff() {
+      return existDeclarationDiff;
     }
 
-    public void setExistSaleOrderDiff(boolean existSaleOrderDiff) {
-      this.existSaleOrderDiff = existSaleOrderDiff;
+    public void setExistDeclarationDiff(boolean existDeclarationDiff) {
+      this.existDeclarationDiff = existDeclarationDiff;
     }
 
     public boolean isExistPurchaseOrderDiff() {
@@ -123,10 +123,10 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
     super.extractFirstNonNullCommonFields(invoicesToMerge, result);
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_CLIENT_SALE)) {
       invoicesToMerge.stream()
-          .map(Invoice::getSaleOrder)
+          .map(Invoice::getDeclaration)
           .filter(Objects::nonNull)
           .findFirst()
-          .ifPresent(it -> getCommonFields(result).setCommonSaleOrder(it));
+          .ifPresent(it -> getCommonFields(result).setCommonDeclaration(it));
     }
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_SUPPLIER_PURCHASE)) {
       invoicesToMerge.stream()
@@ -141,10 +141,10 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
   protected void fillCommonFields(Invoice invoice, InvoiceMergingResult result) {
     super.fillCommonFields(invoice, result);
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_CLIENT_SALE)) {
-      if (getCommonFields(result).getCommonSaleOrder() != null
-          && !getCommonFields(result).getCommonSaleOrder().equals(invoice.getSaleOrder())) {
-        getCommonFields(result).setCommonSaleOrder(null);
-        getChecks(result).setExistSaleOrderDiff(true);
+      if (getCommonFields(result).getCommonDeclaration() != null
+          && !getCommonFields(result).getCommonDeclaration().equals(invoice.getDeclaration())) {
+        getCommonFields(result).setCommonDeclaration(null);
+        getChecks(result).setExistDeclarationDiff(true);
       }
     }
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_SUPPLIER_PURCHASE)) {
@@ -161,9 +161,9 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
       throws AxelorException {
     super.checkErrors(fieldErrors, result);
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_CLIENT_SALE)) {
-      if (getCommonFields(result).getCommonSaleOrder() == null
-          && getChecks(result).isExistSaleOrderDiff()) {
-        fieldErrors.add(I18n.get(AccountExceptionMessage.INVOICE_MERGE_ERROR_SALEORDER));
+      if (getCommonFields(result).getCommonDeclaration() == null
+          && getChecks(result).isExistDeclarationDiff()) {
+        fieldErrors.add(I18n.get(AccountExceptionMessage.INVOICE_MERGE_ERROR_DECLARATION));
       }
     }
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_SUPPLIER_PURCHASE)) {
@@ -194,7 +194,7 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
           getCommonFields(result).getCommonPurchaseOrder());
     }
     if (result.getInvoiceType().equals(InvoiceRepository.OPERATION_TYPE_CLIENT_SALE)) {
-      return saleOrderInvoiceService.mergeInvoice(
+      return declarationInvoiceService.mergeInvoice(
           invoicesToMerge,
           getCommonFields(result).getCommonCompany(),
           getCommonFields(result).getCommonCurrency(),
@@ -205,7 +205,7 @@ public class InvoiceMergingServiceSupplychainImpl extends InvoiceMergingServiceI
           getCommonFields(result).getCommonPaymentCondition(),
           getCommonFields(result).getCommonTradingName(),
           getCommonFields(result).getCommonFiscalPosition(),
-          getCommonFields(result).getCommonSaleOrder());
+          getCommonFields(result).getCommonDeclaration());
     }
     return null;
   }

@@ -23,8 +23,8 @@ import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.service.exception.TraceBackService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.supplychain.db.Timetable;
 import com.axelor.apps.supplychain.db.TimetableTemplate;
 import com.axelor.apps.supplychain.db.repo.TimetableRepository;
@@ -53,9 +53,9 @@ public class TimetableController {
     timetable = Beans.get(TimetableRepository.class).find(timetable.getId());
 
     Context parentContext = request.getContext().getParent();
-    if (parentContext != null && parentContext.getContextClass().equals(SaleOrder.class)) {
-      SaleOrder saleOrder = parentContext.asType(SaleOrder.class);
-      if (saleOrder.getStatusSelect() < SaleOrderRepository.STATUS_ORDER_CONFIRMED) {
+    if (parentContext != null && parentContext.getContextClass().equals(Declaration.class)) {
+      Declaration declaration = parentContext.asType(Declaration.class);
+      if (declaration.getStatusSelect() < DeclarationRepository.STATUS_ORDER_CONFIRMED) {
         response.setAlert(I18n.get(SupplychainExceptionMessage.TIMETABLE_SALE_ORDER_NOT_CONFIRMED));
         return;
       }

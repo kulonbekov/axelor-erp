@@ -29,16 +29,16 @@ public class ProductCategoryController {
 
   /**
    * Called from product category view on maxDiscount change. Call {@link
-   * ProductCategorySaleService#updateSaleOrderLines(ProductCategory)}.
+   * ProductCategorySaleService#updateDeclarationLines(ProductCategory)}.
    *
    * @param request
    * @param response
    */
-  public void updateSaleOrderLines(ActionRequest request, ActionResponse response) {
+  public void updateDeclarationLines(ActionRequest request, ActionResponse response) {
     try {
       ProductCategory productCategory = request.getContext().asType(ProductCategory.class);
       if (productCategory.getId() != null) {
-        Beans.get(ProductCategorySaleService.class).updateSaleOrderLines(productCategory);
+        Beans.get(ProductCategorySaleService.class).updateDeclarationLines(productCategory);
       }
     } catch (Exception e) {
       TraceBackService.trace(response, e);

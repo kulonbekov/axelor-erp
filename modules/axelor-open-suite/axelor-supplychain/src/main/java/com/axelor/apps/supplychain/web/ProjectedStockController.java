@@ -22,13 +22,13 @@ import com.axelor.apps.base.db.Product;
 import com.axelor.apps.base.db.repo.ProductRepository;
 import com.axelor.apps.base.service.exception.TraceBackService;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.axelor.apps.stock.db.StockLocationLine;
 import com.axelor.apps.stock.service.StockLocationLineService;
 import com.axelor.apps.supplychain.db.MrpLine;
 import com.axelor.apps.supplychain.service.ProjectedStockService;
 import com.axelor.apps.supplychain.service.PurchaseOrderStockService;
-import com.axelor.apps.supplychain.service.SaleOrderLineServiceSupplyChain;
+import com.axelor.apps.supplychain.service.DeclarationLineServiceSupplyChain;
 import com.axelor.db.mapper.Mapper;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
@@ -82,7 +82,7 @@ public class ProjectedStockController {
             .map());
   }
 
-  public void showSaleOrderOfProduct(ActionRequest request, ActionResponse response) {
+  public void showDeclarationOfProduct(ActionRequest request, ActionResponse response) {
     Map<String, Long> mapId =
         Beans.get(ProjectedStockService.class)
             .getProductIdCompanyIdStockLocationIdFromContext(request.getContext());
@@ -93,14 +93,14 @@ public class ProjectedStockController {
     Long companyId = mapId.get("companyId");
     Long stockLocationId = mapId.get("stockLocationId");
     String domain =
-        Beans.get(SaleOrderLineServiceSupplyChain.class)
-            .getSaleOrderLineListForAProduct(productId, companyId, stockLocationId);
+        Beans.get(DeclarationLineServiceSupplyChain.class)
+            .getDeclarationLineListForAProduct(productId, companyId, stockLocationId);
     Product product = Beans.get(ProductRepository.class).find(mapId.get("productId"));
     String title = I18n.get(VIEW_SOL_OF_PRODUCT_TITLE);
     title = String.format(title, product.getName());
     response.setView(
         ActionView.define(title)
-            .model(SaleOrderLine.class.getName())
+            .model(DeclarationLine.class.getName())
             .add("grid", "sale-order-line-menu-grid")
             .add("form", "sale-order-line-all-form")
             .domain(domain)

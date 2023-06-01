@@ -31,22 +31,22 @@ import com.axelor.apps.businessproduction.service.OperationOrderTimesheetService
 import com.axelor.apps.businessproduction.service.OperationOrderValidateBusinessService;
 import com.axelor.apps.businessproduction.service.OperationOrderValidateBusinessServiceImpl;
 import com.axelor.apps.businessproduction.service.OperationOrderWorkflowServiceBusinessImpl;
-import com.axelor.apps.businessproduction.service.ProductionOrderSaleOrderServiceBusinessImpl;
+import com.axelor.apps.businessproduction.service.ProductionOrderDeclarationServiceBusinessImpl;
 import com.axelor.apps.businessproduction.service.ProductionOrderServiceBusinessImpl;
 import com.axelor.apps.businessproduction.service.ProductionOrderWizardServiceBusinessImpl;
-import com.axelor.apps.businessproduction.service.SaleOrderLineBusinessProductionServiceImpl;
-import com.axelor.apps.businessproduction.service.SaleOrderWorkflowServiceBusinessProductionImpl;
+import com.axelor.apps.businessproduction.service.DeclarationLineBusinessProductionServiceImpl;
+import com.axelor.apps.businessproduction.service.DeclarationWorkflowServiceBusinessProductionImpl;
 import com.axelor.apps.businessproduction.service.TimesheetBusinessProductionServiceImpl;
 import com.axelor.apps.businessproject.service.InvoicingProjectService;
-import com.axelor.apps.businessproject.service.SaleOrderLineProjectServiceImpl;
+import com.axelor.apps.businessproject.service.DeclarationLineProjectServiceImpl;
 import com.axelor.apps.businessproject.service.TimesheetProjectServiceImpl;
 import com.axelor.apps.production.db.repo.ManufOrderManagementRepository;
-import com.axelor.apps.production.service.SaleOrderWorkflowServiceProductionImpl;
+import com.axelor.apps.production.service.DeclarationWorkflowServiceProductionImpl;
 import com.axelor.apps.production.service.costsheet.CostSheetServiceImpl;
 import com.axelor.apps.production.service.manuforder.ManufOrderServiceImpl;
 import com.axelor.apps.production.service.operationorder.OperationOrderServiceImpl;
 import com.axelor.apps.production.service.operationorder.OperationOrderWorkflowService;
-import com.axelor.apps.production.service.productionorder.ProductionOrderSaleOrderServiceImpl;
+import com.axelor.apps.production.service.productionorder.ProductionOrderDeclarationServiceImpl;
 import com.axelor.apps.production.service.productionorder.ProductionOrderServiceImpl;
 import com.axelor.apps.production.service.productionorder.ProductionOrderWizardServiceImpl;
 
@@ -60,8 +60,8 @@ public class BusinessProductionModule extends AxelorModule {
     bind(OperationOrderServiceImpl.class).to(OperationOrderServiceBusinessImpl.class);
     bind(ProductionOrderServiceImpl.class).to(ProductionOrderServiceBusinessImpl.class);
     bind(ProductionOrderWizardServiceImpl.class).to(ProductionOrderWizardServiceBusinessImpl.class);
-    bind(ProductionOrderSaleOrderServiceImpl.class)
-        .to(ProductionOrderSaleOrderServiceBusinessImpl.class);
+    bind(ProductionOrderDeclarationServiceImpl.class)
+        .to(ProductionOrderDeclarationServiceBusinessImpl.class);
     bind(InvoicingProjectService.class).to(InvoicingProjectServiceBusinessProdImpl.class);
     bind(OperationOrderWorkflowService.class).to(OperationOrderWorkflowServiceBusinessImpl.class);
     bind(ManufOrderValidateBusinessService.class).to(ManufOrderValidateBusinessServiceImpl.class);
@@ -71,9 +71,9 @@ public class BusinessProductionModule extends AxelorModule {
     bind(OperationOrderTimesheetService.class).to(OperationOrderTimesheetServiceImpl.class);
     bind(ManufOrderManagementRepository.class)
         .to(ManufOrderBusinessProductionManagementRepository.class);
-    bind(SaleOrderWorkflowServiceProductionImpl.class)
-        .to(SaleOrderWorkflowServiceBusinessProductionImpl.class);
-    bind(SaleOrderLineProjectServiceImpl.class)
-        .to(SaleOrderLineBusinessProductionServiceImpl.class);
+    bind(DeclarationWorkflowServiceProductionImpl.class)
+        .to(DeclarationWorkflowServiceBusinessProductionImpl.class);
+    bind(DeclarationLineProjectServiceImpl.class)
+        .to(DeclarationLineBusinessProductionServiceImpl.class);
   }
 }

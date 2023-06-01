@@ -30,8 +30,8 @@ import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.service.CurrencyService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.service.PurchaseOrderService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.service.saleorder.SaleOrderComputeService;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.service.declaration.DeclarationComputeService;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
 import com.axelor.inject.Beans;
 import com.google.inject.Inject;
@@ -42,7 +42,7 @@ import com.google.inject.servlet.RequestScoped;
 public class InvoicePaymentToolServiceSupplychainImpl extends InvoicePaymentToolServiceImpl {
 
   protected PartnerSupplychainService partnerSupplychainService;
-  protected SaleOrderComputeService saleOrderComputeService;
+  protected DeclarationComputeService declarationComputeService;
   protected PurchaseOrderService purchaseOrderService;
 
   @Inject
@@ -54,7 +54,7 @@ public class InvoicePaymentToolServiceSupplychainImpl extends InvoicePaymentTool
       InvoiceTermPaymentService invoiceTermPaymentService,
       CurrencyService currencyService,
       PartnerSupplychainService partnerSupplychainService,
-      SaleOrderComputeService saleOrderComputeService,
+      DeclarationComputeService declarationComputeService,
       PurchaseOrderService purchaseOrderService,
       AppAccountService appAccountService) {
     super(
@@ -66,7 +66,7 @@ public class InvoicePaymentToolServiceSupplychainImpl extends InvoicePaymentTool
         currencyService,
         appAccountService);
     this.partnerSupplychainService = partnerSupplychainService;
-    this.saleOrderComputeService = saleOrderComputeService;
+    this.declarationComputeService = declarationComputeService;
     this.purchaseOrderService = purchaseOrderService;
   }
 
@@ -78,11 +78,11 @@ public class InvoicePaymentToolServiceSupplychainImpl extends InvoicePaymentTool
     if (!Beans.get(AppSupplychainService.class).isApp("supplychain")) {
       return;
     }
-    SaleOrder saleOrder = invoice.getSaleOrder();
+    Declaration declaration = invoice.getDeclaration();
     PurchaseOrder purchaseOrder = invoice.getPurchaseOrder();
-    if (saleOrder != null) {
+    if (declaration != null) {
       // compute sale order totals
-      saleOrderComputeService._computeSaleOrder(saleOrder);
+      declarationComputeService._computeDeclaration(declaration);
     }
     if (purchaseOrder != null) {
       purchaseOrderService._computePurchaseOrder(purchaseOrder);

@@ -791,7 +791,7 @@ else row["last_modified_by"]</expression>
             </list-property>
             <xml-property name="queryText"><![CDATA[select StockMove.id, MetaFile.file_path as logo_path, Company.height as logo_height,
 Company.width as logo_width, StockMove.real_date, StockMove.type_select,
-StockMove.stock_move_seq, SaleOrder.sale_order_seq, PurchaseOrder.purchase_order_seq,
+StockMove.stock_move_seq, Declaration.sale_order_seq, PurchaseOrder.purchase_order_seq,
 Partner.title_select, Partner.name, Partner.first_name, Partner.partner_type_select,
 StockMove.from_address_str, StockMove.to_address_str, StockMove.is_ispm_required,
 Country.name as "countryName", PrintingSetting.pdf_header,
@@ -820,7 +820,7 @@ left outer join base_country as Country on (DeliveryAddress.addressl7country = C
 left join auth_user as AuthUser on (StockMove.updated_by = AuthUser.id)
 left join auth_user as AuthUserCreate on (StockMove.created_by = AuthUserCreate.id)
 left join base_printing_settings as PrintingSetting on (StockMove.printing_settings = PrintingSetting.id)
-left join sale_sale_order as SaleOrder on (StockMove.origin_type_select LIKE 'com.axelor.apps.sale.db.SaleOrder' AND StockMove.origin_id = SaleOrder.id)
+left join sale_sale_order as Declaration on (StockMove.origin_type_select LIKE 'com.axelor.apps.sale.db.Declaration' AND StockMove.origin_id = Declaration.id)
 left join purchase_purchase_order as PurchaseOrder on (StockMove.origin_type_select LIKE 'com.axelor.apps.purchase.db.PurchaseOrder' AND StockMove.origin_id = PurchaseOrder.id)
 left join meta_file as SignatureFile on StockMove.electronic_signature = SignatureFile.id
 left join auth_user as SignatoryUser on StockMove.signatory_user = SignatoryUser.id
@@ -1242,18 +1242,18 @@ where LangTranslate.message_key = ? and LangTranslate.language = ? and EnTransla
             </list-property>
             <xml-property name="queryText"><![CDATA[select StockMove.id as stock_move_id, StockMoveLine.id, Product.code as product_code, StockMoveLine.product_name as product_name,
 StockMoveLine.qty, Unit.label_to_printing as unit_code, TrackingNumber.tracking_number_seq, StockMoveLine.description,
-( SaleOrderLine.type_select = 2 or PurchaseOrderLine.is_title_line) as "isTitleLine",
+( DeclarationLine.type_select = 2 or PurchaseOrderLine.is_title_line) as "isTitleLine",
 StockMoveLine.sequence
 from stock_stock_move as StockMove
 inner join stock_stock_move_line as StockMoveLine on (StockMoveLine.stock_move = StockMove.id)
 left join base_product as Product on (StockMoveLine.product = Product.id)
 left join base_unit as Unit on (StockMoveLine.unit = Unit.id)
 left join stock_tracking_number as TrackingNumber on (StockMoveLine.tracking_number = TrackingNumber.id)
-left outer join sale_sale_order_line as SaleOrderLine on (SaleOrderLine.id = StockMoveLine.sale_order_line)
+left outer join sale_sale_order_line as DeclarationLine on (DeclarationLine.id = StockMoveLine.sale_order_line)
 left outer join purchase_purchase_order_line as PurchaseOrderLine on (PurchaseOrderLine.id = StockMoveLine.purchase_order_line)
 where StockMove.id = ?]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="SaleOrderDS" id="4172">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="DeclarationDS" id="4172">
             <list-property name="columnHints">
                 <structure>
                     <property name="columnName">external_reference</property>
@@ -1313,7 +1313,7 @@ where StockMove.id = ?]]></xml-property>
             </list-property>
             <xml-property name="queryText"><![CDATA[select * from conformity_certificate_sale_order(cast(? as bigint));]]></xml-property>
         </oda-data-set>
-        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.SPSelectDataSet" name="SaleOrderProc" id="4287">
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.SPSelectDataSet" name="DeclarationProc" id="4287">
             <list-property name="columnHints"/>
             <list-property name="parameters"/>
             <structure name="cachedMetaData"/>
@@ -1328,10 +1328,10 @@ IF (SELECT COUNT(to_regclass('sale_sale_order')) != 0) THEN
 
 return query
 select 
-SaleOrder.external_reference, SaleOrder.creation_date
+Declaration.external_reference, Declaration.creation_date
 from stock_stock_move as StockMove
-inner join sale_sale_order as SaleOrder on (StockMove.origin_id = SaleOrder.id)
-where StockMove.id = stockMoveId AND origin_type_select LIKE 'com.axelor.apps.sale.db.SaleOrder';
+inner join sale_sale_order as Declaration on (StockMove.origin_id = Declaration.id)
+where StockMove.id = stockMoveId AND origin_type_select LIKE 'com.axelor.apps.sale.db.Declaration';
 end if;
 END;
 $func$ LANGUAGE plpgsql;]]></xml-property>
@@ -1959,9 +1959,9 @@ $func$ LANGUAGE plpgsql;]]></xml-property>
                 </list-property>
                 <cell id="4174">
                     <text id="4180">
-                        <property name="dataSet">SaleOrderProc</property>
+                        <property name="dataSet">DeclarationProc</property>
                         <property name="contentType">auto</property>
-                        <text-property name="content"><![CDATA[SaleOrderProc]]></text-property>
+                        <text-property name="content"><![CDATA[DeclarationProc]]></text-property>
                     </text>
                 </cell>
                 <cell id="4175"/>
@@ -2314,7 +2314,7 @@ row["first_name"]
                             <property name="category">Short Date</property>
                             <property name="pattern">Short Date</property>
                         </structure>
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="boundDataColumns">
                             <structure>
                                 <property name="name">creation_date</property>
@@ -2423,7 +2423,7 @@ row["first_name"]
                     <property name="colSpan">6</property>
                     <property name="rowSpan">1</property>
                     <grid id="4407">
-                        <property name="dataSet">SaleOrderDS</property>
+                        <property name="dataSet">DeclarationDS</property>
                         <list-property name="visibility">
                             <structure>
                                 <property name="format">all</property>
@@ -2499,7 +2499,7 @@ row["first_name"]
                                     <property name="paddingLeft">0pt</property>
                                     <property name="paddingBottom">1pt</property>
                                     <property name="paddingRight">0pt</property>
-                                    <property name="dataSet">SaleOrderDS</property>
+                                    <property name="dataSet">DeclarationDS</property>
                                     <list-property name="boundDataColumns">
                                         <structure>
                                             <property name="name">external_reference</property>

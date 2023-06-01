@@ -1588,7 +1588,7 @@ InvoiceSet.length > 0))"
     <action name="action-invoice-method-check-multi-currency"/>
   </action-group>
 
-  <action-group name="action-invoice-group-saleorder-onchange">
+  <action-group name="action-invoice-group-declaration-onchange">
     <action name="action-invoice-method-fill-in-lines"/>
     <action name="action-invoice-method-fill-advance-payment-set"/>
   </action-group>

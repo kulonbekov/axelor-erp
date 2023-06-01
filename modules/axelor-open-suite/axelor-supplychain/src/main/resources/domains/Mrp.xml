@@ -21,7 +21,7 @@
       ref="com.axelor.apps.base.db.ProductCategory" title="Product categories"/>
     <many-to-many name="productFamilySet" ref="com.axelor.apps.base.db.ProductFamily"
       title="Product families"/>
-    <many-to-many name="saleOrderLineSet" ref="com.axelor.apps.sale.db.SaleOrderLine"
+    <many-to-many name="declarationLineSet" ref="com.axelor.apps.sale.db.DeclarationLine"
       title="Sale orders"/>
     <many-to-many name="mrpForecastSet"
       ref="com.axelor.apps.supplychain.db.MrpForecast" title="Forecasts"/>

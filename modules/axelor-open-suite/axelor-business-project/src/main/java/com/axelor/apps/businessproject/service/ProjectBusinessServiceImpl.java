@@ -36,11 +36,11 @@ import com.axelor.apps.project.db.repo.ProjectTemplateRepository;
 import com.axelor.apps.project.service.ProjectService;
 import com.axelor.apps.project.service.ProjectServiceImpl;
 import com.axelor.apps.project.service.app.AppProjectService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
-import com.axelor.apps.sale.service.saleorder.SaleOrderCreateService;
-import com.axelor.apps.supplychain.service.SaleOrderSupplychainService;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
+import com.axelor.apps.sale.service.declaration.DeclarationCreateService;
+import com.axelor.apps.supplychain.service.DeclarationSupplychainService;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
 import com.axelor.auth.db.User;
 import com.axelor.i18n.I18n;
@@ -78,8 +78,8 @@ public class ProjectBusinessServiceImpl extends ProjectServiceImpl
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public SaleOrder generateQuotation(Project project) throws AxelorException {
-    SaleOrder order = Beans.get(SaleOrderCreateService.class).createSaleOrder(project.getCompany());
+  public Declaration generateQuotation(Project project) throws AxelorException {
+    Declaration order = Beans.get(DeclarationCreateService.class).createDeclaration(project.getCompany());
 
     Partner clientPartner = project.getClientPartner();
     Partner contactPartner = project.getContactPartner();
@@ -160,33 +160,33 @@ public class ProjectBusinessServiceImpl extends ProjectServiceImpl
 
       // Automatic invoiced and delivered partners set in case of partner delegations
       if (appSupplychain.getActivatePartnerRelations()) {
-        Beans.get(SaleOrderSupplychainService.class)
+        Beans.get(DeclarationSupplychainService.class)
             .setDefaultInvoicedAndDeliveredPartnersAndAddresses(order);
       }
     }
-    return Beans.get(SaleOrderRepository.class).save(order);
+    return Beans.get(DeclarationRepository.class).save(order);
   }
 
   /**
-   * Generate project form SaleOrder and set bi-directional.
+   * Generate project form Declaration and set bi-directional.
    *
-   * @param saleOrder The order of origin.
+   * @param declaration The order of origin.
    * @return The project generated.
    */
   @Override
-  public Project generateProject(SaleOrder saleOrder) {
-    Project project = projectRepository.findByName(saleOrder.getFullName() + "_project");
+  public Project generateProject(Declaration declaration) {
+    Project project = projectRepository.findByName(declaration.getFullName() + "_project");
     project =
         project == null
             ? this.generateProject(
                 null,
-                saleOrder.getFullName() + "_project",
-                saleOrder.getSalespersonUser(),
-                saleOrder.getCompany(),
-                saleOrder.getClientPartner())
+                declaration.getFullName() + "_project",
+                declaration.getSalespersonUser(),
+                declaration.getCompany(),
+                declaration.getClientPartner())
             : project;
-    saleOrder.setProject(project);
-    project.setDescription(saleOrder.getDescription());
+    declaration.setProject(project);
+    project.setDescription(declaration.getDescription());
     return project;
   }
 
@@ -217,15 +217,15 @@ public class ProjectBusinessServiceImpl extends ProjectServiceImpl
   }
 
   @Override
-  public Project generatePhaseProject(SaleOrderLine saleOrderLine, Project parent) {
+  public Project generatePhaseProject(DeclarationLine declarationLine, Project parent) {
     Project project =
         generateProject(
             parent,
-            saleOrderLine.getFullName(),
-            saleOrderLine.getSaleOrder().getSalespersonUser(),
+            declarationLine.getFullName(),
+            declarationLine.getDeclaration().getSalespersonUser(),
             parent.getCompany(),
             parent.getClientPartner());
-    saleOrderLine.setProject(project);
+    declarationLine.setProject(project);
     return project;
   }
 

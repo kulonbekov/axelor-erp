@@ -43,7 +43,7 @@ import com.axelor.apps.base.service.app.AppBaseService;
 import com.axelor.apps.base.service.tax.TaxService;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.sale.db.AdvancePayment;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.apps.stock.db.StockMove;
 import com.axelor.apps.stock.db.repo.StockMoveRepository;
 import com.axelor.apps.supplychain.db.Timetable;
@@ -144,19 +144,19 @@ public class InvoiceServiceSupplychainImpl extends InvoiceServiceImpl
       return super.getDefaultAdvancePaymentInvoice(invoice);
     }
 
-    SaleOrder saleOrder = invoice.getSaleOrder();
+    Declaration declaration = invoice.getDeclaration();
     PurchaseOrder purchaseOrder = invoice.getPurchaseOrder();
     Company company = invoice.getCompany();
     Currency currency = invoice.getCurrency();
-    if (company == null || (saleOrder == null && purchaseOrder == null)) {
+    if (company == null || (declaration == null && purchaseOrder == null)) {
       return super.getDefaultAdvancePaymentInvoice(invoice);
     }
     boolean generateMoveForInvoicePayment =
         accountConfigService.getAccountConfig(company).getGenerateMoveForInvoicePayment();
 
     String filter = writeGeneralFilterForAdvancePayment();
-    if (saleOrder != null) {
-      filter += " AND self.saleOrder = :_saleOrder";
+    if (declaration != null) {
+      filter += " AND self.declaration = :_declaration";
     } else if (purchaseOrder != null) {
       filter += " AND self.purchaseOrder = :_purchaseOrder";
     }
@@ -170,8 +170,8 @@ public class InvoiceServiceSupplychainImpl extends InvoiceServiceImpl
             .filter(filter)
             .bind("_status", InvoiceRepository.STATUS_VALIDATED)
             .bind("_operationSubType", InvoiceRepository.OPERATION_SUB_TYPE_ADVANCE);
-    if (saleOrder != null) {
-      query.bind("_saleOrder", saleOrder);
+    if (declaration != null) {
+      query.bind("_declaration", declaration);
     } else if (purchaseOrder != null) {
       query.bind("_purchaseOrder", purchaseOrder);
     }
@@ -195,25 +195,25 @@ public class InvoiceServiceSupplychainImpl extends InvoiceServiceImpl
     }
 
     // search sale order in the invoice
-    SaleOrder saleOrder = invoice.getSaleOrder();
+    Declaration declaration = invoice.getDeclaration();
     // search sale order in invoice lines
-    List<SaleOrder> saleOrderList =
+    List<Declaration> declarationList =
         invoice.getInvoiceLineList().stream()
-            .map(invoiceLine -> invoice.getSaleOrder())
+            .map(invoiceLine -> invoice.getDeclaration())
             .collect(Collectors.toList());
 
-    saleOrderList.add(saleOrder);
+    declarationList.add(declaration);
 
     // remove null value and duplicates
-    saleOrderList =
-        saleOrderList.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+    declarationList =
+        declarationList.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
 
-    if (saleOrderList.isEmpty()) {
+    if (declarationList.isEmpty()) {
       return new ArrayList<>();
     } else {
       // get move lines from sale order
-      return saleOrderList.stream()
-          .flatMap(saleOrder1 -> saleOrder1.getAdvancePaymentList().stream())
+      return declarationList.stream()
+          .flatMap(declaration1 -> declaration1.getAdvancePaymentList().stream())
           .filter(Objects::nonNull)
           .distinct()
           .map(AdvancePayment::getMove)

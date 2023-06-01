@@ -107,7 +107,7 @@ public interface ITranslation {
   public static final String MANUF_ORDER_STANDBY = /*$$(*/ "ManufOrder.standBy"; /*)*/
   public static final String MANUF_ORDER_COMPANY_TOTAL = /*$$(*/ "ManufOrder.total"; /*)*/
   public static final String MANUF_ORDER_MO_COMMENT_FROM_SALE_ORDER = /*$$(*/
-      "ManufOrder.moCommentFromSaleOrder"; /*)*/
+      "ManufOrder.moCommentFromDeclaration"; /*)*/
 
   public static final String PRODUCTION_PROCESS_LABEL = /*$$(*/ "ProdProcess.label"; /*)*/
   public static final String PRODUCTION_PROCESS_NAME = /*$$(*/ "ProdProcess.name"; /*)*/

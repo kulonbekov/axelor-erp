@@ -22,8 +22,8 @@ import com.axelor.apps.account.db.AnalyticMoveLine;
 import com.axelor.apps.account.db.repo.AnalyticMoveLineRepository;
 import com.axelor.apps.purchase.db.PurchaseOrder;
 import com.axelor.apps.purchase.db.PurchaseOrderLine;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
@@ -51,14 +51,14 @@ public class ProjectAnalyticMoveLineServiceImpl implements ProjectAnalyticMoveLi
 
   @Override
   @Transactional
-  public SaleOrder updateLines(SaleOrder saleOrder) {
-    for (SaleOrderLine orderLine : saleOrder.getSaleOrderLineList()) {
-      orderLine.setProject(saleOrder.getProject());
+  public Declaration updateLines(Declaration declaration) {
+    for (DeclarationLine orderLine : declaration.getDeclarationLineList()) {
+      orderLine.setProject(declaration.getProject());
       for (AnalyticMoveLine analyticMoveLine : orderLine.getAnalyticMoveLineList()) {
-        analyticMoveLine.setProject(saleOrder.getProject());
+        analyticMoveLine.setProject(declaration.getProject());
         analyticMoveLineRepository.save(analyticMoveLine);
       }
     }
-    return saleOrder;
+    return declaration;
   }
 }

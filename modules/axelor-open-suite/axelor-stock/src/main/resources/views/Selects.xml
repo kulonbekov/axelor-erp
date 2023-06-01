@@ -122,7 +122,7 @@
   <selection name="stockmove.origin.select">
     <option value="com.axelor.apps.stock.db.Inventory" data-grid="inventory-grid"
       data-form="inventory-form">Inventory</option>
-    <option value="com.axelor.apps.sale.db.SaleOrder" data-grid="sale-order-grid"
+    <option value="com.axelor.apps.sale.db.Declaration" data-grid="sale-order-grid"
       data-form="sale-order-form">Sale order</option>
     <option value="com.axelor.apps.purchase.db.PurchaseOrder" data-grid="purchase-order-grid"
       data-form="purchase-order-form">Purchase order</option>

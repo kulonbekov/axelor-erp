@@ -55,13 +55,13 @@ import com.axelor.apps.purchase.db.repo.PurchaseOrderRepository;
 import com.axelor.apps.purchase.service.PurchaseOrderLineService;
 import com.axelor.apps.purchase.service.PurchaseOrderService;
 import com.axelor.apps.purchase.service.config.PurchaseConfigService;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
-import com.axelor.apps.sale.service.saleorder.SaleOrderComputeService;
-import com.axelor.apps.sale.service.saleorder.SaleOrderCreateService;
-import com.axelor.apps.sale.service.saleorder.SaleOrderLineService;
-import com.axelor.apps.sale.service.saleorder.SaleOrderWorkflowService;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
+import com.axelor.apps.sale.service.declaration.DeclarationComputeService;
+import com.axelor.apps.sale.service.declaration.DeclarationCreateService;
+import com.axelor.apps.sale.service.declaration.DeclarationLineService;
+import com.axelor.apps.sale.service.declaration.DeclarationWorkflowService;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
 import com.axelor.apps.supplychain.service.app.AppSupplychainService;
 import com.axelor.i18n.I18n;
@@ -94,15 +94,15 @@ public class IntercoServiceImpl implements IntercoService {
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public SaleOrder generateIntercoSaleFromPurchase(PurchaseOrder purchaseOrder)
+  public Declaration generateIntercoSaleFromPurchase(PurchaseOrder purchaseOrder)
       throws AxelorException {
 
-    SaleOrderCreateService saleOrderCreateService = Beans.get(SaleOrderCreateService.class);
-    SaleOrderComputeService saleOrderComputeService = Beans.get(SaleOrderComputeService.class);
+    DeclarationCreateService declarationCreateService = Beans.get(DeclarationCreateService.class);
+    DeclarationComputeService declarationComputeService = Beans.get(DeclarationComputeService.class);
     Company intercoCompany = findIntercoCompany(purchaseOrder.getSupplierPartner());
     // create sale order
-    SaleOrder saleOrder =
-        saleOrderCreateService.createSaleOrder(
+    Declaration declaration =
+        declarationCreateService.createDeclaration(
             null,
             intercoCompany,
             purchaseOrder.getContactPartner(),
@@ -117,71 +117,71 @@ public class IntercoServiceImpl implements IntercoService {
             null);
 
     // in ati
-    saleOrder.setInAti(purchaseOrder.getInAti());
+    declaration.setInAti(purchaseOrder.getInAti());
 
     // copy date
-    saleOrder.setOrderDate(purchaseOrder.getOrderDate());
+    declaration.setOrderDate(purchaseOrder.getOrderDate());
 
     // copy payments
     PaymentMode intercoPaymentMode =
         Beans.get(PaymentModeService.class).reverseInOut(purchaseOrder.getPaymentMode());
-    saleOrder.setPaymentMode(intercoPaymentMode);
-    saleOrder.setPaymentCondition(purchaseOrder.getPaymentCondition());
+    declaration.setPaymentMode(intercoPaymentMode);
+    declaration.setPaymentCondition(purchaseOrder.getPaymentCondition());
 
     // copy delivery info
-    saleOrder.setShipmentMode(purchaseOrder.getShipmentMode());
-    saleOrder.setFreightCarrierMode(purchaseOrder.getFreightCarrierMode());
+    declaration.setShipmentMode(purchaseOrder.getShipmentMode());
+    declaration.setFreightCarrierMode(purchaseOrder.getFreightCarrierMode());
 
     // get stock location
-    saleOrder.setStockLocation(
-        Beans.get(SaleOrderSupplychainService.class)
+    declaration.setStockLocation(
+        Beans.get(DeclarationSupplychainService.class)
             .getStockLocation(purchaseOrder.getCompany().getPartner(), intercoCompany));
 
     // copy timetable info
-    saleOrder.setExpectedRealisationDate(purchaseOrder.getExpectedRealisationDate());
-    saleOrder.setAmountToBeSpreadOverTheTimetable(
+    declaration.setExpectedRealisationDate(purchaseOrder.getExpectedRealisationDate());
+    declaration.setAmountToBeSpreadOverTheTimetable(
         purchaseOrder.getAmountToBeSpreadOverTheTimetable());
 
     // create lines
     List<PurchaseOrderLine> purchaseOrderLineList = purchaseOrder.getPurchaseOrderLineList();
     if (purchaseOrderLineList != null) {
       for (PurchaseOrderLine purchaseOrderLine : purchaseOrderLineList) {
-        this.createIntercoSaleLineFromPurchaseLine(purchaseOrderLine, saleOrder);
+        this.createIntercoSaleLineFromPurchaseLine(purchaseOrderLine, declaration);
       }
     }
 
-    saleOrder.setPrintingSettings(intercoCompany.getPrintingSettings());
+    declaration.setPrintingSettings(intercoCompany.getPrintingSettings());
 
     // compute the sale order
-    saleOrderComputeService.computeSaleOrder(saleOrder);
+    declarationComputeService.computeDeclaration(declaration);
 
-    saleOrder.setCreatedByInterco(true);
-    Beans.get(SaleOrderRepository.class).save(saleOrder);
+    declaration.setCreatedByInterco(true);
+    Beans.get(DeclarationRepository.class).save(declaration);
     if (Beans.get(AppSupplychainService.class)
         .getAppSupplychain()
-        .getIntercoSaleOrderCreateFinalized()) {
-      Beans.get(SaleOrderWorkflowService.class).finalizeQuotation(saleOrder);
+        .getIntercoDeclarationCreateFinalized()) {
+      Beans.get(DeclarationWorkflowService.class).finalizeQuotation(declaration);
     }
-    purchaseOrder.setExternalReference(saleOrder.getSaleOrderSeq());
-    saleOrder.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
-    return saleOrder;
+    purchaseOrder.setExternalReference(declaration.getDeclarationSeq());
+    declaration.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
+    return declaration;
   }
 
   @Override
   @Transactional(rollbackOn = {Exception.class})
-  public PurchaseOrder generateIntercoPurchaseFromSale(SaleOrder saleOrder) throws AxelorException {
+  public PurchaseOrder generateIntercoPurchaseFromSale(Declaration declaration) throws AxelorException {
 
     PurchaseOrderService purchaseOrderService = Beans.get(PurchaseOrderService.class);
 
-    Company intercoCompany = findIntercoCompany(saleOrder.getClientPartner());
+    Company intercoCompany = findIntercoCompany(declaration.getClientPartner());
     // create purchase order
     PurchaseOrder purchaseOrder = new PurchaseOrder();
     purchaseOrder.setCompany(intercoCompany);
-    purchaseOrder.setContactPartner(saleOrder.getContactPartner());
-    purchaseOrder.setCurrency(saleOrder.getCurrency());
-    purchaseOrder.setOrderDate(saleOrder.getCreationDate());
-    purchaseOrder.setPriceList(saleOrder.getPriceList());
-    purchaseOrder.setTradingName(saleOrder.getTradingName());
+    purchaseOrder.setContactPartner(declaration.getContactPartner());
+    purchaseOrder.setCurrency(declaration.getCurrency());
+    purchaseOrder.setOrderDate(declaration.getCreationDate());
+    purchaseOrder.setPriceList(declaration.getPriceList());
+    purchaseOrder.setTradingName(declaration.getTradingName());
     purchaseOrder.setPurchaseOrderLineList(new ArrayList<>());
     purchaseOrder.setDisplayPriceOnQuotationRequest(
         purchaseConfigService
@@ -192,37 +192,37 @@ public class IntercoServiceImpl implements IntercoService {
         Beans.get(TradingNameService.class).getDefaultPrintingSettings(null, intercoCompany));
 
     purchaseOrder.setStatusSelect(PurchaseOrderRepository.STATUS_DRAFT);
-    purchaseOrder.setSupplierPartner(saleOrder.getCompany().getPartner());
-    purchaseOrder.setTradingName(saleOrder.getTradingName());
+    purchaseOrder.setSupplierPartner(declaration.getCompany().getPartner());
+    purchaseOrder.setTradingName(declaration.getTradingName());
 
     // in ati
-    purchaseOrder.setInAti(saleOrder.getInAti());
+    purchaseOrder.setInAti(declaration.getInAti());
 
     // copy payments
     PaymentMode intercoPaymentMode =
-        Beans.get(PaymentModeService.class).reverseInOut(saleOrder.getPaymentMode());
+        Beans.get(PaymentModeService.class).reverseInOut(declaration.getPaymentMode());
     purchaseOrder.setPaymentMode(intercoPaymentMode);
-    purchaseOrder.setPaymentCondition(saleOrder.getPaymentCondition());
+    purchaseOrder.setPaymentCondition(declaration.getPaymentCondition());
 
     // copy delivery info
     purchaseOrder.setStockLocation(
         Beans.get(PurchaseOrderSupplychainService.class)
-            .getStockLocation(saleOrder.getCompany().getPartner(), intercoCompany));
-    purchaseOrder.setShipmentMode(saleOrder.getShipmentMode());
-    purchaseOrder.setFreightCarrierMode(saleOrder.getFreightCarrierMode());
+            .getStockLocation(declaration.getCompany().getPartner(), intercoCompany));
+    purchaseOrder.setShipmentMode(declaration.getShipmentMode());
+    purchaseOrder.setFreightCarrierMode(declaration.getFreightCarrierMode());
 
     // copy timetable info
-    purchaseOrder.setExpectedRealisationDate(saleOrder.getExpectedRealisationDate());
+    purchaseOrder.setExpectedRealisationDate(declaration.getExpectedRealisationDate());
     purchaseOrder.setAmountToBeSpreadOverTheTimetable(
-        saleOrder.getAmountToBeSpreadOverTheTimetable());
+        declaration.getAmountToBeSpreadOverTheTimetable());
 
-    purchaseOrder.setEstimatedReceiptDate(saleOrder.getEstimatedDeliveryDate());
+    purchaseOrder.setEstimatedReceiptDate(declaration.getEstimatedDeliveryDate());
 
     // create lines
-    List<SaleOrderLine> saleOrderLineList = saleOrder.getSaleOrderLineList();
-    if (saleOrderLineList != null) {
-      for (SaleOrderLine saleOrderLine : saleOrderLineList) {
-        this.createIntercoPurchaseLineFromSaleLine(saleOrderLine, purchaseOrder);
+    List<DeclarationLine> declarationLineList = declaration.getDeclarationLineList();
+    if (declarationLineList != null) {
+      for (DeclarationLine declarationLine : declarationLineList) {
+        this.createIntercoPurchaseLineFromSaleLine(declarationLine, purchaseOrder);
       }
     }
     purchaseOrder.setPrintingSettings(intercoCompany.getPrintingSettings());
@@ -237,37 +237,37 @@ public class IntercoServiceImpl implements IntercoService {
         .getIntercoPurchaseOrderCreateRequested()) {
       Beans.get(PurchaseOrderService.class).requestPurchaseOrder(purchaseOrder);
     }
-    saleOrder.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
-    purchaseOrder.setExternalReference(saleOrder.getSaleOrderSeq());
+    declaration.setExternalReference(purchaseOrder.getPurchaseOrderSeq());
+    purchaseOrder.setExternalReference(declaration.getDeclarationSeq());
     return purchaseOrder;
   }
 
   /**
-   * @param saleOrderLine the sale order line needed to create the purchase order line
+   * @param declarationLine the sale order line needed to create the purchase order line
    * @param purchaseOrder the purchase order line belongs to this purchase order
    * @return the created purchase order line
    */
   protected PurchaseOrderLine createIntercoPurchaseLineFromSaleLine(
-      SaleOrderLine saleOrderLine, PurchaseOrder purchaseOrder) throws AxelorException {
+      DeclarationLine declarationLine, PurchaseOrder purchaseOrder) throws AxelorException {
     PurchaseOrderLine purchaseOrderLine =
         Beans.get(PurchaseOrderLineService.class)
             .createPurchaseOrderLine(
                 purchaseOrder,
-                saleOrderLine.getProduct(),
-                saleOrderLine.getProductName(),
-                saleOrderLine.getDescription(),
-                saleOrderLine.getQty(),
-                saleOrderLine.getUnit());
+                declarationLine.getProduct(),
+                declarationLine.getProductName(),
+                declarationLine.getDescription(),
+                declarationLine.getQty(),
+                declarationLine.getUnit());
     // compute amount
-    purchaseOrderLine.setPrice(saleOrderLine.getPrice());
-    purchaseOrderLine.setInTaxPrice(saleOrderLine.getInTaxPrice());
-    purchaseOrderLine.setExTaxTotal(saleOrderLine.getExTaxTotal());
-    purchaseOrderLine.setDiscountTypeSelect(saleOrderLine.getDiscountTypeSelect());
-    purchaseOrderLine.setDiscountAmount(saleOrderLine.getDiscountAmount());
+    purchaseOrderLine.setPrice(declarationLine.getPrice());
+    purchaseOrderLine.setInTaxPrice(declarationLine.getInTaxPrice());
+    purchaseOrderLine.setExTaxTotal(declarationLine.getExTaxTotal());
+    purchaseOrderLine.setDiscountTypeSelect(declarationLine.getDiscountTypeSelect());
+    purchaseOrderLine.setDiscountAmount(declarationLine.getDiscountAmount());
 
     // delivery
-    purchaseOrderLine.setEstimatedReceiptDate(saleOrderLine.getEstimatedDeliveryDate());
-    purchaseOrderLine.setDesiredReceiptDate(saleOrderLine.getDesiredDeliveryDate());
+    purchaseOrderLine.setEstimatedReceiptDate(declarationLine.getEstimatedDeliveryDate());
+    purchaseOrderLine.setDesiredReceiptDate(declarationLine.getDesiredDeliveryDate());
 
     // compute price discounted
     BigDecimal priceDiscounted =
@@ -276,7 +276,7 @@ public class IntercoServiceImpl implements IntercoService {
     purchaseOrderLine.setPriceDiscounted(priceDiscounted);
 
     // tax
-    purchaseOrderLine.setTaxLine(saleOrderLine.getTaxLine());
+    purchaseOrderLine.setTaxLine(declarationLine.getTaxLine());
 
     // analyticalDistribution
     purchaseOrderLine =
@@ -289,53 +289,53 @@ public class IntercoServiceImpl implements IntercoService {
 
   /**
    * @param purchaseOrderLine the purchase order line needed to create the sale order line
-   * @param saleOrder the sale order line belongs to this purchase order
+   * @param declaration the sale order line belongs to this purchase order
    * @return the created purchase order line
    * @throws AxelorException
    */
-  protected SaleOrderLine createIntercoSaleLineFromPurchaseLine(
-      PurchaseOrderLine purchaseOrderLine, SaleOrder saleOrder) throws AxelorException {
-    SaleOrderLine saleOrderLine = new SaleOrderLine();
+  protected DeclarationLine createIntercoSaleLineFromPurchaseLine(
+      PurchaseOrderLine purchaseOrderLine, Declaration declaration) throws AxelorException {
+    DeclarationLine declarationLine = new DeclarationLine();
 
-    saleOrderLine.setSaleOrder(saleOrder);
-    saleOrderLine.setProduct(purchaseOrderLine.getProduct());
-    saleOrderLine.setProductName(purchaseOrderLine.getProductName());
+    declarationLine.setDeclaration(declaration);
+    declarationLine.setProduct(purchaseOrderLine.getProduct());
+    declarationLine.setProductName(purchaseOrderLine.getProductName());
 
-    saleOrderLine.setDescription(purchaseOrderLine.getDescription());
-    saleOrderLine.setQty(purchaseOrderLine.getQty());
-    saleOrderLine.setUnit(purchaseOrderLine.getUnit());
+    declarationLine.setDescription(purchaseOrderLine.getDescription());
+    declarationLine.setQty(purchaseOrderLine.getQty());
+    declarationLine.setUnit(purchaseOrderLine.getUnit());
 
     // compute amount
-    saleOrderLine.setPrice(purchaseOrderLine.getPrice());
-    saleOrderLine.setInTaxPrice(purchaseOrderLine.getInTaxPrice());
-    saleOrderLine.setExTaxTotal(purchaseOrderLine.getExTaxTotal());
-    saleOrderLine.setDiscountTypeSelect(purchaseOrderLine.getDiscountTypeSelect());
-    saleOrderLine.setDiscountAmount(purchaseOrderLine.getDiscountAmount());
+    declarationLine.setPrice(purchaseOrderLine.getPrice());
+    declarationLine.setInTaxPrice(purchaseOrderLine.getInTaxPrice());
+    declarationLine.setExTaxTotal(purchaseOrderLine.getExTaxTotal());
+    declarationLine.setDiscountTypeSelect(purchaseOrderLine.getDiscountTypeSelect());
+    declarationLine.setDiscountAmount(purchaseOrderLine.getDiscountAmount());
 
     // compute price discounted
     BigDecimal priceDiscounted =
-        Beans.get(SaleOrderLineService.class).computeDiscount(saleOrderLine, saleOrder.getInAti());
-    saleOrderLine.setPriceDiscounted(priceDiscounted);
+        Beans.get(DeclarationLineService.class).computeDiscount(declarationLine, declaration.getInAti());
+    declarationLine.setPriceDiscounted(priceDiscounted);
 
     // delivery
-    saleOrderLine.setDesiredDeliveryDate(purchaseOrderLine.getDesiredReceiptDate());
-    saleOrderLine.setEstimatedDeliveryDate(purchaseOrderLine.getEstimatedReceiptDate());
+    declarationLine.setDesiredDeliveryDate(purchaseOrderLine.getDesiredReceiptDate());
+    declarationLine.setEstimatedDeliveryDate(purchaseOrderLine.getEstimatedReceiptDate());
 
     // tax
-    saleOrderLine.setTaxLine(purchaseOrderLine.getTaxLine());
+    declarationLine.setTaxLine(purchaseOrderLine.getTaxLine());
 
     // analyticDistribution
-    saleOrderLine =
-        Beans.get(SaleOrderLineServiceSupplyChainImpl.class)
-            .getAndComputeAnalyticDistribution(saleOrderLine, saleOrder);
-    if (saleOrderLine.getAnalyticMoveLineList() != null) {
-      for (AnalyticMoveLine obj : saleOrderLine.getAnalyticMoveLineList()) {
-        obj.setSaleOrderLine(saleOrderLine);
+    declarationLine =
+        Beans.get(DeclarationLineServiceSupplyChainImpl.class)
+            .getAndComputeAnalyticDistribution(declarationLine, declaration);
+    if (declarationLine.getAnalyticMoveLineList() != null) {
+      for (AnalyticMoveLine obj : declarationLine.getAnalyticMoveLineList()) {
+        obj.setDeclarationLine(declarationLine);
       }
     }
 
-    saleOrder.addSaleOrderLineListItem(saleOrderLine);
-    return saleOrderLine;
+    declaration.addDeclarationLineListItem(declarationLine);
+    return declarationLine;
   }
 
   @Override

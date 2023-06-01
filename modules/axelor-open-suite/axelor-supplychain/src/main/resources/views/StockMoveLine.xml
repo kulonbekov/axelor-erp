@@ -237,7 +237,7 @@
   <action-attrs id="supplychain-action-stock-move-line-attrs-set-readonly"
     name="action-stock-move-line-attrs-set-readonly">
     <attribute name="readonly"
-      expr="purchaseOrderLine || saleOrderLine || __parent__?.pickingIsEdited || __parent__?.statusSelect == 3"
+      expr="purchaseOrderLine || declarationLine || __parent__?.pickingIsEdited || __parent__?.statusSelect == 3"
       for="unitPriceUntaxed"/>
     <attribute name="readonly"
       expr="__parent__?.pickingIsEdited || __parent__?.statusSelect == 3" for="companyPurchasePrice"/>
@@ -252,7 +252,7 @@
     <attribute name="readonly"
       expr="__parent__?.pickingIsEdited || __parent__?.statusSelect == 3" for="productModel"/>
     <attribute name="readonly"
-      expr="purchaseOrderLine || saleOrderLine || stockMove?.pickingIsEdited || stockMove?.statusSelect == 3"
+      expr="purchaseOrderLine || declarationLine || stockMove?.pickingIsEdited || stockMove?.statusSelect == 3"
       if="stockMove" for="unitPriceUntaxed"/>
     <attribute name="readonly"
       expr="stockMove.pickingIsEdited || stockMove.statusSelect == 3" if="stockMove"

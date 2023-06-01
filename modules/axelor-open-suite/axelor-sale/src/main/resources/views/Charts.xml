@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_6.1.xsd">
 
-  <action-record model="com.axelor.apps.sale.db.SaleOrder"
+  <action-record model="com.axelor.apps.sale.db.Declaration"
     name="action.sale.chart.set.dates.this.last.year">
     <field name="toDate" expr="eval:LocalDate.parse(todayDate)"/>
     <field name="toDateLY"
@@ -19,18 +19,18 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      to_char(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month
+      to_char(self.declaration.confirmationDateTime,'yyyy-MM') AS _month
       FROM
-      SaleOrderLine self
+      DeclarationLine self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.company = :activeCompany
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.company = :activeCompany
       AND
       self.product.productFamily.id = :id
-      AND self.saleOrder.confirmationDateTime BETWEEN
+      AND self.declaration.confirmationDateTime BETWEEN
       DATE(:fromDate) AND DATE(:toDate)
       GROUP BY
-      to_char(self.saleOrder.confirmationDateTime,'yyyy-MM')
+      to_char(self.declaration.confirmationDateTime,'yyyy-MM')
       ORDER BY
       _month
     </dataset>
@@ -250,14 +250,14 @@
     <series key="_turn_over" groupBy="_year" type="bar" title="Turnover"/>
   </chart>
 
-  <action-record model="com.axelor.apps.sale.db.SaleOrder"
+  <action-record model="com.axelor.apps.sale.db.Declaration"
     name="action.sale.chart.set.date">
     <field name="toDate" expr="eval:LocalDate.parse(todayDate)"/>
     <field name="fromDate" expr="eval:LocalDate.parse(todayDate).minusYears(1)"/>
     <field name="monthSelect" expr="eval:12"/>
   </action-record>
 
-  <action-record model="com.axelor.apps.sale.db.SaleOrder"
+  <action-record model="com.axelor.apps.sale.db.Declaration"
     name="action.sale.chart.set.date.1m">
     <field name="toDate" expr="eval:LocalDate.parse(todayDate)"/>
     <field name="fromDate" expr="eval:LocalDate.parse(todayDate).minusMonths(1)"/>
@@ -607,18 +607,18 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM') AS _month
       FROM
-      SaleOrderLine self
+      DeclarationLine self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.company = :activeCompany
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.company = :activeCompany
       AND
       self.product.id = :id
-      AND self.saleOrder.confirmationDateTime BETWEEN DATE(:fromDate) AND
+      AND self.declaration.confirmationDateTime BETWEEN DATE(:fromDate) AND
       DATE(:toDate)
       GROUP BY
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM')
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM')
       ORDER BY _month
     </dataset>
     <category key="_month" type="month" title="Month"/>
@@ -639,18 +639,18 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM') AS _month
       FROM
-      SaleOrderLine AS self
+      DeclarationLine AS self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.company = :activeCompany
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.company = :activeCompany
       AND
       self.product = :product
-      AND self.saleOrder.confirmationDateTime BETWEEN DATE(:toDate) - 365 AND
+      AND self.declaration.confirmationDateTime BETWEEN DATE(:toDate) - 365 AND
       DATE(:toDate)
       GROUP BY
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM')
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM')
       ORDER BY _month
     </dataset>
     <category key="_month" type="month" title="Month"/>
@@ -667,19 +667,19 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month,
-      self.saleOrder.salespersonUser.name as _username
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM') AS _month,
+      self.declaration.salespersonUser.name as _username
       FROM
-      SaleOrderLine self
+      DeclarationLine self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND DATE(self.saleOrder.confirmationDateTime) BETWEEN
+      self.declaration.statusSelect in (3,4)
+      AND DATE(self.declaration.confirmationDateTime) BETWEEN
       DATE(:fromDate) AND DATE(:toDate)
-      AND self.saleOrder.company = :activeCompany
+      AND self.declaration.company = :activeCompany
       GROUP BY
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM'),
-      self.saleOrder.salespersonUser.id,
-      self.saleOrder.salespersonUser.name
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM'),
+      self.declaration.salespersonUser.id,
+      self.declaration.salespersonUser.name
       ORDER BY
       _month
     </dataset>
@@ -688,7 +688,7 @@
     <config name="xFormat" value="MM-YYYY"/>
   </chart>
 
-  <action-record model="com.axelor.apps.sale.db.SaleOrder"
+  <action-record model="com.axelor.apps.sale.db.Declaration"
     name="action.sale.chart.set.from.date.and.saleman.6m">
     <field name="fromDate" expr="eval:LocalDate.parse(todayDate).minusMonths(6)"/>
     <field name="toDate" expr="eval:LocalDate.parse(todayDate)"/>
@@ -705,17 +705,17 @@
       SUM(self.exTaxTotal) AS _amount,
       item.title AS _partner
       FROM
-      SaleOrderLine self,
+      DeclarationLine self,
       MetaSelectItem item
       WHERE
-      self.saleOrder.statusSelect in (3,4)
+      self.declaration.statusSelect in (3,4)
       AND
-      self.saleOrder.confirmationDateTime BETWEEN DATE(:fromDate) AND DATE(:toDate)
+      self.declaration.confirmationDateTime BETWEEN DATE(:fromDate) AND DATE(:toDate)
       AND
-      self.saleOrder.company = :activeCompany
+      self.declaration.company = :activeCompany
       AND item.select.name='partner.partner.type.select'
       AND
-      CAST(item.value as int) = self.saleOrder.clientPartner.partnerTypeSelect
+      CAST(item.value as int) = self.declaration.clientPartner.partnerTypeSelect
       GROUP BY
       item.title
     </dataset>
@@ -732,16 +732,16 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      self.saleOrder.clientPartner.partnerCategory.name AS category
+      self.declaration.clientPartner.partnerCategory.name AS category
       FROM
-      SaleOrderLine self
+      DeclarationLine self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.confirmationDateTime BETWEEN
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.confirmationDateTime BETWEEN
       DATE(:fromDate) AND DATE(:toDate)
-      AND self.saleOrder.company = :activeCompany
+      AND self.declaration.company = :activeCompany
       GROUP BY
-      self.saleOrder.clientPartner.partnerCategory.name
+      self.declaration.clientPartner.partnerCategory.name
     </dataset>
     <category key="category" type="text" title="Category"/>
     <series key="_amount" type="bar" title="Turnover"/>
@@ -759,15 +759,15 @@
       industrySector.name AS
       _industry_sector
       FROM
-      SaleOrderLine self,
+      DeclarationLine self,
       IndustrySector industrySector
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.confirmationDateTime BETWEEN
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.confirmationDateTime BETWEEN
       DATE(:fromDate) AND DATE(:toDate)
-      AND self.saleOrder.company = :activeCompany
+      AND self.declaration.company = :activeCompany
       AND
-      industrySector.id = self.saleOrder.clientPartner.industrySector.id
+      industrySector.id = self.declaration.clientPartner.industrySector.id
       GROUP BY
       industrySector.name
     </dataset>
@@ -806,18 +806,18 @@
     <dataset type="jpql">
       SELECT
       SUM(self.exTaxTotal) AS _amount,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM') AS _month
       FROM
-      SaleOrderLine self
+      DeclarationLine self
       WHERE
-      self.saleOrder.statusSelect in (3,4)
-      AND self.saleOrder.company = :activeCompany
+      self.declaration.statusSelect in (3,4)
+      AND self.declaration.company = :activeCompany
       AND
       self.product.productCategory.id = :id
-      AND self.saleOrder.confirmationDateTime BETWEEN
+      AND self.declaration.confirmationDateTime BETWEEN
       DATE(:fromDate) AND DATE(:toDate)
       GROUP BY
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM')
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM')
       ORDER BY
       _month
     </dataset>
@@ -837,44 +837,44 @@
     </search-fields>
     <dataset type="jpql">
       SELECT
-      COALESCE(SUM(saleOrderLine.exTaxTotal), 0.00) AS turnOver,
+      COALESCE(SUM(declarationLine.exTaxTotal), 0.00) AS turnOver,
       productFamily.name AS family,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM') AS _month
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM') AS _month
       FROM
-      SaleOrderLine saleOrderLine,
-      SaleOrder saleOrder,
+      DeclarationLine declarationLine,
+      Declaration declaration,
       Product product,
       ProductFamily
       productFamily
       WHERE
-      saleOrder = saleOrderLine.saleOrder
+      declaration = declarationLine.declaration
       AND
-      saleOrder.statusSelect in (3,4)
+      declaration.statusSelect in (3,4)
       AND
-      saleOrder.company =:activeCompany
+      declaration.company =:activeCompany
       AND
-      product = saleOrderLine.product
+      product = declarationLine.product
       AND
       productFamily =
       product.productFamily
       AND
-      YEAR(saleOrder.confirmationDateTime) IN (YEAR(CURRENT_DATE),
+      YEAR(declaration.confirmationDateTime) IN (YEAR(CURRENT_DATE),
       YEAR(CURRENT_DATE) - 1)
       AND
-      saleOrder.clientPartner.id=:id
+      declaration.clientPartner.id=:id
       AND(
-      ( saleOrder.confirmationDateTime
+      ( declaration.confirmationDateTime
       &gt;= TO_DATE(YEAR(DATE(:toDate)) || '-01-01','YYYY-MM-DD')
-      AND saleOrder.confirmationDateTime
+      AND declaration.confirmationDateTime
       &lt;= DATE(:toDate))
       OR
-      (saleOrder.confirmationDateTime &gt;= TO_DATE(YEAR(DATE(:toDateLY)) ||
+      (declaration.confirmationDateTime &gt;= TO_DATE(YEAR(DATE(:toDateLY)) ||
       '-01-01','YYYY-MM-DD')
-      AND saleOrder.confirmationDateTime &lt;= DATE(:toDateLY))
+      AND declaration.confirmationDateTime &lt;= DATE(:toDateLY))
       )
       GROUP BY
       productFamily.name,
-      TO_CHAR(self.saleOrder.confirmationDateTime,'yyyy-MM')
+      TO_CHAR(self.declaration.confirmationDateTime,'yyyy-MM')
       ORDER BY
       _month
     </dataset>

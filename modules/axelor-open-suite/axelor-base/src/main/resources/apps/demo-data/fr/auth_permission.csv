@@ -11,9 +11,9 @@
 "perm.sale.rwc";"com.axelor.apps.sale.db.*";"true";"true";"true";"false";"true";;
 "perm.purchase.rwc";"com.axelor.apps.purchase.db.*";"true";"true";"true";"false";"true";;
 "perm.stock.rwc";"com.axelor.apps.stock.db.*";"true";"true";"true";"false";"true";;
-"perm.sale.saleOrder.r";"com.axelor.apps.sale.db.SaleOrder";"true";"false";"false";"false";"false";;
-"perm.sale.saleOrderLine.r";"com.axelor.apps.sale.db.SaleOrderLine";"true";"false";"false";"false";"false";;
-"perm.sale.saleOrderLineTax.r";"com.axelor.apps.sale.db.SaleOrderLineTax";"true";"false";"false";"false";"false";;
+"perm.sale.declaration.r";"com.axelor.apps.sale.db.Declaration";"true";"false";"false";"false";"false";;
+"perm.sale.declarationLine.r";"com.axelor.apps.sale.db.DeclarationLine";"true";"false";"false";"false";"false";;
+"perm.sale.declarationLineTax.r";"com.axelor.apps.sale.db.DeclarationLineTax";"true";"false";"false";"false";"false";;
 "perm.crm.event.r";"com.axelor.apps.crm.db.Event";"true";"true";"true";"false";"false";;
 "perm.crm.eventCategory.r";"com.axelor.apps.crm.db.EventCategory";"true";"false";"false";"false";"false";;
 "perm.account.invoice.r";"com.axelor.apps.account.db.Invoice";"true";"false";"false";"false";"false";;

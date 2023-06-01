@@ -236,10 +236,10 @@
       <panel name="configurationPanel" title="Configuration" if-module="axelor-supplychain"
         if="__config__.app.isApp('supplychain')">
 
-        <field name="saleOrderLine" if="__config__.app.isApp('supplychain')"
+        <field name="declarationLine" if="__config__.app.isApp('supplychain')"
           if-module="axelor-supplychain" form-view="sale-order-line-invoice-form"
           grid-view="sale-order-line-invoice-grid"
-          domain="(self.saleOrder.statusSelect = 3 OR self.saleOrder.statusSelect = 4 ) AND EXISTS(SELECT i FROM Invoice i WHERE i = :invoice AND self.saleOrder.clientPartner = i.partner )"/>
+          domain="(self.declaration.statusSelect = 3 OR self.declaration.statusSelect = 4 ) AND EXISTS(SELECT i FROM Invoice i WHERE i = :invoice AND self.declaration.clientPartner = i.partner )"/>
         <field name="purchaseOrderLine" if-module="axelor-supplychain"
           if="__config__.app.isApp('supplychain')" form-view="purchase-order-line-form"
           grid-view="purchase-order-line-grid"/>
@@ -379,13 +379,13 @@
 
   <action-attrs name="action-invoice-line-attrs-hidden-menu-form">
     <!-- Show Elements -->
-    <attribute name="hidden" for="saleOrder"
+    <attribute name="hidden" for="declaration"
       expr="eval: invoice?.operationTypeSelect != 3 &amp;&amp; invoice?.operationTypeSelect != 4"
       if="__config__.app.isApp('business-project')"/>
     <attribute name="hidden" for="purchaseOrder"
       expr="eval: invoice?.operationTypeSelect != 1 &amp;&amp; invoice?.operationTypeSelect != 2"
       if="__config__.app.isApp('business-project')"/>
-    <attribute name="hidden" for="saleOrderLine"
+    <attribute name="hidden" for="declarationLine"
       expr="eval: invoice?.operationTypeSelect != 3 &amp;&amp; invoice?.operationTypeSelect != 4"
       if="__config__.app.isApp('business-project')"/>
     <attribute name="hidden" for="purchaseOrderLine"
@@ -629,13 +629,13 @@
     <attribute name="title" for="project"
       expr="eval:  __config__.app.getApp('project')?.getProjectLabel()"
       if="__config__.app.isApp('business-project') &amp;&amp; __config__.app.isApp('project') &amp;&amp; !com.google.common.base.Strings.isNullOrEmpty(__config__.app.getApp('project')?.getProjectLabel())"/>
-    <attribute name="hidden" for="saleOrder"
+    <attribute name="hidden" for="declaration"
       expr="eval: __parent__?.operationTypeSelect != 3 &amp;&amp; __parent__?.operationTypeSelect != 4"
       if="__config__.app.isApp('business-project')"/>
     <attribute name="hidden" for="purchaseOrder"
       expr="eval: __parent__?.operationTypeSelect != 1 &amp;&amp; __parent__?.operationTypeSelect != 2"
       if="__config__.app.isApp('business-project')"/>
-    <attribute name="hidden" for="saleOrderLine"
+    <attribute name="hidden" for="declarationLine"
       expr="eval: __parent__?.operationTypeSelect != 3 &amp;&amp; __parent__?.operationTypeSelect != 4"
       if="__config__.app.isApp('business-project')"/>
     <attribute name="hidden" for="purchaseOrderLine"
@@ -737,7 +737,7 @@
       if="!__config__.app.getApp('account')?.getManageAnalyticAccounting()"/>
     <field name="analyticMoveLineList" hidden="true"
       if="!__config__.app.getApp('account')?.getManageAnalyticAccounting()"/>
-    <field name="saleOrderLine" hidden="true" if="!__config__.app.isApp('supplychain')"/>
+    <field name="declarationLine" hidden="true" if="!__config__.app.isApp('supplychain')"/>
     <field name="purchaseOrderLine" hidden="true" if="!__config__.app.isApp('supplychain')"/>
   </search-filters>
 

@@ -29,9 +29,9 @@ import com.axelor.apps.account.service.payment.PaymentModeService;
 import com.axelor.apps.base.AxelorException;
 import com.axelor.apps.base.db.Partner;
 import com.axelor.apps.base.db.repo.CompanyRepository;
-import com.axelor.apps.sale.db.SaleOrder;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
-import com.axelor.apps.sale.exception.BlockedSaleOrderException;
+import com.axelor.apps.sale.db.Declaration;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
+import com.axelor.apps.sale.exception.BlockedDeclarationException;
 import com.axelor.apps.supplychain.exception.SupplychainExceptionMessage;
 import com.axelor.i18n.I18n;
 import com.google.common.base.Strings;
@@ -47,7 +47,7 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
     implements AccountingSituationSupplychainService {
 
   protected AppAccountService appAccountService;
-  protected SaleOrderRepository saleOrderRepository;
+  protected DeclarationRepository declarationRepository;
   protected InvoicePaymentRepository invoicePaymentRepository;
 
   @Inject
@@ -57,11 +57,11 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
       AccountingSituationRepository accountingSituationRepo,
       CompanyRepository companyRepo,
       AppAccountService appAccountService,
-      SaleOrderRepository saleOrderRepository,
+      DeclarationRepository declarationRepository,
       InvoicePaymentRepository invoicePaymentRepository) {
     super(accountConfigService, paymentModeService, accountingSituationRepo, companyRepo);
     this.appAccountService = appAccountService;
-    this.saleOrderRepository = saleOrderRepository;
+    this.declarationRepository = declarationRepository;
     this.invoicePaymentRepository = invoicePaymentRepository;
   }
 
@@ -100,34 +100,34 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
   @Override
   @Transactional(
       rollbackOn = {AxelorException.class, Exception.class},
-      ignore = {BlockedSaleOrderException.class})
-  public void updateCustomerCreditFromSaleOrder(SaleOrder saleOrder) throws AxelorException {
+      ignore = {BlockedDeclarationException.class})
+  public void updateCustomerCreditFromDeclaration(Declaration declaration) throws AxelorException {
 
     if (!appAccountService.getAppAccount().getManageCustomerCredit()) {
       return;
     }
 
-    Partner partner = saleOrder.getClientPartner();
+    Partner partner = declaration.getClientPartner();
     List<AccountingSituation> accountingSituationList = partner.getAccountingSituationList();
     for (AccountingSituation accountingSituation : accountingSituationList) {
-      if (accountingSituation.getCompany().equals(saleOrder.getCompany())) {
+      if (accountingSituation.getCompany().equals(declaration.getCompany())) {
         // Update UsedCredit
         accountingSituation = this.computeUsedCredit(accountingSituation);
-        if (saleOrder.getStatusSelect() == SaleOrderRepository.STATUS_DRAFT_QUOTATION) {
-          BigDecimal inTaxInvoicedAmount = getInTaxInvoicedAmount(saleOrder);
+        if (declaration.getStatusSelect() == DeclarationRepository.STATUS_DRAFT_QUOTATION) {
+          BigDecimal inTaxInvoicedAmount = getInTaxInvoicedAmount(declaration);
 
           BigDecimal usedCredit =
               accountingSituation
                   .getUsedCredit()
-                  .add(saleOrder.getInTaxTotal())
+                  .add(declaration.getInTaxTotal())
                   .subtract(inTaxInvoicedAmount);
 
           accountingSituation.setUsedCredit(usedCredit);
         }
         boolean usedCreditExceeded = isUsedCreditExceeded(accountingSituation);
         if (usedCreditExceeded) {
-          saleOrder.setBlockedOnCustCreditExceed(true);
-          if (!saleOrder.getManualUnblock()) {
+          declaration.setBlockedOnCustCreditExceed(true);
+          if (!declaration.getManualUnblock()) {
             String message = accountingSituation.getCompany().getOrderBloquedMessage();
             if (Strings.isNullOrEmpty(message)) {
               message =
@@ -135,9 +135,9 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
                       I18n.get(
                           SupplychainExceptionMessage.SALE_ORDER_CLIENT_PARTNER_EXCEEDED_CREDIT),
                       partner.getFullName(),
-                      saleOrder.getSaleOrderSeq());
+                      declaration.getDeclarationSeq());
             }
-            throw new BlockedSaleOrderException(accountingSituation, message);
+            throw new BlockedDeclarationException(accountingSituation, message);
           }
         }
       }
@@ -148,18 +148,18 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
   public AccountingSituation computeUsedCredit(AccountingSituation accountingSituation)
       throws AxelorException {
     BigDecimal sum = BigDecimal.ZERO;
-    List<SaleOrder> saleOrderList =
-        saleOrderRepository
+    List<Declaration> declarationList =
+        declarationRepository
             .all()
             .filter(
                 "self.company = ?1 AND self.clientPartner = ?2 AND self.statusSelect > ?3 AND self.statusSelect < ?4",
                 accountingSituation.getCompany(),
                 accountingSituation.getPartner(),
-                SaleOrderRepository.STATUS_DRAFT_QUOTATION,
-                SaleOrderRepository.STATUS_CANCELED)
+                DeclarationRepository.STATUS_DRAFT_QUOTATION,
+                DeclarationRepository.STATUS_CANCELED)
             .fetch();
-    for (SaleOrder saleOrder : saleOrderList) {
-      sum = sum.add(saleOrder.getInTaxTotal().subtract(getInTaxInvoicedAmount(saleOrder)));
+    for (Declaration declaration : declarationList) {
+      sum = sum.add(declaration.getInTaxTotal().subtract(getInTaxInvoicedAmount(declaration)));
     }
     // subtract the amount of payments if there is no move created for
     // invoice payments
@@ -200,14 +200,14 @@ public class AccountingSituationSupplychainServiceImpl extends AccountingSituati
   /**
    * Compute the invoiced amount of the taxed amount of the invoice.
    *
-   * @param saleOrder
+   * @param declaration
    * @return the tax invoiced amount
    */
-  protected BigDecimal getInTaxInvoicedAmount(SaleOrder saleOrder) {
-    BigDecimal exTaxTotal = saleOrder.getExTaxTotal();
-    BigDecimal inTaxTotal = saleOrder.getInTaxTotal();
+  protected BigDecimal getInTaxInvoicedAmount(Declaration declaration) {
+    BigDecimal exTaxTotal = declaration.getExTaxTotal();
+    BigDecimal inTaxTotal = declaration.getInTaxTotal();
 
-    BigDecimal exTaxAmountInvoiced = saleOrder.getAmountInvoiced();
+    BigDecimal exTaxAmountInvoiced = declaration.getAmountInvoiced();
     if (exTaxTotal.compareTo(BigDecimal.ZERO) == 0) {
       return BigDecimal.ZERO;
     } else {

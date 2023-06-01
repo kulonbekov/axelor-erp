@@ -53,7 +53,7 @@
   </action-view>
 
   <action-method name="action-sale-order-method-add-pack">
-    <call class="com.axelor.apps.sale.web.SaleOrderController" method="addPack"/>
+    <call class="com.axelor.apps.sale.web.DeclarationController" method="addPack"/>
   </action-method>
 
   <action-attrs name="action-sale-order-add-pack-attrs-onload">
@@ -62,7 +62,7 @@
   </action-attrs>
 
   <action-record name="action-pack-record-onnew" model="com.axelor.apps.sale.db.Pack">
-    <field name="currency" expr="eval: __repo__(SaleOrder).find(__parent__._id)?.currency"
+    <field name="currency" expr="eval: __repo__(Declaration).find(__parent__._id)?.currency"
       if="__parent__"/>
   </action-record>
 

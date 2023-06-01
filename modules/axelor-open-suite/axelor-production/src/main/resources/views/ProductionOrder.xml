@@ -15,7 +15,7 @@
     <field name="clientPartner" form-view="partner-form" grid-view="partner-grid"
       domain="self.isCustomer = true" canEdit="false"
       onChange="action-production-order-atts-sale-order-onchange-client-partner"/>
-    <field name="saleOrder" form-view="sale-order-form" grid-view="sale-order-grid"
+    <field name="declaration" form-view="sale-order-form" grid-view="sale-order-grid"
       onSelect="action-production-order-attrs-sale-order-onselect" canEdit="false"
       onChange="action-production-order-record-client-partner-onchange-sale-order"/>
     <field name="project" if-module="axelor-business-production" form-view="project-form"
@@ -47,7 +47,7 @@
       <field name="clientPartner" form-view="partner-form" grid-view="partner-grid"
         domain="self.isCustomer = true" canEdit="false"
         onChange="action-production-order-atts-sale-order-onchange-client-partner"/>
-      <field name="saleOrder" form-view="sale-order-form" grid-view="sale-order-grid"
+      <field name="declaration" form-view="sale-order-form" grid-view="sale-order-grid"
         onSelect="action-production-order-attrs-sale-order-onselect" canEdit="false"
         onChange="action-production-order-record-client-partner-onchange-sale-order"/>
       <field name="project" if-module="axelor-business-production" form-view="project-form"
@@ -137,21 +137,21 @@
   </action-record>
 
   <action-attrs name="action-production-order-atts-sale-order-onchange-client-partner">
-    <attribute name="value" expr="eval:null" for="saleOrder"
-      if="saleOrder?.clientPartner != clientPartner"/>
+    <attribute name="value" expr="eval:null" for="declaration"
+      if="declaration?.clientPartner != clientPartner"/>
   </action-attrs>
 
   <action-record
     name="action-production-order-record-client-partner-onchange-sale-order"
     model="com.axelor.apps.production.db.ProductionOrder">
-    <field name="clientPartner" expr="eval: saleOrder?.clientPartner"/>
+    <field name="clientPartner" expr="eval: declaration?.clientPartner"/>
   </action-record>
 
   <action-attrs name="action-production-order-attrs-sale-order-onselect">
     <attribute if="clientPartner != null" name="domain"
-      expr="self.clientPartner = :clientPartner AND self.statusSelect = 3" for="saleOrder"/>
+      expr="self.clientPartner = :clientPartner AND self.statusSelect = 3" for="declaration"/>
     <attribute if="clientPartner == null" name="domain" expr="self.statusSelect = 3"
-      for="saleOrder"/>
+      for="declaration"/>
   </action-attrs>
 
   <action-view name="action-production-order-view-operation-order"

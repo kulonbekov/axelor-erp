@@ -32,9 +32,9 @@ import com.axelor.apps.production.db.Sop;
 import com.axelor.apps.production.db.SopLine;
 import com.axelor.apps.production.db.repo.SopLineRepository;
 import com.axelor.apps.production.db.repo.SopRepository;
-import com.axelor.apps.sale.db.SaleOrderLine;
-import com.axelor.apps.sale.db.repo.SaleOrderLineRepository;
-import com.axelor.apps.sale.db.repo.SaleOrderRepository;
+import com.axelor.apps.sale.db.DeclarationLine;
+import com.axelor.apps.sale.db.repo.DeclarationLineRepository;
+import com.axelor.apps.sale.db.repo.DeclarationRepository;
 import com.axelor.apps.stock.db.StockLocation;
 import com.axelor.db.JPA;
 import com.axelor.db.Query;
@@ -54,7 +54,7 @@ public class SopServiceImpl implements SopService {
   protected AppBaseService appBaseService;
   protected SopRepository sopRepo;
   protected PeriodRepository periodRepo;
-  protected SaleOrderLineRepository saleOrderLineRepo;
+  protected DeclarationLineRepository declarationLineRepo;
   protected SopLineRepository sopLineRepo;
   protected CurrencyService currencyService;
   protected CurrencyRepository currencyRepo;
@@ -64,14 +64,14 @@ public class SopServiceImpl implements SopService {
   SopServiceImpl(
       SopRepository sopRepo,
       PeriodRepository periodRepo,
-      SaleOrderLineRepository saleOrderLineRepo,
+      DeclarationLineRepository declarationLineRepo,
       SopLineRepository sopLineRepo,
       CurrencyService currencyService,
       AppBaseService appBaseService,
       CurrencyRepository currencyRepo) {
     this.sopRepo = sopRepo;
     this.periodRepo = periodRepo;
-    this.saleOrderLineRepo = saleOrderLineRepo;
+    this.declarationLineRepo = declarationLineRepo;
     this.sopLineRepo = sopLineRepo;
     this.currencyService = currencyService;
     this.appBaseService = appBaseService;
@@ -144,8 +144,8 @@ public class SopServiceImpl implements SopService {
     }
     Currency actualCurrency = company.getCurrency();
     ArrayList<Integer> statusList = new ArrayList<Integer>();
-    statusList.add(SaleOrderRepository.STATUS_ORDER_COMPLETED);
-    statusList.add(SaleOrderRepository.STATUS_ORDER_CONFIRMED);
+    statusList.add(DeclarationRepository.STATUS_ORDER_COMPLETED);
+    statusList.add(DeclarationRepository.STATUS_ORDER_CONFIRMED);
 
     List<Long> stockLocationIds =
         stockLocationSet.stream()
@@ -153,48 +153,48 @@ public class SopServiceImpl implements SopService {
             .collect(Collectors.toList());
 
     BigDecimal exTaxSum = BigDecimal.ZERO;
-    Query<SaleOrderLine> query =
-        saleOrderLineRepo
+    Query<DeclarationLine> query =
+        declarationLineRepo
             .all()
             .filter(
-                "self.saleOrder.company = ?1 "
-                    + "AND self.saleOrder.statusSelect in (?2) "
+                "self.declaration.company = ?1 "
+                    + "AND self.declaration.statusSelect in (?2) "
                     + "AND self.product.productCategory = ?3 "
-                    + "AND self.saleOrder.stockLocation.id in (?4)",
+                    + "AND self.declaration.stockLocation.id in (?4)",
                 company,
                 statusList,
                 category,
                 stockLocationIds)
             .order("id");
     int offset = 0;
-    List<SaleOrderLine> saleOrderLineList;
-    while (!(saleOrderLineList = query.fetch(FETCH_LIMIT, offset)).isEmpty()) {
+    List<DeclarationLine> declarationLineList;
+    while (!(declarationLineList = query.fetch(FETCH_LIMIT, offset)).isEmpty()) {
       offset += FETCH_LIMIT;
       actualCurrency = currencyRepo.find(actualCurrency.getId());
-      for (SaleOrderLine saleOrderLine : saleOrderLineList) {
+      for (DeclarationLine declarationLine : declarationLineList) {
         LocalDate usedDate =
-            saleOrderLine.getDesiredDeliveryDate() != null
-                ? saleOrderLine.getDesiredDeliveryDate()
-                : saleOrderLine.getEstimatedShippingDate() != null
-                    ? saleOrderLine.getEstimatedShippingDate()
-                    : saleOrderLine.getSaleOrder().getEstimatedShippingDate() != null
-                        ? saleOrderLine.getSaleOrder().getEstimatedShippingDate()
-                        : saleOrderLine.getSaleOrder().getConfirmationDateTime().toLocalDate();
+            declarationLine.getDesiredDeliveryDate() != null
+                ? declarationLine.getDesiredDeliveryDate()
+                : declarationLine.getEstimatedShippingDate() != null
+                    ? declarationLine.getEstimatedShippingDate()
+                    : declarationLine.getDeclaration().getEstimatedShippingDate() != null
+                        ? declarationLine.getDeclaration().getEstimatedShippingDate()
+                        : declarationLine.getDeclaration().getConfirmationDateTime().toLocalDate();
 
         if (usedDate.isAfter(fromDate) && usedDate.isBefore(toDate)) {
-          if (saleOrderLine.getSaleOrder().getCurrency().equals(actualCurrency)) {
+          if (declarationLine.getDeclaration().getCurrency().equals(actualCurrency)) {
             exTaxSum =
                 exTaxSum
-                    .add(saleOrderLine.getExTaxTotal().multiply(sopLine.getSop().getGrowthCoef()))
+                    .add(declarationLine.getExTaxTotal().multiply(sopLine.getSop().getGrowthCoef()))
                     .setScale(2, RoundingMode.HALF_UP);
           } else {
             exTaxSum =
                 exTaxSum.add(
                     currencyService
                         .getAmountCurrencyConvertedAtDate(
-                            saleOrderLine.getSaleOrder().getCurrency(),
+                            declarationLine.getDeclaration().getCurrency(),
                             actualCurrency,
-                            saleOrderLine.getExTaxTotal(),
+                            declarationLine.getExTaxTotal(),
                             today)
                         .multiply(sopLine.getSop().getGrowthCoef())
                         .setScale(2, RoundingMode.HALF_UP));

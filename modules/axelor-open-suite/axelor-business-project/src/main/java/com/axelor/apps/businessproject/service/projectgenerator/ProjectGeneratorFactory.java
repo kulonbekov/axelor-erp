@@ -27,7 +27,7 @@ import com.axelor.apps.businessproject.service.projectgenerator.factory.ProjectG
 import com.axelor.apps.businessproject.service.projectgenerator.factory.ProjectGeneratorFactoryTaskTemplate;
 import com.axelor.apps.project.db.Project;
 import com.axelor.apps.project.db.ProjectGeneratorType;
-import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.apps.sale.db.Declaration;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
 import com.axelor.meta.schema.actions.ActionView.ActionViewBuilder;
@@ -38,15 +38,15 @@ public interface ProjectGeneratorFactory {
   /**
    * Create and fill project from sale order.
    *
-   * @param saleOrder Use for generate project.
+   * @param declaration Use for generate project.
    * @param localDateTime The date to use for create project's elements.
    * @return The project generate.
    * @throws AxelorException If a error occur on creating or filling.
    */
-  default Project generate(SaleOrder saleOrder, LocalDateTime localDateTime)
+  default Project generate(Declaration declaration, LocalDateTime localDateTime)
       throws AxelorException {
-    Project project = create(saleOrder);
-    fill(project, saleOrder, localDateTime);
+    Project project = create(declaration);
+    fill(project, declaration, localDateTime);
     return project;
   }
 
@@ -77,21 +77,21 @@ public interface ProjectGeneratorFactory {
   /**
    * Create the project from sale order.
    *
-   * @param saleOrder Sale order to be use for create project.
+   * @param declaration Sale order to be use for create project.
    * @return The new project create.
    * @throws AxelorException If a error occur on creating.
    */
-  Project create(SaleOrder saleOrder) throws AxelorException;
+  Project create(Declaration declaration) throws AxelorException;
 
   /**
    * Fill the project with elements from sale order.
    *
    * @param project Project to be fill.
-   * @param saleOrder Sale order to be use for fill project.
+   * @param declaration Sale order to be use for fill project.
    * @param localDateTime The date to use for create project's elements.
    * @return The project fill with elements from sale order.
    * @throws AxelorException If a error occur on filling.
    */
-  ActionViewBuilder fill(Project project, SaleOrder saleOrder, LocalDateTime localDateTime)
+  ActionViewBuilder fill(Project project, Declaration declaration, LocalDateTime localDateTime)
       throws AxelorException;
 }

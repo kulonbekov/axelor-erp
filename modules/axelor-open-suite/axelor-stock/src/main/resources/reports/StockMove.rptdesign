@@ -1016,21 +1016,21 @@ ToStockLocationAddress.full_name as "to_stock_location_address",
 FromStockLocation.name as "from_stock_location_name",
 ToStockLocation.name as "to_stock_location_name",
 CASE
-	WHEN StockMove.origin_type_select LIKE '%SaleOrder' THEN SaleOrder.sale_order_seq 
+	WHEN StockMove.origin_type_select LIKE '%Declaration' THEN Declaration.sale_order_seq 
 	WHEN StockMove.origin_type_select LIKE '%PurchaseOrder' THEN PurchaseOrder.purchase_order_seq
 END
 as "origin",
 CASE
-	WHEN StockMove.origin_type_select LIKE '%SaleOrder' THEN SaleOrder.external_reference
+	WHEN StockMove.origin_type_select LIKE '%Declaration' THEN Declaration.external_reference
 	WHEN StockMove.origin_type_select LIKE '%PurchaseOrder' THEN PurchaseOrder.external_reference
 END
 as "externalReference",
 CASE
-	WHEN StockMove.origin_type_select LIKE '%SaleOrder' THEN SaleOrder.main_invoicing_address_str
+	WHEN StockMove.origin_type_select LIKE '%Declaration' THEN Declaration.main_invoicing_address_str
 END
 as "invoicingAddress",
 CASE
-	WHEN StockMove.origin_type_select LIKE '%SaleOrder' THEN SaleOrder.order_date
+	WHEN StockMove.origin_type_select LIKE '%Declaration' THEN Declaration.order_date
 	WHEN StockMove.origin_type_select LIKE '%PurchaseOrder' THEN PurchaseOrder.order_date
 END
 as "orderDate",
@@ -1053,7 +1053,7 @@ left outer join base_country as Country on (DeliveryAddress.addressl7country = C
 left outer join auth_user as AuthUser on (StockMove.updated_by = AuthUser.id)
 left outer join auth_user as AuthUserCreate on (StockMove.created_by = AuthUserCreate.id)
 left outer join base_printing_settings as PrintingSetting on (StockMove.printing_settings = PrintingSetting.id)
-left outer join sale_sale_order as SaleOrder on (StockMove.origin_id = SaleOrder.id)
+left outer join sale_sale_order as Declaration on (StockMove.origin_id = Declaration.id)
 left outer join purchase_purchase_order as PurchaseOrder on (StockMove.origin_id = PurchaseOrder.id)
 left outer join stock_stock_location as fromStockLocation on (StockMove.from_stock_location = FromStockLocation.id)
 left outer join stock_stock_location as ToStockLocation on (StockMove.to_stock_location = ToStockLocation.id)
@@ -1694,7 +1694,7 @@ StockMoveLine.real_qty as qty,
 StockMoveLine.unit_price_untaxed,
 Currency.code as currencyCode,
 StockMoveLine.sequence,
-(SaleOrderLine.type_select = 2 or PurchaseOrderLine.is_title_line) as "isTitleLine",
+(DeclarationLine.type_select = 2 or PurchaseOrderLine.is_title_line) as "isTitleLine",
 Product.code as product_code,
 ProductCategory.code as product_category_code,
 CustomerCatalog.product_customer_code as "customerProductCode",
@@ -1712,15 +1712,15 @@ left join base_product as Product on (StockMoveLine.product = Product.id)
 left outer join base_product_category as ProductCategory on (Product.product_category = ProductCategory.id)
 left join base_unit as Unit on (StockMoveLine.unit = Unit.id)
 left join stock_tracking_number as TrackingNumber on (StockMoveLine.tracking_number = TrackingNumber.id)
-left outer join sale_sale_order_line as SaleOrderLine on (SaleOrderLine.id = StockMoveLine.sale_order_line)
+left outer join sale_sale_order_line as DeclarationLine on (DeclarationLine.id = StockMoveLine.sale_order_line)
 left outer join purchase_purchase_order_line as PurchaseOrderLine on (PurchaseOrderLine.id = StockMoveLine.purchase_order_line) 
 left join base_currency as Currency on (Currency.id = 
 (select CASE
-	WHEN SM.origin_type_select LIKE '%SaleOrder' THEN SaleOrder.currency 
+	WHEN SM.origin_type_select LIKE '%Declaration' THEN Declaration.currency 
 	WHEN SM.origin_type_select LIKE '%PurchaseOrder' THEN PurchaseOrder.currency
 	WHEN SM.origin_type_select LIKE '%Inventory' THEN Company.currency
 END as currency from stock_stock_move as SM 
-left join sale_sale_order as SaleOrder on (SaleOrder.id = SaleOrderLine.sale_order)
+left join sale_sale_order as Declaration on (Declaration.id = DeclarationLine.sale_order)
 left join purchase_purchase_order as PurchaseOrder on (PurchaseOrder.id = PurchaseOrderLine.purchase_order) 
 where SM.id = StockMove.id))
 left outer join sale_customer_catalog as CustomerCatalog on (CustomerCatalog.product = Product.id and CustomerCatalog.customer_partner = StockMove.partner) 

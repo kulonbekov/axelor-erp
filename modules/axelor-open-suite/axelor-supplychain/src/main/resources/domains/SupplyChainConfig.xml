@@ -23,7 +23,7 @@
     <boolean name="autoAllocateOnAvailabilityRequest"
       title="Auto allocate during an availability request"/>
 
-    <integer name="saleOrderReservationDateSelect"
+    <integer name="declarationReservationDateSelect"
       selection="supplychain.sale.order.reservation.date.field"
       title="Sale order date used for stock reservation" default="0"/>
 
@@ -70,7 +70,7 @@
       <field name="autoRequestReservedQty" on="UPDATE"/>
       <field name="autoAllocateOnAvailabilityRequest" on="UPDATE"/>
 
-      <field name="saleOrderReservationDateSelect" on="UPDATE"/>
+      <field name="declarationReservationDateSelect" on="UPDATE"/>
 
       <field name="defaultEstimatedDate" on="UPDATE"/>
 

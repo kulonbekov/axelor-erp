@@ -445,7 +445,7 @@
     <action name="action-event-record-event-from-lead" if="_lead != null"/>
     <action name="action-event-record-event-from-partner" if="_partner != null"/>
     <action name="action-event-record-task-status-select" if="typeSelect == 3"/>
-    <action name="action-event-record-event-from-sale-order" if="_saleOrder != null"/>
+    <action name="action-event-record-event-from-sale-order" if="_declaration != null"/>
     <action name="action-event-method-add-guest"/>
     <action name="action-event-record-event-from-opportunity" if="_opportunity != null"/>
   </action-group>
@@ -560,10 +560,10 @@
       expr="eval:_clientPartner?.id != null ? __repo__(Partner).find(_clientPartner.id) : _clientPartner"/>
     <field name="contactPartner"
       expr="eval:_contactPartner?.id != null ? __repo__(Partner).find(_contactPartner.id) : _contactPartner"/>
-    <field if="_saleOrder.id != null" name="relatedToSelect"
-      expr="eval:'com.axelor.apps.sale.db.SaleOrder'"/>
-    <field name="relatedToSelectId" expr="eval:_saleOrder.id"/>
-    <field name="team" expr="eval:_saleOrder.team" if="_saleOrder != null"/>
+    <field if="_declaration.id != null" name="relatedToSelect"
+      expr="eval:'com.axelor.apps.sale.db.Declaration'"/>
+    <field name="relatedToSelectId" expr="eval:_declaration.id"/>
+    <field name="team" expr="eval:_declaration.team" if="_declaration != null"/>
     <field name="organizer"
       expr="call:com.axelor.apps.crm.web.ICalendarUserController:findUser(__user__)"/>
   </action-record>

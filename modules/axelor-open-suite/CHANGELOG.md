@@ -131,7 +131,7 @@ closedWinOpportunityStatus, closedLostOpportunityStatus, salesPropositionStatus 
 * Removed axelor-project-dms module.
 * Removed axelor-mobile module (replaced by axelor-mobile-settings).
 * Removed Querie model.
-* SaleOrder: removed following unused fields:
+* Declaration: removed following unused fields:
     * `invoicedFirstDate`
     * `nextInvPeriodStartDate`
 * PaymentSession: removed cancellationDate field.

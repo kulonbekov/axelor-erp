@@ -10,11 +10,11 @@
       required="true" unique="true"/>
 
     <decimal name="acceptedCredit" title="Accepted Credit"/>
-    <integer name="saleOrderInAtiSelect" title="Sale orders ATI/WT"
+    <integer name="declarationInAtiSelect" title="Sale orders ATI/WT"
       selection="base.in.ati.select" default="1"/>
-    <string name="saleOrderClientBox" large="true" multiline="true"
+    <string name="declarationClientBox" large="true" multiline="true"
       title="Client box in sale order"/>
-    <string name="saleOrderLegalNote" large="true" multiline="true"
+    <string name="declarationLegalNote" large="true" multiline="true"
       title="Legal note on sale order" help="Short legal note to be displayed on sales order"/>
     <boolean name="displaySalemanOnPrinting" title="Display saleman on printing"/>
     <boolean name="displayDelCondOnPrinting" title="Display delivery condition on printing"/>
@@ -33,7 +33,7 @@
 
     <track>
       <field name="company" on="UPDATE"/>
-      <field name="saleOrderInAtiSelect" on="UPDATE"/>
+      <field name="declarationInAtiSelect" on="UPDATE"/>
       <field name="defaultValidityDuration" on="UPDATE"/>
       <field name="acceptedCredit" on="UPDATE"/>
       <field name="displaySalemanOnPrinting" on="UPDATE"/>
@@ -43,8 +43,8 @@
       <field name="displayEstimShipDateOnPrinting" on="UPDATE"/>
       <field name="displayCustomerCodeOnPrinting" on="UPDATE"/>
       <field name="displayProductPictureOnPrinting" on="UPDATE"/>
-      <field name="saleOrderClientBox" on="UPDATE"/>
-      <field name="saleOrderLegalNote" on="UPDATE"/>
+      <field name="declarationClientBox" on="UPDATE"/>
+      <field name="declarationLegalNote" on="UPDATE"/>
       <field name="isAnalyticDistributionRequired" on="UPDATE"/>
     </track>
   </entity>

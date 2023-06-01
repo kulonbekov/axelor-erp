@@ -7,7 +7,7 @@
 
   <entity sequential="true" name="Invoice">
 
-    <many-to-one name="saleOrder" ref="com.axelor.apps.sale.db.SaleOrder"
+    <many-to-one name="declaration" ref="com.axelor.apps.sale.db.Declaration"
       title="Sale order"/>
     <many-to-one name="purchaseOrder" ref="com.axelor.apps.purchase.db.PurchaseOrder"
       title="Purchase order"/>
